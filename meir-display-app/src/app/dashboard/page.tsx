@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/calculations';
-import { STATUS_LABELS, STATUS_COLOURS } from '@/lib/types';
+import { STATUS_LABELS, STATUS_COLOURS, type RequestStatus } from '@/lib/types';
 
 interface Request {
   id: string;
@@ -203,8 +203,8 @@ export default function DashboardPage() {
                 <tbody>
                   {requests.map((request, index) => {
                     const action = getActionLink(request);
-                    const statusColor = STATUS_COLOURS[request.status] || 'gray';
-                    const statusLabel = STATUS_LABELS[request.status] || request.status;
+                    const statusColor = STATUS_COLOURS[request.status as RequestStatus] || 'gray';
+                    const statusLabel = STATUS_LABELS[request.status as RequestStatus] || request.status;
                     const formattedDate = new Date(request.created_at).toLocaleDateString('en-GB', {
                       year: 'numeric',
                       month: 'short',
