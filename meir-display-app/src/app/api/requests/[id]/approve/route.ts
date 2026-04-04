@@ -23,10 +23,10 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user role
+    // Get user role and name
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('role')
+      .select('role, name')
       .eq('id', user.id)
       .single();
 
@@ -38,6 +38,7 @@ export async function POST(
     }
 
     const role = userData.role;
+    const approverName = userData.name || user.email || 'Unknown';
 
     // Parse request body
     const body = await request.json();
@@ -128,7 +129,7 @@ export async function POST(
 
         // If override, send discrete alert (approver does not know)
         if (updatedRequest.was_override) {
-          await sendOverrideAlertEmail(updatedRequest);
+          await sendOverrideAlertEmail(updatedRequest, approverName);
         }
       } catch (emailError) {
         console.error('Error sending approval emails:', emailError);
