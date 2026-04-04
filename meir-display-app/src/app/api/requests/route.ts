@@ -23,43 +23,50 @@ export async function POST(request: NextRequest) {
     // Calculate all derived financial fields
     const financials = calculateFinancials(body);
 
-    // Prepare request data with percentage conversion (5 -> 0.05)
+    // Prepare request data
     const requestData = {
       submitted_by: user.id,
       submitted_at: new Date().toISOString(),
       status: 'submitted',
 
-      // Basic info
-      display_name: body.displayName,
-      brand_name: body.brandName,
-      department: body.department,
-      request_date: body.requestDate,
+      // Store info (snake_case from RequestFormInput)
+      store_name: body.store_name,
+      store_code: body.store_code,
+      rep_name: body.rep_name,
+      brand_tier: body.brand_tier,
+      display_type: body.display_type,
+      display_reason: body.display_reason,
 
-      // Display specs
-      display_type: body.displayType,
-      dimensions: body.dimensions,
-      quantity: body.quantity,
-      setup_date: body.setupDate,
-      location: body.location,
-
-      // Financial inputs (convert percentages to decimals)
-      unit_cost: body.unitCost,
-      list_price: body.listPrice,
-      std_discount_pct: body.stdDiscountPct / 100,
-      additional_discount_pct: body.additionalDiscountPct / 100,
-      display_allowance_pct: body.displayAllowancePct / 100,
-      broker_commission_pct: body.brokerCommissionPct / 100,
+      // Financial inputs (percentages already as numbers from RequestFormInput)
+      rebate_pct: body.rebate_pct / 100,
+      cogs_pct: body.cogs_pct / 100,
+      board_labour_cost: body.board_labour_cost,
+      forecast_revenue: body.forecast_revenue,
+      rep_hours_monthly: body.rep_hours_monthly,
+      free_samples_cost: body.free_samples_cost,
+      catalogues_qty: body.catalogues_qty,
+      product_cogs: body.product_cogs,
+      photos_link: body.photos_link || null,
+      comments: body.comments || null,
 
       // Calculated financial outputs
-      gross_profit: financials.grossProfit,
-      gross_margin: financials.grossMargin,
-      net_contribution: financials.netContribution,
-      net_margin: financials.netMargin,
-      profitability_flag: financials.profitabilityFlag,
-      approval_tier: financials.approvalTier,
+      total_investment: financials.total_investment,
+      revenue_after_discount: financials.revenue_after_discount,
+      rebate_cost: financials.rebate_cost,
+      cogs_on_sales: financials.cogs_on_sales,
+      est_orders: financials.est_orders,
+      order_processing: financials.order_processing,
+      rep_visit_cost: financials.rep_visit_cost,
+      catalogue_cost: financials.catalogue_cost,
+      total_costs: financials.total_costs,
+      gross_profit: financials.gross_profit,
+      gross_margin: financials.gross_margin,
+      net_contribution: financials.net_contribution,
+      net_margin: financials.net_margin,
+      profitability_flag: financials.profitability_flag,
+      approval_tier: financials.approval_tier,
 
       // Additional fields
-      notes: body.notes || null,
       approval_note: null,
       validation_note: null,
       was_override: false,
@@ -90,7 +97,6 @@ export async function POST(request: NextRequest) {
         request_id: displayRequest.id,
         sku_code: sku.code,
         sku_name: sku.name,
-        quantity: sku.quantity,
       }));
 
       const { error: skuError } = await serviceSupabase
@@ -125,7 +131,6 @@ export async function POST(request: NextRequest) {
       await sendValidationEmail(displayRequest);
     } catch (emailError) {
       console.error('Error sending validation email:', emailError);
-      // Don't fail the request if email fails
     }
 
     return NextResponse.json({ id: displayRequest.id }, { status: 201 });
@@ -142,7 +147,6 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Check authentication
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -151,7 +155,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user role
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('role')
@@ -166,36 +169,24 @@ export async function GET(request: NextRequest) {
     }
 
     const role = userData.role;
-
-    // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Build query based on role
     let query = supabase
       .from('display_requests')
-      .select(
-        `
-        *,
-        display_skus (*)
-      `,
-        { count: 'exact' }
-      )
+      .select('*, display_skus (*)', { count: 'exact' })
       .order('submitted_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (role === 'rep') {
-      // Reps see only their own requests
       query = query.eq('submitted_by', user.id);
     } else if (role === 'validator') {
-      // Validators see their work queue (submitted/queried) plus all for browsing
       query = query.or(
         `status.eq.submitted,status.eq.queried,submitted_by.eq.${user.id}`
       );
     }
-    // admin, manager, cfo, coo see all requests
 
     if (status) {
       query = query.eq('status', status);
@@ -211,7 +202,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Strip financial fields for reps
     let processedRequests = requests || [];
     if (role === 'rep') {
       processedRequests = processedRequests.map((req: any) => {
@@ -223,11 +213,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         data: processedRequests,
-        pagination: {
-          count,
-          limit,
-          offset,
-        },
+        pagination: { count, limit, offset },
       },
       { status: 200 }
     );
