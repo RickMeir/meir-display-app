@@ -69,7 +69,7 @@ export default function NewRequestPage() {
         setCurrentUser(user.email);
         setFormData((prev) => ({
           ...prev,
-          salesRep: user.email,
+          salesRep: user.email!,
         }));
       }
 
