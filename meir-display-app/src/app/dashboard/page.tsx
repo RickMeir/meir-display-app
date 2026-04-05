@@ -65,7 +65,8 @@ export default function DashboardPage() {
           throw new Error('Failed to fetch requests');
         }
 
-        const requestsData = await requestsResponse.json();
+        const requestsJson = await requestsResponse.json();
+        const requestsData = requestsJson.data || [];
         setRequests(requestsData);
 
         const activeDisplays = requestsData.filter((r: Request) => r.status === 'approved').length;
