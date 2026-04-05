@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
+interface Product {
+  sku_code: string;
+  sku_name: string;
+}
+
 interface SKURow {
   id: string;
   code: string;
@@ -18,17 +23,29 @@ interface FormData {
   displayType: string;
   displayReason: string;
   rebatePercentage: number | '';
-  cogsDiscountPercentage: number | '';
-  boardAndLabourCost: number | '';
+  clientDiscountPercentage: number | '';
+  boardCost: number | '';
+  labourCost: number | '';
   salesForecast12Month: number | '';
   repHoursPerMonth: number | '';
-  freeSamplesAndGifts: number | '';
+  freeSamples: number | '';
+  gifts: number | '';
   cataloguesPerYear: number | '';
-  displayProductCogs: number | '';
-  photosLink: string;
   comments: string;
   skus: SKURow[];
 }
+
+const NUMERIC_FIELDS = [
+  'rebatePercentage',
+  'clientDiscountPercentage',
+  'boardCost',
+  'labourCost',
+  'salesForecast12Month',
+  'repHoursPerMonth',
+  'freeSamples',
+  'gifts',
+  'cataloguesPerYear',
+];
 
 export default function NewRequestPage() {
   const router = useRouter();
@@ -37,6 +54,7 @@ export default function NewRequestPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [currentUser, setCurrentUser] = useState<string>('');
+  const [products, setProducts] = useState<Product[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
     storeName: '',
@@ -46,21 +64,23 @@ export default function NewRequestPage() {
     displayType: '',
     displayReason: '',
     rebatePercentage: '',
-    cogsDiscountPercentage: '',
-    boardAndLabourCost: '',
+    clientDiscountPercentage: '',
+    boardCost: '',
+    labourCost: '',
     salesForecast12Month: '',
     repHoursPerMonth: '',
-    freeSamplesAndGifts: '',
+    freeSamples: '',
+    gifts: '',
     cataloguesPerYear: '',
-    displayProductCogs: '',
-    photosLink: '',
     comments: '',
     skus: [{ id: '1', code: '', name: '' }],
   });
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const init = async () => {
       const supabase = createClient();
+
+      // Fetch current user
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -73,40 +93,49 @@ export default function NewRequestPage() {
         }));
       }
 
+      // Fetch product list for SKU dropdown
+      try {
+        const res = await fetch('/api/products');
+        if (res.ok) {
+          const json = await res.json();
+          setProducts(json.data || []);
+        }
+      } catch (err) {
+        console.warn('Could not load products list:', err);
+      }
+
       setLoading(false);
     };
 
-    fetchUser();
+    init();
   }, []);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-    index?: number
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: NUMERIC_FIELDS.includes(name)
+        ? value === ''
+          ? ''
+          : parseFloat(value)
+        : value,
+    }));
+  };
 
-    if (name.startsWith('sku')) {
-      const skuIndex = index ?? 0;
-      const field = name.replace(`sku${skuIndex}`, '');
-      const newSkus = [...formData.skus];
-      newSkus[skuIndex] = {
-        ...newSkus[skuIndex],
-        [field]: value,
-      };
-      setFormData((prev) => ({
-        ...prev,
-        skus: newSkus,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: name.includes('Percentage') || name.includes('Cost') || name.includes('Forecast') || name.includes('Hours') || name.includes('Gifts') || name.includes('Year') || name.includes('Cogs')
-          ? value === ''
-            ? ''
-            : parseFloat(value)
-          : value,
-      }));
-    }
+  const handleSkuChange = (index: number, selectedCode: string) => {
+    const newSkus = [...formData.skus];
+    const product = products.find((p) => p.sku_code === selectedCode);
+    newSkus[index] = {
+      ...newSkus[index],
+      code: selectedCode,
+      name: product?.sku_name || '',
+    };
+    setFormData((prev) => ({
+      ...prev,
+      skus: newSkus,
+    }));
   };
 
   const addSKU = () => {
@@ -157,7 +186,7 @@ export default function NewRequestPage() {
     }
     const validSkus = formData.skus.every((sku) => sku.code.trim() && sku.name.trim());
     if (!validSkus) {
-      setError('All SKUs must have both code and name');
+      setError('All SKUs must have a product selected');
       return false;
     }
 
@@ -175,6 +204,15 @@ export default function NewRequestPage() {
     setSubmitting(true);
 
     try {
+      // Combine split fields back into the values the API expects
+      const boardLabourCost =
+        (formData.boardCost === '' ? 0 : formData.boardCost) +
+        (formData.labourCost === '' ? 0 : formData.labourCost);
+
+      const freeSamplesCost =
+        (formData.freeSamples === '' ? 0 : formData.freeSamples) +
+        (formData.gifts === '' ? 0 : formData.gifts);
+
       const payload = {
         store_name: formData.storeName,
         store_code: formData.storeCode,
@@ -183,14 +221,14 @@ export default function NewRequestPage() {
         display_type: formData.displayType,
         display_reason: formData.displayReason,
         rebate_pct: formData.rebatePercentage === '' ? 0 : formData.rebatePercentage,
-        cogs_pct: formData.cogsDiscountPercentage === '' ? 0 : formData.cogsDiscountPercentage,
-        board_labour_cost: formData.boardAndLabourCost === '' ? 0 : formData.boardAndLabourCost,
+        cogs_pct: formData.clientDiscountPercentage === '' ? 0 : formData.clientDiscountPercentage,
+        board_labour_cost: boardLabourCost,
         forecast_revenue: formData.salesForecast12Month === '' ? 0 : formData.salesForecast12Month,
         rep_hours_monthly: formData.repHoursPerMonth === '' ? 0 : formData.repHoursPerMonth,
-        free_samples_cost: formData.freeSamplesAndGifts === '' ? 0 : formData.freeSamplesAndGifts,
+        free_samples_cost: freeSamplesCost,
         catalogues_qty: formData.cataloguesPerYear === '' ? 0 : formData.cataloguesPerYear,
-        product_cogs: formData.displayProductCogs === '' ? 0 : formData.displayProductCogs,
-        photos_link: formData.photosLink,
+        product_cogs: 0, // Calculated from SKUs — not entered manually
+        photos_link: '',
         comments: formData.comments,
         skus: formData.skus.map((sku) => ({
           code: sku.code,
@@ -383,11 +421,11 @@ export default function NewRequestPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">COGS / Discount %</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Client Discount %</label>
                 <input
                   type="number"
-                  name="cogsDiscountPercentage"
-                  value={formData.cogsDiscountPercentage}
+                  name="clientDiscountPercentage"
+                  value={formData.clientDiscountPercentage}
                   onChange={handleInputChange}
                   min="0"
                   max="100"
@@ -398,11 +436,25 @@ export default function NewRequestPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Board and Labour Cost $</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Board Cost $</label>
                 <input
                   type="number"
-                  name="boardAndLabourCost"
-                  value={formData.boardAndLabourCost}
+                  name="boardCost"
+                  value={formData.boardCost}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Labour Cost $</label>
+                <input
+                  type="number"
+                  name="labourCost"
+                  value={formData.labourCost}
                   onChange={handleInputChange}
                   min="0"
                   step="0.01"
@@ -430,7 +482,9 @@ export default function NewRequestPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rep Hours per Month</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Amount of hours you will spend with this client each month
+                </label>
                 <input
                   type="number"
                   name="repHoursPerMonth"
@@ -444,17 +498,34 @@ export default function NewRequestPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Free Samples and Gifts $</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Free Samples $</label>
                 <input
                   type="number"
-                  name="freeSamplesAndGifts"
-                  value={formData.freeSamplesAndGifts}
+                  name="freeSamples"
+                  value={formData.freeSamples}
                   onChange={handleInputChange}
                   min="0"
                   step="0.01"
                   className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   placeholder="0.00"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Gifts $</label>
+                <input
+                  type="number"
+                  name="gifts"
+                  value={formData.gifts}
+                  onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="0.00"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Enter all estimated costs for the next 12 months including buying lunch, wine, store gifts, or any other expense
+                </p>
               </div>
 
               <div>
@@ -469,20 +540,6 @@ export default function NewRequestPage() {
                   placeholder="0"
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Display Product COGS $</label>
-                <input
-                  type="number"
-                  name="displayProductCogs"
-                  value={formData.displayProductCogs}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
             </div>
           </div>
 
@@ -492,36 +549,59 @@ export default function NewRequestPage() {
               SKUs <span className="text-red-500">*</span>
             </h2>
 
+            {products.length === 0 && (
+              <div className="mb-4 rounded bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
+                Product list is not yet configured. Please contact your administrator.
+              </div>
+            )}
+
             <div className="space-y-4">
               {formData.skus.map((sku, index) => (
-                <div key={sku.id} className="flex gap-4">
+                <div key={sku.id} className="flex gap-4 items-end">
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2">SKU Code</label>
-                    <input
-                      type="text"
-                      name={`skuCode${index}`}
-                      value={sku.code}
-                      onChange={(e) => handleInputChange(e, index)}
-                      className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder="Enter SKU code"
-                      required
-                    />
+                    {products.length > 0 ? (
+                      <select
+                        value={sku.code}
+                        onChange={(e) => handleSkuChange(index, e.target.value)}
+                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        required
+                      >
+                        <option value="">Select a product</option>
+                        {products.map((product) => (
+                          <option key={product.sku_code} value={product.sku_code}>
+                            {product.sku_code}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={sku.code}
+                        onChange={(e) => {
+                          const newSkus = [...formData.skus];
+                          newSkus[index] = { ...newSkus[index], code: e.target.value };
+                          setFormData((prev) => ({ ...prev, skus: newSkus }));
+                        }}
+                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        placeholder="Enter SKU code"
+                        required
+                      />
+                    )}
                   </div>
 
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2">SKU Name</label>
                     <input
                       type="text"
-                      name={`skuName${index}`}
                       value={sku.name}
-                      onChange={(e) => handleInputChange(e, index)}
-                      className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder="Enter SKU name"
-                      required
+                      readOnly
+                      className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700"
+                      placeholder={products.length > 0 ? 'Auto filled from selection' : 'Enter SKU name'}
                     />
                   </div>
 
-                  <div className="flex items-end">
+                  <div>
                     <button
                       type="button"
                       onClick={() => removeSKU(sku.id)}
@@ -548,30 +628,16 @@ export default function NewRequestPage() {
           <div className="rounded-lg bg-white p-6 shadow">
             <h2 className="mb-6 text-xl font-semibold text-gray-900">Additional</h2>
 
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Photos Link</label>
-                <input
-                  type="url"
-                  name="photosLink"
-                  value={formData.photosLink}
-                  onChange={handleInputChange}
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="https://example.com/photos"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Comments</label>
-                <textarea
-                  name="comments"
-                  value={formData.comments}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Add any additional comments or notes"
-                ></textarea>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Comments</label>
+              <textarea
+                name="comments"
+                value={formData.comments}
+                onChange={handleInputChange}
+                rows={4}
+                className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Add any additional comments or notes"
+              ></textarea>
             </div>
           </div>
 
