@@ -18,6 +18,10 @@ function getResend() {
 const FROM_EMAIL = 'Meir Displays <displays@meir.com.au>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+// Test mode: when EMAIL_TEST_RECIPIENT is set, ALL emails go to that address
+// instead of the real recipients. Set in Vercel env vars for safe testing.
+const TEST_RECIPIENT = process.env.EMAIL_TEST_RECIPIENT || ''
+
 // ============================================================
 // Email functions matching the existing workflow
 // ============================================================
@@ -185,11 +189,17 @@ async function sendEmail(to: string, subject: string, htmlBody: string, requestI
       return
     }
 
+    // In test mode, redirect to the test recipient and show who it WOULD have gone to
+    const actualTo = TEST_RECIPIENT || to
+    const actualSubject = TEST_RECIPIENT
+      ? `[TEST → ${to}] ${subject}`
+      : subject
+
     await resend.emails.send({
       from: FROM_EMAIL,
-      to,
-      subject,
-      html: wrapHtml(htmlBody),
+      to: actualTo,
+      subject: actualSubject,
+      html: wrapHtml(TEST_RECIPIENT ? `<p style="background:#fff3cd;padding:8px;border:1px solid #ffc107;border-radius:4px;font-size:12px;"><strong>TEST MODE:</strong> This email would normally go to <strong>${to}</strong></p>${htmlBody}` : htmlBody),
     })
 
     // Log to notifications table if we have a service client
