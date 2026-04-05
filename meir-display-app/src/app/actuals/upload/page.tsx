@@ -1,0 +1,347 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { createBrowserClient } from '@supabase/ssr'
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Clock, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
+
+interface UploadSummary {
+  upload_id: string
+  total_rows: number
+  matched: number
+  unmatched: number
+  match_rate: number
+  date_range: { from: string | null; to: string | null }
+  sheet_used: string
+  top_unmatched: { name: string; rows: number }[]
+}
+
+interface PastUpload {
+  id: string
+  filename: string
+  uploaded_at: string
+  date_range_from: string | null
+  date_range_to: string | null
+  total_rows: number
+  matched_rows: number
+  unmatched_rows: number
+  status: string
+  summary: UploadSummary | null
+}
+
+export default function UploadActualsPage() {
+  const router = useRouter()
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const [result, setResult] = useState<UploadSummary | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [pastUploads, setPastUploads] = useState<PastUpload[]>([])
+  const [dragOver, setDragOver] = useState(false)
+
+  const fetchUploads = useCallback(async () => {
+    try {
+      const res = await fetch('/api/actuals/upload')
+      if (res.ok) {
+        const data = await res.json()
+        setPastUploads(data.data || [])
+      }
+    } catch {
+      // Non-critical
+    }
+  }, [])
+
+  useEffect(() => {
+    async function checkAuth() {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role')
+        .eq('email', user.email)
+        .single()
+
+      if (!userData || !['admin', 'manager', 'cfo', 'coo'].includes(userData.role)) {
+        router.push('/dashboard')
+        return
+      }
+
+      setUserRole(userData.role)
+      setLoading(false)
+      fetchUploads()
+    }
+    checkAuth()
+  }, [router, fetchUploads])
+
+  async function handleUpload(file: File) {
+    setUploading(true)
+    setError(null)
+    setResult(null)
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/actuals/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Upload failed')
+      } else {
+        setResult(data.data)
+        fetchUploads() // Refresh history
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) handleUpload(file)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) handleUpload(file)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    )
+  }
+
+  if (!userRole) return null
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <Link
+            href="/requests"
+            className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Register
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900">Upload Sales Actuals</h1>
+          <p className="text-gray-600 mt-1">
+            Upload an Acumatica &quot;Daily Sales Profitability (Detailed)&quot; export to update
+            actual sales data for tracked displays.
+          </p>
+        </div>
+
+        {/* Upload area */}
+        <div
+          className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+            dragOver
+              ? 'border-blue-500 bg-blue-50'
+              : uploading
+              ? 'border-gray-300 bg-gray-50'
+              : 'border-gray-300 hover:border-gray-400'
+          }`}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDragOver(true)
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+        >
+          {uploading ? (
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+              <p className="text-gray-600">Processing file... This may take a moment.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <Upload className="w-12 h-12 text-gray-400" />
+              <p className="text-gray-600">
+                Drag and drop your Excel file here, or{' '}
+                <label className="text-blue-600 hover:text-blue-800 cursor-pointer underline">
+                  browse
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                </label>
+              </p>
+              <p className="text-sm text-gray-400">Accepts .xlsx and .xls files</p>
+            </div>
+          )}
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-red-800 font-medium">Upload failed</p>
+              <p className="text-red-600 text-sm mt-1">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Result */}
+        {result && (
+          <div className="mt-6 bg-white border border-gray-200 rounded-lg p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              <h2 className="text-lg font-semibold text-gray-900">Upload Complete</h2>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-gray-50 rounded p-3">
+                <p className="text-sm text-gray-500">Total Rows</p>
+                <p className="text-xl font-bold">{result.total_rows.toLocaleString()}</p>
+              </div>
+              <div className="bg-green-50 rounded p-3">
+                <p className="text-sm text-gray-500">Matched</p>
+                <p className="text-xl font-bold text-green-700">
+                  {result.matched.toLocaleString()}
+                </p>
+              </div>
+              <div className="bg-amber-50 rounded p-3">
+                <p className="text-sm text-gray-500">Unmatched</p>
+                <p className="text-xl font-bold text-amber-700">
+                  {result.unmatched.toLocaleString()}
+                </p>
+              </div>
+              <div className="bg-blue-50 rounded p-3">
+                <p className="text-sm text-gray-500">Match Rate</p>
+                <p className="text-xl font-bold text-blue-700">{result.match_rate}%</p>
+              </div>
+            </div>
+
+            {result.date_range.from && result.date_range.to && (
+              <p className="text-sm text-gray-500 mb-4">
+                Data covers {result.date_range.from} to {result.date_range.to} (from sheet &quot;{result.sheet_used}&quot;)
+              </p>
+            )}
+
+            {result.top_unmatched.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
+                  Top unmatched customers (no matching display request found):
+                </h3>
+                <div className="bg-gray-50 rounded p-3 max-h-48 overflow-y-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-gray-500">
+                        <th className="pb-1">Customer</th>
+                        <th className="pb-1 text-right">Rows</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.top_unmatched.map((c) => (
+                        <tr key={c.name} className="border-t border-gray-100">
+                          <td className="py-1 text-gray-700">{c.name}</td>
+                          <td className="py-1 text-right text-gray-500">{c.rows}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-gray-400 mt-2">
+                  Unmatched rows are stored but not attributed to any display. They will match
+                  automatically if a display request is created for these customers later.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Past uploads */}
+        {pastUploads.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Upload History</h2>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-gray-500 font-medium">File</th>
+                    <th className="text-left px-4 py-3 text-gray-500 font-medium">Date Range</th>
+                    <th className="text-right px-4 py-3 text-gray-500 font-medium">Rows</th>
+                    <th className="text-right px-4 py-3 text-gray-500 font-medium">Matched</th>
+                    <th className="text-center px-4 py-3 text-gray-500 font-medium">Status</th>
+                    <th className="text-right px-4 py-3 text-gray-500 font-medium">Uploaded</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pastUploads.map((u) => (
+                    <tr key={u.id} className="border-t border-gray-100">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                          <span className="text-gray-700">{u.filename}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {u.date_range_from && u.date_range_to
+                          ? `${u.date_range_from} — ${u.date_range_to}`
+                          : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-right text-gray-700">
+                        {u.total_rows.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 text-right text-gray-700">
+                        {u.matched_rows.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {u.status === 'completed' ? (
+                          <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 px-2 py-0.5 rounded text-xs">
+                            <CheckCircle className="w-3 h-3" /> Done
+                          </span>
+                        ) : u.status === 'failed' ? (
+                          <span className="inline-flex items-center gap-1 text-red-700 bg-red-50 px-2 py-0.5 rounded text-xs">
+                            <AlertCircle className="w-3 h-3" /> Failed
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-xs">
+                            <Clock className="w-3 h-3" /> Processing
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right text-gray-500">
+                        {new Date(u.uploaded_at).toLocaleDateString('en-AU', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
