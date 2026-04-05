@@ -112,7 +112,7 @@ export default function DashboardPage() {
   }
 
   const isValidator = userRole === 'validator' || userRole === 'admin';
-  const isApprover = userRole === 'approver' || userRole === 'admin';
+  const isApprover = ['manager', 'cfo', 'coo', 'admin'].includes(userRole || '');
 
   const summaryCards: SummaryCard[] = [
     {

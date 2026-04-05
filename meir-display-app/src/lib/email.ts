@@ -2,7 +2,19 @@ import { Resend } from 'resend'
 import { DisplayRequest, User } from './types'
 import { formatCurrency, formatPercent, TIER_LABELS, OVERRIDE_ALERT_RECIPIENTS } from './calculations'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialisation — avoids crash when RESEND_API_KEY is not set at build time
+let _resend: InstanceType<typeof Resend> | null = null
+function getResend() {
+  if (!_resend) {
+    const key = process.env.RESEND_API_KEY
+    if (!key || key.startsWith('re_placeholder')) {
+      console.warn('RESEND_API_KEY not configured — emails will not send')
+      return null
+    }
+    _resend = new Resend(key)
+  }
+  return _resend
+}
 const FROM_EMAIL = 'Meir Displays <displays@meir.com.au>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
@@ -167,6 +179,12 @@ export async function sendQueryEmail(request: DisplayRequest, note: string) {
 
 async function sendEmail(to: string, subject: string, htmlBody: string, requestId?: string) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn(`Email skipped (no API key): ${subject} → ${to}`)
+      return
+    }
+
     await resend.emails.send({
       from: FROM_EMAIL,
       to,

@@ -27,7 +27,7 @@ export default async function Nav() {
     }
   }
 
-  const showNewRequest = ['rep'].includes(userRole);
+  const showNewRequest = ['rep', 'admin'].includes(userRole);
   const showPendingValidation = ['validator', 'admin'].includes(userRole);
   const showPendingApproval = ['manager', 'cfo', 'coo', 'admin'].includes(userRole);
 
@@ -45,24 +45,24 @@ export default async function Nav() {
               <Link href="/dashboard" className="hover:text-gray-300 transition">
                 Dashboard
               </Link>
-              <Link href="/my-requests" className="hover:text-gray-300 transition">
+              <Link href="/requests" className="hover:text-gray-300 transition">
                 My Requests
               </Link>
 
               {showNewRequest && (
-                <Link href="/new-request" className="hover:text-gray-300 transition">
+                <Link href="/requests/new" className="hover:text-gray-300 transition">
                   New Request
                 </Link>
               )}
 
               {showPendingValidation && (
-                <Link href="/pending-validation" className="hover:text-gray-300 transition">
+                <Link href="/requests?status=submitted" className="hover:text-gray-300 transition">
                   Pending Validation
                 </Link>
               )}
 
               {showPendingApproval && (
-                <Link href="/pending-approval" className="hover:text-gray-300 transition">
+                <Link href="/requests?status=pending_approval" className="hover:text-gray-300 transition">
                   Pending Approval
                 </Link>
               )}
