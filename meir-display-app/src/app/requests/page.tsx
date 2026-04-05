@@ -32,8 +32,8 @@ export default function RequestsListPage() {
       // Fetch requests
       const res = await fetch('/api/requests')
       if (res.ok) {
-        const data = await res.json()
-        setRequests(data)
+        const json = await res.json()
+        setRequests(json.data || [])
       }
       setLoading(false)
     }
