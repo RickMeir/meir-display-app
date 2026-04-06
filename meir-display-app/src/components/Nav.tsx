@@ -42,7 +42,6 @@ export default async function Nav() {
     pendingTaskCount = count || 0;
   }
 
-  const showNewRequest = ['rep', 'admin'].includes(userRole);
   const showUploadActuals = ['admin', 'manager', 'cfo', 'coo'].includes(userRole);
 
   return (
@@ -57,32 +56,28 @@ export default async function Nav() {
 
             <div className="flex items-center gap-6">
               <Link href="/dashboard" className="hover:text-gray-300 transition">
-                Dashboard
+                Home
+              </Link>
+              <Link href="/requests/new" className="hover:text-gray-300 transition">
+                New Display Request
               </Link>
               <Link href="/requests" className="hover:text-gray-300 transition">
-                Requests
+                Display Register
               </Link>
-
-              {showNewRequest && (
-                <Link href="/requests/new" className="hover:text-gray-300 transition">
-                  New Request
-                </Link>
-              )}
-
-              {showUploadActuals && (
-                <Link href="/actuals/upload" className="hover:text-gray-300 transition">
-                  Upload Actuals
-                </Link>
-              )}
-
-              <Link href="/tasks" className="hover:text-gray-300 transition relative flex items-center gap-1.5">
-                Tasks
+              <Link href="/tasks" className="hover:text-gray-300 transition flex items-center gap-1.5">
+                To Do
                 {pendingTaskCount > 0 && (
                   <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
                     {pendingTaskCount > 99 ? '99+' : pendingTaskCount}
                   </span>
                 )}
               </Link>
+
+              {showUploadActuals && (
+                <Link href="/actuals/upload" className="hover:text-gray-300 transition">
+                  Upload Actuals
+                </Link>
+              )}
             </div>
           </div>
 
