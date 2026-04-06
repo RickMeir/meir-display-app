@@ -537,9 +537,9 @@ export async function DELETE(request: NextRequest) {
       .eq('upload_id', uploadId)
       .not('matched_request_id', 'is', null)
 
-    const affectedRequestIds = [
-      ...new Set((affectedRequests || []).map((r) => r.matched_request_id)),
-    ]
+    const affectedRequestIds = Array.from(
+      new Set((affectedRequests || []).map((r: { matched_request_id: string }) => r.matched_request_id))
+    )
 
     // Delete the upload record — CASCADE will remove all sales_actuals_raw rows
     const { error: deleteErr } = await serviceClient
