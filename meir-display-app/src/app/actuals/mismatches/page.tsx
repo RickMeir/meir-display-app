@@ -207,7 +207,7 @@ export default function MismatchesPage() {
         </div>
 
         {/* Summary bar */}
-        <div className="bg-gray-300 border border-gray-300 rounded-lg p-4 mb-6 flex items-center gap-6">
+        <div className="bg-gray-400 border border-gray-300 rounded-lg p-4 mb-6 flex items-center gap-6">
           <div>
             <p className="text-sm text-gray-500">Unmatched customers</p>
             <p className="text-2xl font-bold text-amber-600">{unmatched.length}</p>
@@ -239,7 +239,7 @@ export default function MismatchesPage() {
 
         {/* Unmatched list */}
         {unmatched.length === 0 ? (
-          <div className="bg-gray-300 border border-gray-300 rounded-lg p-12 text-center">
+          <div className="bg-gray-400 border border-gray-300 rounded-lg p-12 text-center">
             <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
             <p className="text-gray-600 text-lg">All customers are matched.</p>
             <p className="text-gray-400 text-sm mt-1">No unresolved mismatches.</p>
@@ -265,7 +265,7 @@ export default function MismatchesPage() {
                 return (
                   <div
                     key={customer.customer_name}
-                    className="bg-gray-300 border border-gray-300 rounded-lg p-4"
+                    className="bg-gray-400 border border-gray-300 rounded-lg p-4"
                   >
                     <div className="flex items-start gap-4">
                       {/* Customer info */}
@@ -355,7 +355,7 @@ export default function MismatchesPage() {
               These mappings are applied automatically on every upload. Future uploads will
               match these Acumatica names to the assigned display request.
             </p>
-            <div className="bg-gray-300 border border-gray-300 rounded-lg overflow-hidden">
+            <div className="bg-gray-400 border border-gray-300 rounded-lg overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-400">
                   <tr>

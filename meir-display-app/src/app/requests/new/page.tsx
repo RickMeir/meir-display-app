@@ -628,7 +628,7 @@ export default function NewRequestPage() {
         <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
 
           {/* ===== Store Details ===== */}
-          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">Store Details</h2>
 
             <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
@@ -718,7 +718,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== About This Opportunity ===== */}
-          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">About This Opportunity</h2>
 
             <div className="space-y-5">
@@ -778,7 +778,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== Photos ===== */}
-          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
             <h2 className="mb-2 text-lg sm:text-xl font-semibold text-gray-900">Photos</h2>
             <p className="text-sm text-gray-500 mb-4">
               Good photos are essential for approval. Without them, we cannot assess whether this display will increase our brand perception.
@@ -800,7 +800,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== Initial Order Commitment ===== */}
-          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
             <h2 className="mb-2 text-lg sm:text-xl font-semibold text-gray-900">Initial Order Commitment</h2>
 
             {/* Ownership reminder */}
@@ -869,7 +869,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== Financial Details ===== */}
-          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">Financial Details</h2>
 
             <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
@@ -916,7 +916,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== SKUs ===== */}
-          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">SKUs <span className="text-red-500">*</span></h2>
 
             {products.length === 0 && (

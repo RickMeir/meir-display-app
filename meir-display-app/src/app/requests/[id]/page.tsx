@@ -70,7 +70,7 @@ export default function RequestDetailPage() {
       </div>
 
       {/* Store Details */}
-      <div className="bg-gray-300 rounded-lg shadow p-6">
+      <div className="bg-gray-400 rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Store Details</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm">
           <div>
@@ -116,7 +116,7 @@ export default function RequestDetailPage() {
       <RequestOpportunity request={request} />
 
       {/* Financial Inputs (visible to all — these are what the rep entered) */}
-      <div className="bg-gray-300 rounded-lg shadow p-6">
+      <div className="bg-gray-400 rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Financial Inputs</h2>
         <dl className="grid grid-cols-2 gap-4 text-sm">
           <div>
@@ -160,7 +160,7 @@ export default function RequestDetailPage() {
 
       {/* Financial Assessment — ONLY for non-rep roles */}
       {canSeeFinancials && (
-        <div className="bg-gray-300 rounded-lg shadow p-6">
+        <div className="bg-gray-400 rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Financial Assessment</h2>
 
           <div className="mb-4">
@@ -222,7 +222,7 @@ export default function RequestDetailPage() {
 
       {/* SKUs */}
       {request.skus && request.skus.length > 0 && (
-        <div className="bg-gray-300 rounded-lg shadow p-6">
+        <div className="bg-gray-400 rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">SKUs</h2>
           <div className="space-y-2">
             {request.skus.map((sku) => (
@@ -237,7 +237,7 @@ export default function RequestDetailPage() {
 
       {/* Approval History */}
       {(request.validated_at || request.approved_at) && (
-        <div className="bg-gray-300 rounded-lg shadow p-6">
+        <div className="bg-gray-400 rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">History</h2>
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-2">

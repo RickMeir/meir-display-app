@@ -45,7 +45,7 @@ export default async function Nav() {
   const showUploadActuals = ['admin', 'manager', 'cfo', 'coo'].includes(userRole);
 
   return (
-    <nav className="bg-meir-800 text-white">
+    <nav className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left side: Brand and links */}
@@ -88,7 +88,7 @@ export default async function Nav() {
               <form action={signOutAction}>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-meir-700 hover:bg-meir-600 rounded transition text-sm font-medium"
+                  className="px-4 py-2 bg-red-700 hover:bg-red-600 rounded transition text-sm font-medium"
                 >
                   Sign out
                 </button>

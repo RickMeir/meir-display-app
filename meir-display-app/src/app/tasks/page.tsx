@@ -158,7 +158,7 @@ export default function TasksPage() {
 
         {/* Pending tasks */}
         {pendingTasks.length === 0 ? (
-          <div className="bg-gray-300 border border-gray-300 rounded-lg p-12 text-center">
+          <div className="bg-gray-400 border border-gray-300 rounded-lg p-12 text-center">
             <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
             <p className="text-gray-600 text-lg">You are all caught up.</p>
             <p className="text-gray-400 text-sm mt-1">No pending tasks right now.</p>
