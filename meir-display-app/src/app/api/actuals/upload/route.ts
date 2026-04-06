@@ -355,13 +355,20 @@ export async function POST(request: NextRequest) {
         .insert(batch)
 
       if (insertErr) {
+        // Clean up any orphaned raw rows from earlier successful batches
+        await serviceClient
+          .from('sales_actuals_raw')
+          .delete()
+          .eq('upload_id', upload.id)
+
+        // Mark upload as failed
         await serviceClient
           .from('sales_uploads')
           .update({ status: 'failed', error: insertErr.message })
           .eq('id', upload.id)
 
         return NextResponse.json(
-          { error: `Failed to insert rows: ${insertErr.message}` },
+          { error: `Failed to insert rows (batch ${Math.floor(i / BATCH_SIZE) + 1}): ${insertErr.message}. All data has been rolled back.` },
           { status: 500 }
         )
       }

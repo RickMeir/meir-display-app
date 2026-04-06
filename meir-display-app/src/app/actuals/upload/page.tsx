@@ -1,10 +1,26 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Clock, ArrowLeft, Trash2 } from 'lucide-react'
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Clock, ArrowLeft, Trash2, Eye, Send } from 'lucide-react'
 import Link from 'next/link'
+
+interface PreviewData {
+  filename: string
+  total_rows: number
+  matched: number
+  unmatched: number
+  match_rate: number
+  date_range: { from: string | null; to: string | null }
+  sheet_used: string
+  total_net_sales: number
+  total_cost: number
+  total_margin: number
+  top_customers: { name: string; rows: number; net_sales: number; matched: boolean; match_method: string }[]
+  top_unmatched: { name: string; rows: number }[]
+  duplicate_warning: string | null
+}
 
 interface UploadSummary {
   upload_id: string
@@ -38,7 +54,9 @@ export default function UploadActualsPage() {
   const router = useRouter()
   const [userRole, setUserRole] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [previewing, setPreviewing] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [preview, setPreview] = useState<PreviewData | null>(null)
   const [result, setResult] = useState<UploadSummary | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pastUploads, setPastUploads] = useState<PastUpload[]>([])
@@ -46,6 +64,7 @@ export default function UploadActualsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<PastUpload | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [approving, setApproving] = useState<string | null>(null)
+  const pendingFileRef = useRef<File | null>(null)
 
   const fetchUploads = useCallback(async () => {
     try {
@@ -92,10 +111,46 @@ export default function UploadActualsPage() {
     checkAuth()
   }, [router, fetchUploads])
 
-  async function handleUpload(file: File) {
-    setUploading(true)
+  // Step 1: Preview the file (parse only, no database writes)
+  async function handlePreview(file: File) {
+    setPreviewing(true)
     setError(null)
     setResult(null)
+    setPreview(null)
+    pendingFileRef.current = file
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/actuals/upload/preview', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Preview failed')
+        pendingFileRef.current = null
+      } else {
+        setPreview(data.data)
+      }
+    } catch {
+      setError('Network error. Please try again.')
+      pendingFileRef.current = null
+    } finally {
+      setPreviewing(false)
+    }
+  }
+
+  // Step 2: Confirm and commit the upload
+  async function handleConfirmUpload() {
+    const file = pendingFileRef.current
+    if (!file) return
+
+    setUploading(true)
+    setError(null)
 
     const formData = new FormData()
     formData.append('file', file)
@@ -112,7 +167,9 @@ export default function UploadActualsPage() {
         setError(data.error || 'Upload failed')
       } else {
         setResult(data.data)
-        fetchUploads() // Refresh history
+        setPreview(null)
+        pendingFileRef.current = null
+        fetchUploads()
       }
     } catch {
       setError('Network error. Please try again.')
@@ -121,16 +178,24 @@ export default function UploadActualsPage() {
     }
   }
 
+  function handleCancel() {
+    setPreview(null)
+    pendingFileRef.current = null
+    setError(null)
+  }
+
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (file) handleUpload(file)
+    if (file) handlePreview(file)
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
     setDragOver(false)
     const file = e.dataTransfer.files?.[0]
-    if (file) handleUpload(file)
+    if (file) handlePreview(file)
   }
 
   async function handleApprove(uploadId: string) {
@@ -173,13 +238,17 @@ export default function UploadActualsPage() {
         setError(data.error || 'Delete failed')
       } else {
         setDeleteConfirm(null)
-        fetchUploads() // Refresh history
+        fetchUploads()
       }
     } catch {
       setError('Network error. Please try again.')
     } finally {
       setDeleting(false)
     }
+  }
+
+  function formatCurrency(n: number) {
+    return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n)
   }
 
   if (loading) {
@@ -219,59 +288,192 @@ export default function UploadActualsPage() {
           </p>
         </div>
 
-        {/* Upload area */}
-        <div
-          className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-            dragOver
-              ? 'border-blue-500 bg-blue-50'
-              : uploading
-              ? 'border-gray-300 bg-gray-50'
-              : 'border-gray-300 hover:border-gray-400'
-          }`}
-          onDragOver={(e) => {
-            e.preventDefault()
-            setDragOver(true)
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-        >
-          {uploading ? (
-            <div className="flex flex-col items-center gap-3">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-              <p className="text-gray-600">Processing file... This may take a moment.</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <Upload className="w-12 h-12 text-gray-400" />
-              <p className="text-gray-600">
-                Drag and drop your Excel file here, or{' '}
-                <label className="text-blue-600 hover:text-blue-800 cursor-pointer underline">
-                  browse
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
-                </label>
-              </p>
-              <p className="text-sm text-gray-400">Accepts .xlsx and .xls files</p>
-            </div>
-          )}
-        </div>
+        {/* Upload area — hidden when preview or result is showing */}
+        {!preview && !result && (
+          <div
+            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+              dragOver
+                ? 'border-blue-500 bg-blue-50'
+                : previewing
+                ? 'border-gray-300 bg-gray-50'
+                : 'border-gray-300 hover:border-gray-400'
+            }`}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setDragOver(true)
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+          >
+            {previewing ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                <p className="text-gray-600">Analysing file... This may take a moment.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <Upload className="w-12 h-12 text-gray-400" />
+                <p className="text-gray-600">
+                  Drag and drop your Excel file here, or{' '}
+                  <label className="text-blue-600 hover:text-blue-800 cursor-pointer underline">
+                    browse
+                    <input
+                      type="file"
+                      accept=".xlsx,.xls"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                  </label>
+                </p>
+                <p className="text-sm text-gray-400">Accepts .xlsx and .xls files</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Error */}
         {error && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-red-800 font-medium">Upload failed</p>
+              <p className="text-red-800 font-medium">Error</p>
               <p className="text-red-600 text-sm mt-1">{error}</p>
             </div>
           </div>
         )}
 
-        {/* Result */}
+        {/* Preview — step 1 result, before committing */}
+        {preview && !result && (
+          <div className="mt-6 bg-white border border-blue-200 rounded-lg p-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Eye className="w-5 h-5 text-blue-500" />
+              <h2 className="text-lg font-semibold text-gray-900">Upload Preview</h2>
+            </div>
+            <p className="text-sm text-gray-500 mb-4">
+              Review the data below. Nothing has been saved yet. Click <strong>Confirm Upload</strong> to commit this data, or <strong>Cancel</strong> to discard.
+            </p>
+
+            {preview.duplicate_warning && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-amber-800">{preview.duplicate_warning}</p>
+              </div>
+            )}
+
+            {/* Summary stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-gray-50 rounded p-3">
+                <p className="text-sm text-gray-500">Total Rows</p>
+                <p className="text-xl font-bold">{preview.total_rows.toLocaleString()}</p>
+              </div>
+              <div className="bg-green-50 rounded p-3">
+                <p className="text-sm text-gray-500">Will Match</p>
+                <p className="text-xl font-bold text-green-700">{preview.matched.toLocaleString()}</p>
+              </div>
+              <div className="bg-amber-50 rounded p-3">
+                <p className="text-sm text-gray-500">Unmatched</p>
+                <p className="text-xl font-bold text-amber-700">{preview.unmatched.toLocaleString()}</p>
+              </div>
+              <div className="bg-blue-50 rounded p-3">
+                <p className="text-sm text-gray-500">Match Rate</p>
+                <p className="text-xl font-bold text-blue-700">{preview.match_rate}%</p>
+              </div>
+            </div>
+
+            {/* Financial totals */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="bg-gray-50 rounded p-3">
+                <p className="text-sm text-gray-500">Total Net Sales</p>
+                <p className="text-lg font-semibold">{formatCurrency(preview.total_net_sales)}</p>
+              </div>
+              <div className="bg-gray-50 rounded p-3">
+                <p className="text-sm text-gray-500">Total Cost</p>
+                <p className="text-lg font-semibold">{formatCurrency(preview.total_cost)}</p>
+              </div>
+              <div className="bg-gray-50 rounded p-3">
+                <p className="text-sm text-gray-500">Total Margin</p>
+                <p className="text-lg font-semibold">{formatCurrency(preview.total_margin)}</p>
+              </div>
+            </div>
+
+            {preview.date_range.from && preview.date_range.to && (
+              <p className="text-sm text-gray-500 mb-4">
+                Data covers <strong>{preview.date_range.from}</strong> to <strong>{preview.date_range.to}</strong> (from sheet &quot;{preview.sheet_used}&quot;)
+              </p>
+            )}
+
+            {/* Top customers table */}
+            {preview.top_customers.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
+                  Top customers by revenue (showing {Math.min(preview.top_customers.length, 30)} of{' '}
+                  {Object.keys(preview.top_customers).length}):
+                </h3>
+                <div className="bg-gray-50 rounded p-3 max-h-64 overflow-y-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-gray-500">
+                        <th className="pb-1">Customer</th>
+                        <th className="pb-1 text-right">Rows</th>
+                        <th className="pb-1 text-right">Net Sales</th>
+                        <th className="pb-1 text-center">Match</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {preview.top_customers.map((c) => (
+                        <tr key={c.name} className="border-t border-gray-100">
+                          <td className="py-1 text-gray-700">{c.name}</td>
+                          <td className="py-1 text-right text-gray-500">{c.rows}</td>
+                          <td className="py-1 text-right text-gray-700">{formatCurrency(c.net_sales)}</td>
+                          <td className="py-1 text-center">
+                            {c.matched ? (
+                              <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 px-2 py-0.5 rounded text-xs">
+                                <CheckCircle className="w-3 h-3" />
+                                {c.match_method === 'exact_name' ? 'Name' : c.match_method === 'alias' ? 'Alias' : c.match_method === 'exact_code' ? 'Code' : 'Group'}
+                              </span>
+                            ) : (
+                              <span className="text-amber-600 text-xs">No match</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+              <button
+                onClick={handleCancel}
+                disabled={uploading}
+                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmUpload}
+                disabled={uploading}
+                className="px-5 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {uploading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Confirm Upload
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Committed result */}
         {result && (
           <div className="mt-6 bg-white border border-gray-200 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-2">
@@ -279,7 +481,7 @@ export default function UploadActualsPage() {
               <h2 className="text-lg font-semibold text-gray-900">Upload Complete</h2>
             </div>
             <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-4">
-              This upload is awaiting approval from Rick before the data flows into monthly actuals.
+              This upload is awaiting approval before the data flows into monthly actuals.
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -321,7 +523,7 @@ export default function UploadActualsPage() {
             {result.top_unmatched.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">
-                  Top unmatched customers (no matching display request found):
+                  Top unmatched customers:
                 </h3>
                 <div className="bg-gray-50 rounded p-3 max-h-48 overflow-y-auto">
                   <table className="w-full text-sm">
@@ -341,12 +543,20 @@ export default function UploadActualsPage() {
                     </tbody>
                   </table>
                 </div>
-                <p className="text-xs text-gray-400 mt-2">
-                  Unmatched rows are stored but not attributed to any display. They will match
-                  automatically if a display request is created for these customers later.
-                </p>
               </div>
             )}
+
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setResult(null)
+                  setError(null)
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Upload another file
+              </button>
+            </div>
           </div>
         )}
 
@@ -457,6 +667,7 @@ export default function UploadActualsPage() {
             </div>
           </div>
         )}
+
         {/* Delete confirmation modal */}
         {deleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
