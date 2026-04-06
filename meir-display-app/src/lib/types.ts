@@ -74,6 +74,11 @@ export interface DisplayRequest {
   net_margin: number
   profitability_flag: ProfitabilityFlag
 
+  // Initial order commitment
+  has_initial_order: boolean
+  initial_order_value: number
+  initial_order_notes: string | null
+
   // Routing
   routed_to: string | null
   approval_tier: string | null
@@ -161,6 +166,9 @@ export interface RequestFormInput {
   product_cogs: number
   photos_link: string
   comments: string
+  has_initial_order: boolean
+  initial_order_value: number
+  initial_order_notes: string
   skus: { code: string; name: string }[]
 }
 

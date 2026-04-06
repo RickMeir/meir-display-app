@@ -70,6 +70,11 @@ export async function POST(request: NextRequest) {
       photos_link: body.photos_link || null,
       comments: body.comments || null,
 
+      // Initial order commitment
+      has_initial_order: body.has_initial_order ?? false,
+      initial_order_value: body.has_initial_order ? (body.initial_order_value || 0) : 0,
+      initial_order_notes: body.initial_order_notes || null,
+
       // Calculated financial outputs
       total_investment: financials.total_investment,
       revenue_after_discount: financials.revenue_after_discount,
@@ -251,6 +256,9 @@ export async function PUT(request: NextRequest) {
       product_cogs: safeBody.product_cogs,
       photos_link: body.photos_link || null,
       comments: body.comments || null,
+      has_initial_order: body.has_initial_order ?? false,
+      initial_order_value: body.has_initial_order ? (body.initial_order_value || 0) : 0,
+      initial_order_notes: body.initial_order_notes || null,
       total_investment: financials.total_investment,
       revenue_after_discount: financials.revenue_after_discount,
       rebate_cost: financials.rebate_cost,
