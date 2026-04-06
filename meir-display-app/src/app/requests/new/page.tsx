@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Camera, X, Upload, AlertTriangle } from 'lucide-react';
+import { Camera, X, Upload, AlertTriangle, CheckCircle, XCircle, ShieldCheck } from 'lucide-react';
 
 interface Product {
   sku_code: string;
@@ -32,7 +32,7 @@ interface FormData {
   displayType: string;
   opportunityDescription: string;
   competitorBrands: string;
-  brandPerceptionImpact: string;
+  brandAcknowledged: boolean;
   plannedInstallDate: string;
   isNewOrReplacement: string;
   differentiationPlan: string;
@@ -239,6 +239,7 @@ export default function NewRequestPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [showBrandModal, setShowBrandModal] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     storeName: '',
@@ -248,7 +249,7 @@ export default function NewRequestPage() {
     displayType: '',
     opportunityDescription: '',
     competitorBrands: '',
-    brandPerceptionImpact: '',
+    brandAcknowledged: false,
     plannedInstallDate: '',
     isNewOrReplacement: '',
     differentiationPlan: '',
@@ -305,7 +306,7 @@ export default function NewRequestPage() {
                 displayType: draft.display_type || '',
                 opportunityDescription: draft.opportunity_description || draft.display_reason || '',
                 competitorBrands: draft.competitor_brands || '',
-                brandPerceptionImpact: draft.brand_perception_impact || '',
+                brandAcknowledged: false,
                 plannedInstallDate: draft.planned_install_date || '',
                 isNewOrReplacement: draft.is_new_or_replacement || '',
                 differentiationPlan: draft.differentiation_plan || '',
@@ -453,7 +454,7 @@ export default function NewRequestPage() {
     if (!formData.displayType) { setError('Display Type is required'); return false; }
     if (!formData.opportunityDescription.trim()) { setError('Please describe the opportunity'); return false; }
     if (!formData.competitorBrands.trim()) { setError('Please list the 3 closest competitor brands'); return false; }
-    if (!formData.brandPerceptionImpact) { setError('Please select the brand perception impact'); return false; }
+    if (!formData.brandAcknowledged) { setError('Please read and acknowledge the Meir Brand Standard before submitting'); return false; }
     if (!formData.plannedInstallDate) { setError('Please enter the planned installation date'); return false; }
     if (!formData.isNewOrReplacement) { setError('Please select whether this is a new display or replacement'); return false; }
     if (formData.salesForecast12Month === '' || formData.salesForecast12Month === null) {
@@ -491,7 +492,7 @@ export default function NewRequestPage() {
       display_reason: '',
       opportunity_description: formData.opportunityDescription,
       competitor_brands: formData.competitorBrands,
-      brand_perception_impact: formData.brandPerceptionImpact,
+      brand_perception_impact: 'acknowledged',
       planned_install_date: formData.plannedInstallDate || null,
       is_new_or_replacement: formData.isNewOrReplacement,
       differentiation_plan: formData.differentiationPlan,
@@ -732,22 +733,27 @@ export default function NewRequestPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Will this display increase our brand perception, make no change, or reduce it? <span className="text-red-500">*</span></label>
-                <select name="brandPerceptionImpact" value={formData.brandPerceptionImpact} onChange={handleInputChange} className={inputClass} required>
-                  <option value="">Select one</option>
-                  <option value="increase">Increase brand perception</option>
-                  <option value="no_change">No change to brand perception</option>
-                  <option value="reduce">Reduce brand perception</option>
-                </select>
-                {formData.brandPerceptionImpact === 'reduce' && (
-                  <p className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
-                    If this display will reduce brand perception, it is unlikely to be approved. Please reconsider the design or location before submitting.
-                  </p>
-                )}
-                {formData.brandPerceptionImpact === 'no_change' && (
-                  <p className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
-                    Our goal is to increase brand perception with every display. Consider how the design or positioning could be improved.
-                  </p>
+                <label className={labelClass}>Meir Brand Standard <span className="text-red-500">*</span></label>
+                {formData.brandAcknowledged ? (
+                  <div className="flex items-center gap-3 rounded-lg border-2 border-green-300 bg-green-50 p-4">
+                    <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-green-800">Brand standard acknowledged</p>
+                      <p className="text-xs text-green-600 mt-0.5">You have confirmed this display will represent Meir as a premium brand.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowBrandModal(true)}
+                    className="w-full flex items-center gap-3 rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-left hover:bg-amber-100 transition-colors"
+                  >
+                    <ShieldCheck className="h-6 w-6 text-amber-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800">Read and acknowledge the Meir Brand Standard</p>
+                      <p className="text-xs text-amber-600 mt-0.5">Required before you can submit this request</p>
+                    </div>
+                  </button>
                 )}
               </div>
 
@@ -978,6 +984,88 @@ export default function NewRequestPage() {
           </div>
         </form>
       </div>
+
+      {/* ===== Brand Standard Modal ===== */}
+      {showBrandModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white shadow-2xl">
+            <div className="p-6 sm:p-8">
+              <div className="text-center mb-6">
+                <ShieldCheck className="mx-auto h-12 w-12 text-blue-600 mb-3" />
+                <h3 className="text-xl font-bold text-gray-900">Meir Brand Standard</h3>
+                <p className="text-sm text-gray-600 mt-2">Please read this carefully before continuing</p>
+              </div>
+
+              <div className="space-y-5 text-sm text-gray-700">
+                <p className="font-medium text-gray-900 text-base">
+                  You are a custodian of the Meir brand.
+                </p>
+                <p>
+                  Every display you propose represents Meir to the public. Your role is to ensure that
+                  every display moves us closer to being seen as the premium brand we are.
+                </p>
+
+                <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-green-800">YES — This is the standard</p>
+                      <ul className="mt-2 space-y-1 text-green-700 text-sm">
+                        <li>Clean, well lit, prominent positioning in store</li>
+                        <li>Products displayed at eye level, well spaced, easy to touch</li>
+                        <li>Meir branding clearly visible and not hidden behind other products</li>
+                        <li>Display design that looks premium and intentional</li>
+                        <li>Located where customers naturally browse, not tucked in a corner</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <XCircle className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-red-800">NO — This will not be approved</p>
+                      <ul className="mt-2 space-y-1 text-red-700 text-sm">
+                        <li>Cramped, poorly lit, or hidden locations</li>
+                        <li>Products crowded together or hard to see</li>
+                        <li>Meir next to discount brands with no visual separation</li>
+                        <li>Cheap looking materials, handwritten signage, or cluttered shelving</li>
+                        <li>Any setup that makes Meir look like just another brand on the wall</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-gray-600 italic">
+                  If you are not confident this display will increase how customers perceive Meir,
+                  stop and rethink the proposal before submitting.
+                </p>
+              </div>
+
+              <div className="mt-8 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData((prev) => ({ ...prev, brandAcknowledged: true }));
+                    setShowBrandModal(false);
+                  }}
+                  className="w-full rounded-lg bg-blue-600 px-6 py-3 text-white font-medium hover:bg-blue-700 text-base"
+                >
+                  Yes, I understand — this display will represent Meir as premium
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowBrandModal(false)}
+                  className="w-full rounded-lg bg-gray-100 px-6 py-3 text-gray-600 font-medium hover:bg-gray-200 text-sm"
+                >
+                  Go back
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
