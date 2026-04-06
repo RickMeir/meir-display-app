@@ -5,6 +5,7 @@
 export type UserRole = 'rep' | 'validator' | 'manager' | 'cfo' | 'coo' | 'admin'
 
 export type RequestStatus =
+  | 'draft'
   | 'submitted'
   | 'validated'
   | 'queried'
@@ -154,6 +155,7 @@ export interface RequestFormInput {
 // ============================================================
 
 export const STATUS_LABELS: Record<RequestStatus, string> = {
+  draft: 'Draft',
   submitted: 'Awaiting Validation',
   validated: 'Validated',
   queried: 'Queried',
@@ -164,6 +166,7 @@ export const STATUS_LABELS: Record<RequestStatus, string> = {
 }
 
 export const STATUS_COLOURS: Record<RequestStatus, string> = {
+  draft: 'bg-gray-100 text-gray-600',
   submitted: 'bg-yellow-100 text-yellow-800',
   validated: 'bg-blue-100 text-blue-800',
   queried: 'bg-orange-100 text-orange-800',

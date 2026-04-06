@@ -59,7 +59,7 @@ export default function RequestsListPage() {
     let cmp = 0
     switch (sortField) {
       case 'submitted_at':
-        cmp = new Date(a.submitted_at).getTime() - new Date(b.submitted_at).getTime()
+        cmp = (a.submitted_at ? new Date(a.submitted_at).getTime() : 0) - (b.submitted_at ? new Date(b.submitted_at).getTime() : 0)
         break
       case 'store_name':
         cmp = (a.store_name || '').localeCompare(b.store_name || '')
@@ -146,7 +146,7 @@ export default function RequestsListPage() {
 
       {/* Status filter */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        {['all', 'submitted', 'validated', 'pending_approval', 'approved', 'rejected', 'queried'].map((s) => (
+        {['all', 'draft', 'submitted', 'validated', 'pending_approval', 'approved', 'rejected', 'queried'].map((s) => (
           <button
             key={s}
             onClick={() => setStatusFilter(s)}
@@ -252,12 +252,20 @@ export default function RequestsListPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(req.submitted_at).toLocaleDateString('en-AU')}
+                        {req.submitted_at
+                          ? new Date(req.submitted_at).toLocaleDateString('en-AU')
+                          : '—'}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm">
-                        <Link href={`/requests/${req.id}`} className="text-blue-600 hover:text-blue-800">
-                          View
-                        </Link>
+                        {req.status === 'draft' ? (
+                          <Link href={`/requests/new?draft=${req.id}`} className="text-blue-600 hover:text-blue-800">
+                            Edit
+                          </Link>
+                        ) : (
+                          <Link href={`/requests/${req.id}`} className="text-blue-600 hover:text-blue-800">
+                            View
+                          </Link>
+                        )}
                         {req.status === 'submitted' && isValidator && (
                           <Link href={`/requests/${req.id}/validate`} className="ml-3 text-orange-600 hover:text-orange-800">
                             Validate

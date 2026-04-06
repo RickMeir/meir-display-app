@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 interface Product {
@@ -49,11 +49,16 @@ const NUMERIC_FIELDS = [
 
 export default function NewRequestPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const draftId = searchParams.get('draft');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
   const [currentUser, setCurrentUser] = useState<string>('');
+  const [currentDraftId, setCurrentDraftId] = useState<string | null>(draftId);
   const [products, setProducts] = useState<Product[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
@@ -104,11 +109,51 @@ export default function NewRequestPage() {
         console.warn('Could not load products list:', err);
       }
 
+      // Load existing draft if editing
+      if (draftId) {
+        try {
+          const res = await fetch(`/api/requests/${draftId}`);
+          if (res.ok) {
+            const draft = await res.json();
+            if (draft.status === 'draft') {
+              setFormData({
+                storeName: draft.store_name || '',
+                storeCode: draft.store_code || '',
+                salesRep: draft.rep_name || user?.email || '',
+                brandTier: draft.brand_tier || '',
+                displayType: draft.display_type || '',
+                displayReason: draft.display_reason || '',
+                rebatePercentage: draft.rebate_pct ? draft.rebate_pct * 100 : '',
+                clientDiscountPercentage: draft.cogs_pct ? draft.cogs_pct * 100 : '',
+                boardCost: draft.board_labour_cost || '',
+                labourCost: '',
+                salesForecast12Month: draft.forecast_revenue || '',
+                repHoursPerMonth: draft.rep_hours_monthly || '',
+                freeSamples: draft.free_samples_cost || '',
+                gifts: '',
+                cataloguesPerYear: draft.catalogues_qty || '',
+                comments: draft.comments || '',
+                skus: draft.display_skus && draft.display_skus.length > 0
+                  ? draft.display_skus.map((s: { id: string; sku_code: string; sku_name: string }, i: number) => ({
+                      id: String(i + 1),
+                      code: s.sku_code,
+                      name: s.sku_name,
+                    }))
+                  : [{ id: '1', code: '', name: '' }],
+              });
+              setCurrentDraftId(draftId);
+            }
+          }
+        } catch {
+          console.warn('Could not load draft');
+        }
+      }
+
       setLoading(false);
     };
 
     init();
-  }, []);
+  }, [draftId]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -193,6 +238,73 @@ export default function NewRequestPage() {
     return true;
   };
 
+  function buildPayload() {
+    const boardLabourCost =
+      (formData.boardCost === '' ? 0 : formData.boardCost) +
+      (formData.labourCost === '' ? 0 : formData.labourCost);
+
+    const freeSamplesCost =
+      (formData.freeSamples === '' ? 0 : formData.freeSamples) +
+      (formData.gifts === '' ? 0 : formData.gifts);
+
+    return {
+      store_name: formData.storeName,
+      store_code: formData.storeCode,
+      rep_name: formData.salesRep,
+      brand_tier: formData.brandTier,
+      display_type: formData.displayType,
+      display_reason: formData.displayReason,
+      rebate_pct: formData.rebatePercentage === '' ? 0 : formData.rebatePercentage,
+      cogs_pct: formData.clientDiscountPercentage === '' ? 0 : formData.clientDiscountPercentage,
+      board_labour_cost: boardLabourCost,
+      forecast_revenue: formData.salesForecast12Month === '' ? 0 : formData.salesForecast12Month,
+      rep_hours_monthly: formData.repHoursPerMonth === '' ? 0 : formData.repHoursPerMonth,
+      free_samples_cost: freeSamplesCost,
+      catalogues_qty: formData.cataloguesPerYear === '' ? 0 : formData.cataloguesPerYear,
+      product_cogs: 0,
+      photos_link: '',
+      comments: formData.comments,
+      skus: formData.skus.map((sku) => ({
+        code: sku.code,
+        name: sku.name,
+      })),
+    };
+  }
+
+  const handleSaveDraft = async () => {
+    setSaving(true);
+    setError(null);
+    setDraftSaved(false);
+
+    try {
+      const payload = {
+        ...buildPayload(),
+        save_as: 'draft' as const,
+        ...(currentDraftId ? { id: currentDraftId } : {}),
+      };
+
+      const response = await fetch('/api/requests', {
+        method: currentDraftId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save draft');
+      }
+
+      const data = await response.json();
+      setCurrentDraftId(data.id);
+      setDraftSaved(true);
+      setTimeout(() => setDraftSaved(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save draft');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -204,43 +316,15 @@ export default function NewRequestPage() {
     setSubmitting(true);
 
     try {
-      // Combine split fields back into the values the API expects
-      const boardLabourCost =
-        (formData.boardCost === '' ? 0 : formData.boardCost) +
-        (formData.labourCost === '' ? 0 : formData.labourCost);
-
-      const freeSamplesCost =
-        (formData.freeSamples === '' ? 0 : formData.freeSamples) +
-        (formData.gifts === '' ? 0 : formData.gifts);
-
       const payload = {
-        store_name: formData.storeName,
-        store_code: formData.storeCode,
-        rep_name: formData.salesRep,
-        brand_tier: formData.brandTier,
-        display_type: formData.displayType,
-        display_reason: formData.displayReason,
-        rebate_pct: formData.rebatePercentage === '' ? 0 : formData.rebatePercentage,
-        cogs_pct: formData.clientDiscountPercentage === '' ? 0 : formData.clientDiscountPercentage,
-        board_labour_cost: boardLabourCost,
-        forecast_revenue: formData.salesForecast12Month === '' ? 0 : formData.salesForecast12Month,
-        rep_hours_monthly: formData.repHoursPerMonth === '' ? 0 : formData.repHoursPerMonth,
-        free_samples_cost: freeSamplesCost,
-        catalogues_qty: formData.cataloguesPerYear === '' ? 0 : formData.cataloguesPerYear,
-        product_cogs: 0, // Calculated from SKUs — not entered manually
-        photos_link: '',
-        comments: formData.comments,
-        skus: formData.skus.map((sku) => ({
-          code: sku.code,
-          name: sku.name,
-        })),
+        ...buildPayload(),
+        save_as: 'submit' as const,
+        ...(currentDraftId ? { id: currentDraftId } : {}),
       };
 
       const response = await fetch('/api/requests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        method: currentDraftId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
@@ -278,8 +362,14 @@ export default function NewRequestPage() {
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="mx-auto max-w-4xl px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">New Display Request</h1>
-          <p className="mt-2 text-gray-600">Complete the form below to submit a new display request</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {currentDraftId ? 'Edit Draft' : 'New Display Request'}
+          </h1>
+          <p className="mt-2 text-gray-600">
+            {currentDraftId
+              ? 'Continue working on your draft. Save at any time or submit when ready.'
+              : 'Complete the form below to submit a new display request'}
+          </p>
         </div>
 
         {error && (
@@ -641,19 +731,34 @@ export default function NewRequestPage() {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex-1 rounded bg-blue-600 px-6 py-3 text-white font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Submitting...' : 'Submit Request'}
-            </button>
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            {draftSaved && (
+              <div className="rounded-lg bg-green-50 p-3 text-green-700 border border-green-200 text-sm text-center">
+                Draft saved successfully
+              </div>
+            )}
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={submitting || saving}
+                className="flex-1 rounded bg-blue-600 px-6 py-3 text-white font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {submitting ? 'Submitting...' : 'Submit Request'}
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveDraft}
+                disabled={saving || submitting}
+                className="flex-1 rounded bg-gray-100 border border-gray-300 px-6 py-3 text-gray-700 font-medium hover:bg-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Saving...' : 'Save Draft'}
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex-1 rounded bg-gray-200 px-6 py-3 text-gray-900 font-medium hover:bg-gray-300"
+              className="w-full rounded bg-gray-50 px-6 py-2 text-gray-500 font-medium hover:bg-gray-100 text-sm"
             >
               Cancel
             </button>

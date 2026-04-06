@@ -18,34 +18,48 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body
-    const body: RequestFormInput = await request.json();
+    const body: RequestFormInput & { save_as?: 'draft' | 'submit' } = await request.json();
+    const isDraft = body.save_as === 'draft';
 
-    // Calculate all derived financial fields
-    const financials = calculateFinancials(body);
+    // For drafts, use zeroes for missing numeric fields
+    // For submissions, calculate financials normally
+    const safeBody = {
+      ...body,
+      rebate_pct: body.rebate_pct || 0,
+      cogs_pct: body.cogs_pct || 0,
+      board_labour_cost: body.board_labour_cost || 0,
+      forecast_revenue: body.forecast_revenue || 0,
+      rep_hours_monthly: body.rep_hours_monthly || 0,
+      free_samples_cost: body.free_samples_cost || 0,
+      catalogues_qty: body.catalogues_qty || 0,
+      product_cogs: body.product_cogs || 0,
+    };
+
+    const financials = calculateFinancials(safeBody);
 
     // Prepare request data
     const requestData = {
       submitted_by: user.id,
-      submitted_at: new Date().toISOString(),
-      status: 'submitted',
+      submitted_at: isDraft ? null : new Date().toISOString(),
+      status: isDraft ? 'draft' : 'submitted',
 
-      // Store info (snake_case from RequestFormInput)
-      store_name: body.store_name,
-      store_code: body.store_code,
-      rep_name: body.rep_name,
-      brand_tier: body.brand_tier,
-      display_type: body.display_type,
-      display_reason: body.display_reason,
+      // Store info
+      store_name: body.store_name || '',
+      store_code: body.store_code || '',
+      rep_name: body.rep_name || '',
+      brand_tier: body.brand_tier || null,
+      display_type: body.display_type || null,
+      display_reason: body.display_reason || null,
 
-      // Financial inputs (percentages already as numbers from RequestFormInput)
-      rebate_pct: body.rebate_pct / 100,
-      cogs_pct: body.cogs_pct / 100,
-      board_labour_cost: body.board_labour_cost,
-      forecast_revenue: body.forecast_revenue,
-      rep_hours_monthly: body.rep_hours_monthly,
-      free_samples_cost: body.free_samples_cost,
-      catalogues_qty: body.catalogues_qty,
-      product_cogs: body.product_cogs,
+      // Financial inputs
+      rebate_pct: safeBody.rebate_pct / 100,
+      cogs_pct: safeBody.cogs_pct / 100,
+      board_labour_cost: safeBody.board_labour_cost,
+      forecast_revenue: safeBody.forecast_revenue,
+      rep_hours_monthly: safeBody.rep_hours_monthly,
+      free_samples_cost: safeBody.free_samples_cost,
+      catalogues_qty: safeBody.catalogues_qty,
+      product_cogs: safeBody.product_cogs,
       photos_link: body.photos_link || null,
       comments: body.comments || null,
 
@@ -73,7 +87,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Use service client to bypass RLS for inserts
-    const serviceSupabase = await createServiceClient();
+    const serviceSupabase = createServiceClient();
 
     // Insert into display_requests
     const { data: displayRequest, error: requestError } =
@@ -91,9 +105,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert SKUs
-    if (body.skus && body.skus.length > 0) {
-      const skuData = body.skus.map((sku) => ({
+    // Insert SKUs (if any — drafts may have none)
+    const validSkus = (body.skus || []).filter((sku) => sku.code && sku.code.trim());
+    if (validSkus.length > 0) {
+      const skuData = validSkus.map((sku) => ({
         request_id: displayRequest.id,
         sku_code: sku.code,
         sku_name: sku.name,
@@ -105,41 +120,195 @@ export async function POST(request: NextRequest) {
 
       if (skuError) {
         console.error('Error inserting SKUs:', skuError);
-        // Continue anyway - request is created
       }
     }
 
     // Create audit log entry
-    const { error: auditError } = await serviceSupabase
+    await serviceSupabase
       .from('audit_log')
       .insert([
         {
           request_id: displayRequest.id,
-          action: 'submitted',
+          action: isDraft ? 'draft_saved' : 'submitted',
           performed_by: user.id,
           performed_at: new Date().toISOString(),
-          details: `Request submitted with ${body.skus?.length || 0} SKUs`,
+          details: isDraft
+            ? `Draft saved for ${body.store_name || 'unnamed store'}`
+            : `Request submitted with ${validSkus.length} SKUs`,
         },
       ]);
 
-    if (auditError) {
-      console.error('Error creating audit log:', auditError);
+    // Only send validation email on actual submission, not drafts
+    if (!isDraft) {
+      try {
+        await sendValidationEmail(displayRequest);
+      } catch (emailError) {
+        console.error('Error sending validation email:', emailError);
+      }
     }
 
-    // Send validation email
-    try {
-      await sendValidationEmail(displayRequest);
-    } catch (emailError) {
-      console.error('Error sending validation email:', emailError);
-    }
-
-    return NextResponse.json({ id: displayRequest.id }, { status: 201 });
+    return NextResponse.json(
+      { id: displayRequest.id, status: isDraft ? 'draft' : 'submitted' },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('POST /api/requests error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
+  }
+}
+
+// PUT: update an existing draft
+export async function PUT(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body: RequestFormInput & { id: string; save_as?: 'draft' | 'submit' } = await request.json();
+
+    if (!body.id) {
+      return NextResponse.json({ error: 'Missing request ID' }, { status: 400 });
+    }
+
+    const serviceSupabase = createServiceClient();
+
+    // Verify the draft belongs to this user and is still a draft
+    const { data: existing } = await serviceSupabase
+      .from('display_requests')
+      .select('id, submitted_by, status')
+      .eq('id', body.id)
+      .single();
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Request not found' }, { status: 404 });
+    }
+
+    if (existing.submitted_by !== user.id) {
+      return NextResponse.json({ error: 'Not your draft' }, { status: 403 });
+    }
+
+    if (existing.status !== 'draft') {
+      return NextResponse.json(
+        { error: 'Only drafts can be updated. This request has already been submitted.' },
+        { status: 400 }
+      );
+    }
+
+    const isSubmitting = body.save_as === 'submit';
+
+    const safeBody = {
+      ...body,
+      rebate_pct: body.rebate_pct || 0,
+      cogs_pct: body.cogs_pct || 0,
+      board_labour_cost: body.board_labour_cost || 0,
+      forecast_revenue: body.forecast_revenue || 0,
+      rep_hours_monthly: body.rep_hours_monthly || 0,
+      free_samples_cost: body.free_samples_cost || 0,
+      catalogues_qty: body.catalogues_qty || 0,
+      product_cogs: body.product_cogs || 0,
+    };
+
+    const financials = calculateFinancials(safeBody);
+
+    const updateData = {
+      submitted_at: isSubmitting ? new Date().toISOString() : null,
+      status: isSubmitting ? 'submitted' : 'draft',
+      store_name: body.store_name || '',
+      store_code: body.store_code || '',
+      rep_name: body.rep_name || '',
+      brand_tier: body.brand_tier || null,
+      display_type: body.display_type || null,
+      display_reason: body.display_reason || null,
+      rebate_pct: safeBody.rebate_pct / 100,
+      cogs_pct: safeBody.cogs_pct / 100,
+      board_labour_cost: safeBody.board_labour_cost,
+      forecast_revenue: safeBody.forecast_revenue,
+      rep_hours_monthly: safeBody.rep_hours_monthly,
+      free_samples_cost: safeBody.free_samples_cost,
+      catalogues_qty: safeBody.catalogues_qty,
+      product_cogs: safeBody.product_cogs,
+      photos_link: body.photos_link || null,
+      comments: body.comments || null,
+      total_investment: financials.total_investment,
+      revenue_after_discount: financials.revenue_after_discount,
+      rebate_cost: financials.rebate_cost,
+      cogs_on_sales: financials.cogs_on_sales,
+      est_orders: financials.est_orders,
+      order_processing: financials.order_processing,
+      rep_visit_cost: financials.rep_visit_cost,
+      catalogue_cost: financials.catalogue_cost,
+      total_costs: financials.total_costs,
+      gross_profit: financials.gross_profit,
+      gross_margin: financials.gross_margin,
+      net_contribution: financials.net_contribution,
+      net_margin: financials.net_margin,
+      profitability_flag: financials.profitability_flag,
+      approval_tier: financials.approval_tier,
+    };
+
+    const { data: updated, error: updateErr } = await serviceSupabase
+      .from('display_requests')
+      .update(updateData)
+      .eq('id', body.id)
+      .select()
+      .single();
+
+    if (updateErr) {
+      return NextResponse.json({ error: 'Failed to update draft' }, { status: 500 });
+    }
+
+    // Replace SKUs — delete old ones, insert new
+    await serviceSupabase
+      .from('display_skus')
+      .delete()
+      .eq('request_id', body.id);
+
+    const validSkus = (body.skus || []).filter((sku) => sku.code && sku.code.trim());
+    if (validSkus.length > 0) {
+      await serviceSupabase
+        .from('display_skus')
+        .insert(validSkus.map((sku) => ({
+          request_id: body.id,
+          sku_code: sku.code,
+          sku_name: sku.name,
+        })));
+    }
+
+    // Audit log
+    await serviceSupabase.from('audit_log').insert({
+      request_id: body.id,
+      action: isSubmitting ? 'draft_submitted' : 'draft_updated',
+      performed_by: user.id,
+      performed_at: new Date().toISOString(),
+      details: isSubmitting
+        ? `Draft submitted for ${body.store_name}`
+        : `Draft updated for ${body.store_name || 'unnamed store'}`,
+    });
+
+    // Send validation email if submitting
+    if (isSubmitting) {
+      try {
+        await sendValidationEmail(updated);
+      } catch (emailError) {
+        console.error('Error sending validation email:', emailError);
+      }
+    }
+
+    return NextResponse.json({
+      id: body.id,
+      status: isSubmitting ? 'submitted' : 'draft',
+    });
+  } catch (error) {
+    console.error('PUT /api/requests error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
