@@ -74,9 +74,14 @@ export default async function Nav() {
               </Link>
 
               {showUploadActuals && (
-                <Link href="/actuals/upload" className="hover:text-gray-300 transition">
-                  Upload Actuals
-                </Link>
+                <>
+                  <Link href="/actuals/upload" className="hover:text-gray-300 transition">
+                    Upload Actuals
+                  </Link>
+                  <Link href="/export" className="hover:text-gray-300 transition">
+                    Export Data
+                  </Link>
+                </>
               )}
             </div>
           </div>
