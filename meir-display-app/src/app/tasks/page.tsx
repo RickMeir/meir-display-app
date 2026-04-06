@@ -43,6 +43,12 @@ const PRIORITY_STYLES: Record<string, string> = {
 }
 
 function getTaskLink(task: Task): string | null {
+  if (task.task_type === 'review_mismatches') {
+    return '/actuals/mismatches'
+  }
+  if (task.task_type === 'approve_upload') {
+    return '/actuals/upload'
+  }
   if (task.related_entity_type === 'sales_upload') {
     return '/actuals/upload'
   }

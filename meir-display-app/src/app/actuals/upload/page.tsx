@@ -204,7 +204,15 @@ export default function UploadActualsPage() {
             <ArrowLeft className="w-4 h-4" />
             Back to Register
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Upload Sales Actuals</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">Upload Sales Actuals</h1>
+            <Link
+              href="/actuals/mismatches"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Resolve mismatches
+            </Link>
+          </div>
           <p className="text-gray-600 mt-1">
             Upload an Acumatica &quot;Daily Sales Profitability (Detailed)&quot; export to update
             actual sales data for tracked displays.
