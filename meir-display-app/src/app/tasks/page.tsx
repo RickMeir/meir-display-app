@@ -39,7 +39,7 @@ const TASK_ICONS: Record<string, typeof FileSpreadsheet> = {
 const PRIORITY_STYLES: Record<string, string> = {
   urgent: 'border-l-4 border-l-red-500 bg-red-50',
   high: 'border-l-4 border-l-amber-500 bg-amber-50',
-  normal: 'border-l-4 border-l-blue-500 bg-white',
+  normal: 'border-l-4 border-l-blue-500 bg-gray-200',
 }
 
 function getTaskLink(task: Task): string | null {
@@ -158,7 +158,7 @@ export default function TasksPage() {
 
         {/* Pending tasks */}
         {pendingTasks.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+          <div className="bg-gray-200 border border-gray-300 rounded-lg p-12 text-center">
             <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
             <p className="text-gray-600 text-lg">You are all caught up.</p>
             <p className="text-gray-400 text-sm mt-1">No pending tasks right now.</p>

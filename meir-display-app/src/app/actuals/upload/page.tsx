@@ -344,7 +344,7 @@ export default function UploadActualsPage() {
 
         {/* Preview — step 1 result, before committing */}
         {preview && !result && (
-          <div className="mt-6 bg-white border border-blue-200 rounded-lg p-6">
+          <div className="mt-6 bg-gray-200 border border-blue-200 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-2">
               <Eye className="w-5 h-5 text-blue-500" />
               <h2 className="text-lg font-semibold text-gray-900">Upload Preview</h2>
@@ -475,7 +475,7 @@ export default function UploadActualsPage() {
 
         {/* Committed result */}
         {result && (
-          <div className="mt-6 bg-white border border-gray-200 rounded-lg p-6">
+          <div className="mt-6 bg-gray-200 border border-gray-200 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="w-5 h-5 text-green-500" />
               <h2 className="text-lg font-semibold text-gray-900">Upload Complete</h2>
@@ -564,7 +564,7 @@ export default function UploadActualsPage() {
         {pastUploads.length > 0 && (
           <div className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Upload History</h2>
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr>
@@ -671,7 +671,7 @@ export default function UploadActualsPage() {
         {/* Delete confirmation modal */}
         {deleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+            <div className="bg-gray-200 rounded-lg p-6 max-w-md mx-4 shadow-xl">
               <div className="flex items-start gap-3 mb-4">
                 <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
                 <div>

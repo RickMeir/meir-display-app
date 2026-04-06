@@ -168,7 +168,7 @@ export default function DashboardPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {summaryCards.map((card, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md p-6">
+            <div key={index} className="bg-gray-200 rounded-lg shadow-md p-6">
               <p className="text-sm text-gray-600 mb-2">{card.label}</p>
               <p className="text-3xl font-bold text-gray-900">{card.value}</p>
               {card.subtext && <p className="text-xs text-gray-500 mt-2">{card.subtext}</p>}
@@ -177,7 +177,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Requests Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-gray-200 rounded-lg shadow-md overflow-hidden">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-2xl font-semibold text-gray-900">Recent Requests</h2>
           </div>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
                     return (
                       <tr
                         key={request.id}
-                        className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                        className={index % 2 === 0 ? 'bg-gray-200' : 'bg-gray-100'}
                       >
                         <td className="py-4 px-6 text-sm text-gray-900">{request.store_name}</td>
                         <td className="py-4 px-6 text-sm text-gray-900">{request.rep_name}</td>

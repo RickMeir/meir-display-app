@@ -105,7 +105,7 @@ export default function ValidatePage() {
   if (!request) {
     return (
       <div className="max-w-4xl mx-auto py-8">
-        <div className="bg-white rounded-lg shadow p-8">
+        <div className="bg-gray-200 rounded-lg shadow p-8">
           <p className="text-red-600">{error || 'Request not found'}</p>
         </div>
       </div>
@@ -115,7 +115,7 @@ export default function ValidatePage() {
   if (request.status !== 'submitted') {
     return (
       <div className="max-w-4xl mx-auto py-8">
-        <div className="bg-white rounded-lg shadow p-8">
+        <div className="bg-gray-200 rounded-lg shadow p-8">
           <p className="font-semibold text-amber-700">Request Already Processed</p>
           <p className="text-sm mt-2 text-gray-600">
             This request has a status of &quot;{STATUS_LABELS[request.status]}&quot; and cannot be validated.
@@ -144,7 +144,7 @@ export default function ValidatePage() {
       )}
 
       {/* Request Details */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-gray-200 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Request Details</h2>
         <div className="grid grid-cols-2 gap-6">
           <div>
@@ -186,7 +186,7 @@ export default function ValidatePage() {
       <RequestOpportunity request={request} />
 
       {/* Financial Inputs */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-gray-200 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Financial Inputs</h2>
         <div className="grid grid-cols-3 gap-6">
           <div>
@@ -229,7 +229,7 @@ export default function ValidatePage() {
       </div>
 
       {/* Financial Assessment */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-gray-200 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Financial Assessment</h2>
 
         {/* Deal Status Badge */}
@@ -308,7 +308,7 @@ export default function ValidatePage() {
 
       {/* SKUs */}
       {request.skus && request.skus.length > 0 && (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-gray-200 rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">SKUs</h2>
           <div className="space-y-2">
             {request.skus.map((sku) => (
@@ -351,7 +351,7 @@ export default function ValidatePage() {
       </div>
 
       {/* Actions */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-gray-200 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Actions</h2>
 
         <div className="space-y-6">
