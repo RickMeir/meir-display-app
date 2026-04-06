@@ -239,7 +239,7 @@ export default function NewRequestPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [photoUploading, setPhotoUploading] = useState(false);
-  const [showBrandModal, setShowBrandModal] = useState(false);
+  const [showBrandModal, setShowBrandModal] = useState(true);
 
   const [formData, setFormData] = useState<FormData>({
     storeName: '',
@@ -993,57 +993,50 @@ export default function NewRequestPage() {
               <div className="text-center mb-6">
                 <ShieldCheck className="mx-auto h-12 w-12 text-blue-600 mb-3" />
                 <h3 className="text-xl font-bold text-gray-900">Meir Brand Standard</h3>
-                <p className="text-sm text-gray-600 mt-2">Please read this carefully before continuing</p>
               </div>
 
-              <div className="space-y-5 text-sm text-gray-700">
-                <p className="font-medium text-gray-900 text-base">
-                  You are a custodian of the Meir brand.
+              <div className="space-y-5 text-sm text-gray-700 leading-relaxed">
+                <p>
+                  We are a global premium brand. When a customer walks into a showroom, our display must instantly communicate that fact. We do not blend in. We do not look like just another tapware option on the wall.
                 </p>
                 <p>
-                  Every display you propose represents Meir to the public. Your role is to ensure that
-                  every display moves us closer to being seen as the premium brand we are.
+                  If a display looks average, we do not approve it. We would rather have fewer, exceptional displays than be everywhere looking average.
                 </p>
 
-                <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-green-800">YES — This is the standard</p>
-                      <ul className="mt-2 space-y-1 text-green-700 text-sm">
-                        <li>Clean, well lit, prominent positioning in store</li>
-                        <li>Products displayed at eye level, well spaced, easy to touch</li>
-                        <li>Meir branding clearly visible and not hidden behind other products</li>
-                        <li>Display design that looks premium and intentional</li>
-                        <li>Located where customers naturally browse, not tucked in a corner</li>
-                      </ul>
-                    </div>
-                  </div>
+                <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4">
+                  <p className="text-amber-900 font-semibold text-base">
+                    Before you request a display, ask yourself:
+                  </p>
+                  <p className="text-amber-800 mt-2 italic">
+                    &ldquo;Would I take a photo of this display and put it on the homepage of our website to showcase our brand?&rdquo;
+                  </p>
+                  <p className="text-amber-900 mt-2 font-medium">
+                    If the answer is no, the display should not be installed.
+                  </p>
                 </div>
 
-                <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4">
-                  <div className="flex items-start gap-3">
-                    <XCircle className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-red-800">NO — This will not be approved</p>
-                      <ul className="mt-2 space-y-1 text-red-700 text-sm">
-                        <li>Cramped, poorly lit, or hidden locations</li>
-                        <li>Products crowded together or hard to see</li>
-                        <li>Meir next to discount brands with no visual separation</li>
-                        <li>Cheap looking materials, handwritten signage, or cluttered shelving</li>
-                        <li>Any setup that makes Meir look like just another brand on the wall</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
+                <p>
+                  Our products need room to breathe. Crowded displays look cheap. Give the products space so the customer can appreciate the design and finish.
+                </p>
+                <p>
+                  We do not need every product to be on the display. Our brand is being represented, not our entire range.
+                </p>
+                <p>
+                  We belong at eye level, in the path where customers naturally browse. We do not accept being tucked away in a corner or hidden behind other brands.
+                </p>
+                <p>
+                  We do not sit shoulder to shoulder with discount brands. There must be a clear visual break that says Meir is in a different league.
+                </p>
+                <p>
+                  The lighting must be excellent. The materials surrounding our products must feel high end. The branding must be proud and unmistakable.
+                </p>
 
-                <p className="text-gray-600 italic">
-                  If you are not confident this display will increase how customers perceive Meir,
-                  stop and rethink the proposal before submitting.
+                <p className="font-semibold text-gray-900 text-base pt-2">
+                  We are Meir. Let&rsquo;s make sure every display reflects exactly what that means.
                 </p>
               </div>
 
-              <div className="mt-8 space-y-3">
+              <div className="mt-8">
                 <button
                   type="button"
                   onClick={() => {
@@ -1052,14 +1045,7 @@ export default function NewRequestPage() {
                   }}
                   className="w-full rounded-lg bg-blue-600 px-6 py-3 text-white font-medium hover:bg-blue-700 text-base"
                 >
-                  Yes, I understand — this display will represent Meir as premium
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowBrandModal(false)}
-                  className="w-full rounded-lg bg-gray-200 px-6 py-3 text-gray-600 font-medium hover:bg-gray-300 text-sm"
-                >
-                  Go back
+                  I understand
                 </button>
               </div>
             </div>
