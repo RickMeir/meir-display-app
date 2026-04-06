@@ -139,6 +139,131 @@ export interface AuditEntry {
 }
 
 // ============================================================
+// Lifecycle tracking types
+// ============================================================
+
+export type LifecycleInterval = '3_month' | '6_month' | '9_month' | '12_month'
+export type ExpenseStatus = 'proposed' | 'approved' | 'rejected' | 'cancelled'
+export type ExpenseCategory =
+  | 'rep_hours'
+  | 'gifts'
+  | 'rebates'
+  | 'discounts'
+  | 'marketing'
+  | 'catalogues'
+  | 'other'
+
+export const INTERVAL_LABELS: Record<LifecycleInterval, string> = {
+  '3_month': '3 Month Review',
+  '6_month': '6 Month Review',
+  '9_month': '9 Month Review',
+  '12_month': '12 Month Review',
+}
+
+export const EXPENSE_CATEGORY_LABELS: Record<ExpenseCategory, string> = {
+  rep_hours: 'Additional Rep Hours',
+  gifts: 'Gifts',
+  rebates: 'Additional Rebates',
+  discounts: 'Additional Discounts',
+  marketing: 'Marketing / Advertising',
+  catalogues: 'Catalogues / Promotional Material',
+  other: 'Other',
+}
+
+export const EXPENSE_STATUS_LABELS: Record<ExpenseStatus, string> = {
+  proposed: 'Proposed',
+  approved: 'Approved',
+  rejected: 'Rejected',
+  cancelled: 'Cancelled',
+}
+
+export const EXPENSE_STATUS_COLOURS: Record<ExpenseStatus, string> = {
+  proposed: 'bg-yellow-100 text-yellow-800',
+  approved: 'bg-green-100 text-green-800',
+  rejected: 'bg-red-100 text-red-800',
+  cancelled: 'bg-gray-200 text-gray-600',
+}
+
+export interface ExpectedPerformance {
+  id: string
+  request_id: string
+  month_number: number
+  calendar_month: string | null
+  weight: number
+  expected_revenue: number
+  ramp_up_factor: number | null
+  seasonality_factor: number | null
+  created_at: string
+  updated_at: string
+}
+
+export interface LifecycleReview {
+  id: string
+  request_id: string
+  interval: LifecycleInterval
+  due_date: string
+  completed_at: string | null
+  completed_by: string | null
+  expected_revenue_cumulative: number | null
+  actual_revenue_cumulative: number | null
+  variance_pct: number | null
+  tracking_assessment: TrackingStatus | null
+  on_track_threshold: number
+  at_risk_threshold: number
+  notes: string | null
+  action_taken: string | null
+  notification_sent_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface AdditionalExpense {
+  id: string
+  request_id: string
+  category: ExpenseCategory
+  description: string
+  amount: number
+  rationale: string | null
+  triggered_by_review: string | null
+  status: ExpenseStatus
+  requested_by: string
+  requested_at: string
+  approved_by: string | null
+  approved_at: string | null
+  approval_note: string | null
+  original_total_investment: number | null
+  new_total_investment: number | null
+  original_required_revenue: number | null
+  new_required_revenue: number | null
+  original_net_margin: number | null
+  new_net_margin: number | null
+  makes_unviable: boolean
+  expense_round: number
+  cumulative_additional_spend: number | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ForecastChange {
+  id: string
+  request_id: string
+  changed_by: string
+  changed_at: string
+  old_forecast: number
+  new_forecast: number
+  change_pct: number | null
+  reason: string | null
+  notification_sent_at: string | null
+  old_net_contribution: number | null
+  new_net_contribution: number | null
+  old_net_margin: number | null
+  new_net_margin: number | null
+  old_profitability_flag: ProfitabilityFlag | null
+  new_profitability_flag: ProfitabilityFlag | null
+  created_at: string
+}
+
+// ============================================================
 // Form input type (what the rep submits — no calculated fields)
 // ============================================================
 

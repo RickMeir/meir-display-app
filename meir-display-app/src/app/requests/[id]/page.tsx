@@ -67,6 +67,11 @@ export default function RequestDetailPage() {
             Review for Approval
           </Link>
         )}
+        {request.status === 'approved' && (
+          <Link href={`/requests/${request.id}/lifecycle`} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            Lifecycle Tracking
+          </Link>
+        )}
       </div>
 
       {/* Store Details */}
