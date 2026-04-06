@@ -324,7 +324,7 @@ export default function UploadActualsPage() {
                     <th className="text-right px-4 py-3 text-gray-500 font-medium">Matched</th>
                     <th className="text-center px-4 py-3 text-gray-500 font-medium">Status</th>
                     <th className="text-right px-4 py-3 text-gray-500 font-medium">Uploaded</th>
-                    {userRole === 'admin' && (
+                    {userRole && ['admin', 'coo', 'cfo'].includes(userRole) && (
                       <th className="text-center px-4 py-3 text-gray-500 font-medium w-16"></th>
                     )}
                   </tr>
@@ -371,7 +371,7 @@ export default function UploadActualsPage() {
                           year: 'numeric',
                         })}
                       </td>
-                      {userRole === 'admin' && (
+                      {userRole && ['admin', 'coo', 'cfo'].includes(userRole) && (
                         <td className="px-4 py-3 text-center">
                           <button
                             onClick={() => setDeleteConfirm(u)}

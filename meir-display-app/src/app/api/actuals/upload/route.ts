@@ -432,10 +432,10 @@ export async function DELETE(request: NextRequest) {
       .eq('email', user.email)
       .single()
 
-    // Only admin can delete uploads — managers can upload but not delete
-    if (!userData || !['admin'].includes(userData.role)) {
+    // Admin, COO (Paul), CFO (Elan) can delete uploads — managers cannot
+    if (!userData || !['admin', 'coo', 'cfo'].includes(userData.role)) {
       return NextResponse.json(
-        { error: 'Only admins can delete uploads' },
+        { error: 'Only admin, COO, or CFO can delete uploads' },
         { status: 403 }
       )
     }
