@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { DisplayRequest, STATUS_LABELS, STATUS_COLOURS } from '@/lib/types'
 import { formatCurrency, formatPercent } from '@/lib/calculations'
+import RequestOpportunity from '@/components/RequestOpportunity'
 
 export default function RequestDetailPage() {
   const params = useParams()
@@ -110,6 +111,9 @@ export default function RequestDetailPage() {
           )}
         </dl>
       </div>
+
+      {/* Opportunity, Initial Order, Photos */}
+      <RequestOpportunity request={request} />
 
       {/* Financial Inputs (visible to all — these are what the rep entered) */}
       <div className="bg-white rounded-lg shadow p-6">

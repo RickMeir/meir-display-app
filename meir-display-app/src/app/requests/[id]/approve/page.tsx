@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { formatCurrency, formatPercent } from '@/lib/calculations';
 import { DisplayRequest, STATUS_LABELS } from '@/lib/types';
+import RequestOpportunity from '@/components/RequestOpportunity';
 
 export default function ApprovePage() {
   const params = useParams();
@@ -169,6 +170,9 @@ export default function ApprovePage() {
           </div>
         </div>
       </div>
+
+      {/* Opportunity, Initial Order, Photos */}
+      <RequestOpportunity request={request} />
 
       {/* Financial Summary */}
       <div className="bg-white rounded-lg shadow p-6">

@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { DisplayRequest, STATUS_LABELS } from '@/lib/types';
 import { formatCurrency, formatPercent } from '@/lib/calculations';
+import RequestOpportunity from '@/components/RequestOpportunity';
 
 export default function ValidatePage() {
   const router = useRouter();
@@ -180,6 +181,9 @@ export default function ValidatePage() {
           )}
         </div>
       </div>
+
+      {/* Opportunity, Initial Order, Photos */}
+      <RequestOpportunity request={request} />
 
       {/* Financial Inputs */}
       <div className="bg-white rounded-lg shadow p-6">

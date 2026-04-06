@@ -35,13 +35,14 @@ export async function GET(
 
     const role = userData.role;
 
-    // Fetch the request with SKUs
+    // Fetch the request with SKUs and photos
     const { data: displayRequest, error } = await supabase
       .from('display_requests')
       .select(
         `
         *,
-        display_skus (*)
+        display_skus (*),
+        request_photos (*)
       `
       )
       .eq('id', id)
