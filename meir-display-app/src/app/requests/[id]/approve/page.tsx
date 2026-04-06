@@ -99,7 +99,7 @@ export default function ApprovePage() {
   if (error && !request) {
     return (
       <div className="max-w-4xl mx-auto py-8">
-        <div className="bg-gray-200 rounded-lg shadow p-8 text-center">
+        <div className="bg-gray-300 rounded-lg shadow p-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Error</h1>
           <p className="text-gray-600">{error}</p>
         </div>
@@ -118,7 +118,7 @@ export default function ApprovePage() {
   if (request.status !== 'pending_approval') {
     return (
       <div className="max-w-4xl mx-auto py-8">
-        <div className="bg-gray-200 rounded-lg shadow p-8 text-center">
+        <div className="bg-gray-300 rounded-lg shadow p-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Already Processed</h1>
           <p className="text-gray-600">
             This request has a status of &quot;{STATUS_LABELS[request.status]}&quot; and cannot be approved.
@@ -141,7 +141,7 @@ export default function ApprovePage() {
       )}
 
       {/* Store Details */}
-      <div className="bg-gray-200 rounded-lg shadow p-6">
+      <div className="bg-gray-300 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Store Details</h2>
         <div className="grid grid-cols-2 gap-6">
           <div>
@@ -175,7 +175,7 @@ export default function ApprovePage() {
       <RequestOpportunity request={request} />
 
       {/* Financial Summary */}
-      <div className="bg-gray-200 rounded-lg shadow p-6">
+      <div className="bg-gray-300 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Financial Summary</h2>
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div className="p-4 bg-blue-50 rounded-lg">
@@ -207,7 +207,7 @@ export default function ApprovePage() {
 
       {/* SKUs */}
       {request.skus && request.skus.length > 0 && (
-        <div className="bg-gray-200 rounded-lg shadow p-6">
+        <div className="bg-gray-300 rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">SKUs</h2>
           <table className="w-full">
             <thead>
@@ -218,7 +218,7 @@ export default function ApprovePage() {
             </thead>
             <tbody>
               {request.skus.map((sku, index) => (
-                <tr key={sku.id} className={index % 2 === 0 ? 'bg-gray-200' : 'bg-gray-100'}>
+                <tr key={sku.id} className={index % 2 === 0 ? 'bg-gray-300' : 'bg-gray-200'}>
                   <td className="py-3 px-4 text-sm text-gray-900 font-mono">{sku.sku_code}</td>
                   <td className="py-3 px-4 text-sm text-gray-900">{sku.sku_name || '—'}</td>
                 </tr>
@@ -229,7 +229,7 @@ export default function ApprovePage() {
       )}
 
       {/* Decision */}
-      <div className="bg-gray-200 rounded-lg shadow p-6">
+      <div className="bg-gray-300 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Decision Notes</h2>
         <textarea
           value={note}

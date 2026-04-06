@@ -586,8 +586,8 @@ export default function NewRequestPage() {
       <main className="min-h-screen bg-gray-50 py-8">
         <div className="mx-auto max-w-4xl px-4">
           <div className="animate-pulse">
-            <div className="mb-8 h-10 w-48 rounded bg-gray-200"></div>
-            <div className="h-64 rounded-lg bg-gray-200"></div>
+            <div className="mb-8 h-10 w-48 rounded bg-gray-300"></div>
+            <div className="h-64 rounded-lg bg-gray-300"></div>
           </div>
         </div>
       </main>
@@ -628,7 +628,7 @@ export default function NewRequestPage() {
         <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
 
           {/* ===== Store Details ===== */}
-          <div className="rounded-lg bg-gray-200 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">Store Details</h2>
 
             <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
@@ -673,7 +673,7 @@ export default function NewRequestPage() {
                         : 'border-gray-200 hover:border-gray-300 bg-white'
                     }`}
                   >
-                    <div className="w-full h-20 sm:h-24 bg-gray-100 rounded mb-2 sm:mb-3 flex items-center justify-center text-gray-400 text-xs">
+                    <div className="w-full h-20 sm:h-24 bg-gray-200 rounded mb-2 sm:mb-3 flex items-center justify-center text-gray-400 text-xs">
                       Image coming soon
                     </div>
                     <p className={`font-semibold text-sm ${formData.brandTier === tier.value ? 'text-blue-700' : 'text-gray-900'}`}>
@@ -718,7 +718,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== About This Opportunity ===== */}
-          <div className="rounded-lg bg-gray-200 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">About This Opportunity</h2>
 
             <div className="space-y-5">
@@ -778,7 +778,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== Photos ===== */}
-          <div className="rounded-lg bg-gray-200 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
             <h2 className="mb-2 text-lg sm:text-xl font-semibold text-gray-900">Photos</h2>
             <p className="text-sm text-gray-500 mb-4">
               Good photos are essential for approval. Without them, we cannot assess whether this display will increase our brand perception.
@@ -800,7 +800,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== Initial Order Commitment ===== */}
-          <div className="rounded-lg bg-gray-200 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
             <h2 className="mb-2 text-lg sm:text-xl font-semibold text-gray-900">Initial Order Commitment</h2>
 
             {/* Ownership reminder */}
@@ -869,7 +869,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== Financial Details ===== */}
-          <div className="rounded-lg bg-gray-200 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">Financial Details</h2>
 
             <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
@@ -916,7 +916,7 @@ export default function NewRequestPage() {
           </div>
 
           {/* ===== SKUs ===== */}
-          <div className="rounded-lg bg-gray-200 p-4 sm:p-6 shadow">
+          <div className="rounded-lg bg-gray-300 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">SKUs <span className="text-red-500">*</span></h2>
 
             {products.length === 0 && (
@@ -974,11 +974,11 @@ export default function NewRequestPage() {
               <button type="submit" disabled={submitting || saving} className="flex-1 rounded bg-blue-600 px-6 py-3 text-white font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-base">
                 {submitting ? 'Submitting...' : 'Submit Request'}
               </button>
-              <button type="button" onClick={handleSaveDraft} disabled={saving || submitting} className="flex-1 rounded bg-gray-100 border border-gray-300 px-6 py-3 text-gray-700 font-medium hover:bg-gray-200 disabled:bg-gray-100 disabled:cursor-not-allowed text-base">
+              <button type="button" onClick={handleSaveDraft} disabled={saving || submitting} className="flex-1 rounded bg-gray-200 border border-gray-300 px-6 py-3 text-gray-700 font-medium hover:bg-gray-300 disabled:bg-gray-200 disabled:cursor-not-allowed text-base">
                 {saving ? 'Saving...' : 'Save Draft'}
               </button>
             </div>
-            <button type="button" onClick={() => router.back()} className="w-full rounded bg-gray-50 px-6 py-2 text-gray-500 font-medium hover:bg-gray-100 text-sm">
+            <button type="button" onClick={() => router.back()} className="w-full rounded bg-gray-50 px-6 py-2 text-gray-500 font-medium hover:bg-gray-200 text-sm">
               Cancel
             </button>
           </div>
@@ -1057,7 +1057,7 @@ export default function NewRequestPage() {
                 <button
                   type="button"
                   onClick={() => setShowBrandModal(false)}
-                  className="w-full rounded-lg bg-gray-100 px-6 py-3 text-gray-600 font-medium hover:bg-gray-200 text-sm"
+                  className="w-full rounded-lg bg-gray-200 px-6 py-3 text-gray-600 font-medium hover:bg-gray-300 text-sm"
                 >
                   Go back
                 </button>

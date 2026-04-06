@@ -29,7 +29,7 @@ export default function RequestOpportunity({ request }: RequestOpportunityProps)
   return (
     <>
       {/* Opportunity */}
-      <div className="bg-gray-200 rounded-lg shadow p-6">
+      <div className="bg-gray-300 rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Opportunity</h2>
         <div className="space-y-4 text-sm">
           {request.opportunity_description && (
@@ -76,7 +76,7 @@ export default function RequestOpportunity({ request }: RequestOpportunityProps)
       </div>
 
       {/* Initial Order Commitment */}
-      <div className="bg-gray-200 rounded-lg shadow p-6">
+      <div className="bg-gray-300 rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Initial Order Commitment</h2>
         {request.has_initial_order ? (
           <div className="space-y-3 text-sm">
@@ -117,7 +117,7 @@ export default function RequestOpportunity({ request }: RequestOpportunityProps)
 
       {/* Photos */}
       {photos.length > 0 && (
-        <div className="bg-gray-200 rounded-lg shadow p-6">
+        <div className="bg-gray-300 rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Photos</h2>
           <div className="space-y-6">
             {[

@@ -123,19 +123,19 @@ export default function RequestsListPage() {
       {/* Summary cards for admin/validator */}
       {canViewFinancials && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-200 rounded-lg shadow p-4">
+          <div className="bg-gray-300 rounded-lg shadow p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">Active Displays</p>
             <p className="text-2xl font-bold text-gray-900">{totalActive}</p>
           </div>
-          <div className="bg-gray-200 rounded-lg shadow p-4">
+          <div className="bg-gray-300 rounded-lg shadow p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">Total Investment</p>
             <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalInvestment)}</p>
           </div>
-          <div className="bg-gray-200 rounded-lg shadow p-4">
+          <div className="bg-gray-300 rounded-lg shadow p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">Pending Validation</p>
             <p className="text-2xl font-bold text-orange-600">{pendingValidation}</p>
           </div>
-          <div className="bg-gray-200 rounded-lg shadow p-4">
+          <div className="bg-gray-300 rounded-lg shadow p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">Pending Approval</p>
             <p className="text-2xl font-bold text-purple-600">{pendingApproval}</p>
           </div>
@@ -151,7 +151,7 @@ export default function RequestsListPage() {
             className={`px-3 py-1 rounded-full text-xs font-medium transition ${
               statusFilter === s
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
             }`}
           >
             {s === 'all' ? `All (${requests.length})` : `${STATUS_LABELS[s as keyof typeof STATUS_LABELS] || s} (${requests.filter((r) => r.status === s).length})`}
@@ -169,10 +169,10 @@ export default function RequestsListPage() {
           )}
         </div>
       ) : (
-        <div className="bg-gray-200 rounded-lg shadow overflow-hidden">
+        <div className="bg-gray-300 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-400">
                 <tr>
                   <th
                     className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
@@ -210,14 +210,14 @@ export default function RequestsListPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
               </thead>
-              <tbody className="bg-gray-200 divide-y divide-gray-300">
+              <tbody className="bg-gray-300 divide-y divide-gray-300">
                 {sorted.map((req, i) => {
                   const flagColour = req.profitability_flag === 'green'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
 
                   return (
-                    <tr key={req.id} className={i % 2 === 0 ? 'bg-gray-200' : 'bg-gray-100'}>
+                    <tr key={req.id} className={i % 2 === 0 ? 'bg-gray-300' : 'bg-gray-200'}>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="font-medium text-gray-900 text-sm">{req.store_name}</div>
                         <div className="text-xs text-gray-500">{req.store_code}</div>

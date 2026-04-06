@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen">
         <p className="text-gray-600">Loading dashboard...</p>
       </div>
     );
@@ -102,7 +102,7 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Error</h1>
           <p className="text-gray-600">{error}</p>
@@ -161,14 +161,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-900 mb-8">Dashboard</h1>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {summaryCards.map((card, index) => (
-            <div key={index} className="bg-gray-200 rounded-lg shadow-md p-6">
+            <div key={index} className="bg-gray-300 rounded-lg shadow-md p-6">
               <p className="text-sm text-gray-600 mb-2">{card.label}</p>
               <p className="text-3xl font-bold text-gray-900">{card.value}</p>
               {card.subtext && <p className="text-xs text-gray-500 mt-2">{card.subtext}</p>}
@@ -177,7 +177,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Requests Table */}
-        <div className="bg-gray-200 rounded-lg shadow-md overflow-hidden">
+        <div className="bg-gray-300 rounded-lg shadow-md overflow-hidden">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-2xl font-semibold text-gray-900">Recent Requests</h2>
           </div>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
+                  <tr className="bg-gray-400 border-b border-gray-200">
                     <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">Store</th>
                     <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">Rep</th>
                     {canViewFinancials && (
@@ -215,7 +215,7 @@ export default function DashboardPage() {
                     return (
                       <tr
                         key={request.id}
-                        className={index % 2 === 0 ? 'bg-gray-200' : 'bg-gray-100'}
+                        className={index % 2 === 0 ? 'bg-gray-300' : 'bg-gray-200'}
                       >
                         <td className="py-4 px-6 text-sm text-gray-900">{request.store_name}</td>
                         <td className="py-4 px-6 text-sm text-gray-900">{request.rep_name}</td>

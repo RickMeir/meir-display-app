@@ -188,12 +188,12 @@ export const STATUS_LABELS: Record<RequestStatus, string> = {
 }
 
 export const STATUS_COLOURS: Record<RequestStatus, string> = {
-  draft: 'bg-gray-100 text-gray-600',
+  draft: 'bg-gray-200 text-gray-600',
   submitted: 'bg-yellow-100 text-yellow-800',
   validated: 'bg-blue-100 text-blue-800',
   queried: 'bg-orange-100 text-orange-800',
   pending_approval: 'bg-purple-100 text-purple-800',
   approved: 'bg-green-100 text-green-800',
   rejected: 'bg-red-100 text-red-800',
-  cancelled: 'bg-gray-100 text-gray-800',
+  cancelled: 'bg-gray-200 text-gray-800',
 }
