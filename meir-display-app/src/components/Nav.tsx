@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { signOutAction } from '@/lib/auth/actions';
 
 export default async function Nav() {
@@ -10,26 +10,40 @@ export default async function Nav() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Get user role and name
+  // Get user role, name, and ID
   let userRole = '';
   let userName = '';
+  let userId = '';
 
   if (user?.email) {
     const { data } = await supabase
       .from('users')
-      .select('name, role')
+      .select('id, name, role')
       .eq('email', user.email)
       .single();
 
     if (data) {
+      userId = data.id || '';
       userRole = data.role || '';
       userName = data.name || user.email;
     }
   }
 
+  // Fetch pending task count for badge
+  let pendingTaskCount = 0;
+  if (userId) {
+    const serviceClient = createServiceClient();
+    const { count } = await serviceClient
+      .from('user_tasks')
+      .select('*', { count: 'exact', head: true })
+      .eq('assigned_to', userId)
+      .eq('status', 'pending');
+
+    pendingTaskCount = count || 0;
+  }
+
   const showNewRequest = ['rep', 'admin'].includes(userRole);
-  const showPendingValidation = ['validator', 'admin'].includes(userRole);
-  const showPendingApproval = ['manager', 'cfo', 'coo', 'admin'].includes(userRole);
+  const showUploadActuals = ['admin', 'manager', 'cfo', 'coo'].includes(userRole);
 
   return (
     <nav className="bg-meir-800 text-white">
@@ -38,7 +52,7 @@ export default async function Nav() {
           {/* Left side: Brand and links */}
           <div className="flex items-center gap-8">
             <Link href="/dashboard" className="text-xl font-bold hover:opacity-90">
-              Meir Display Management
+              Meir Displays
             </Link>
 
             <div className="flex items-center gap-6">
@@ -46,7 +60,7 @@ export default async function Nav() {
                 Dashboard
               </Link>
               <Link href="/requests" className="hover:text-gray-300 transition">
-                My Requests
+                Requests
               </Link>
 
               {showNewRequest && (
@@ -55,17 +69,20 @@ export default async function Nav() {
                 </Link>
               )}
 
-              {showPendingValidation && (
-                <Link href="/requests?status=submitted" className="hover:text-gray-300 transition">
-                  Pending Validation
+              {showUploadActuals && (
+                <Link href="/actuals/upload" className="hover:text-gray-300 transition">
+                  Upload Actuals
                 </Link>
               )}
 
-              {showPendingApproval && (
-                <Link href="/requests?status=pending_approval" className="hover:text-gray-300 transition">
-                  Pending Approval
-                </Link>
-              )}
+              <Link href="/tasks" className="hover:text-gray-300 transition relative flex items-center gap-1.5">
+                Tasks
+                {pendingTaskCount > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold bg-red-500 text-white rounded-full">
+                    {pendingTaskCount > 99 ? '99+' : pendingTaskCount}
+                  </span>
+                )}
+              </Link>
             </div>
           </div>
 
