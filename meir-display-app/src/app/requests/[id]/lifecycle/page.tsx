@@ -56,7 +56,7 @@ interface LifecycleData {
 
 const TRACKING_COLOURS: Record<string, string> = {
   on_track: 'bg-green-100 text-green-800',
-  at_risk: 'bg-yellow-100 text-yellow-800',
+  at_risk: 'bg-yellow-100 text-yellow-800',  // kept for legacy data, not used in new reviews
   off_track: 'bg-red-100 text-red-800',
   not_started: 'bg-gray-200 text-gray-600',
 }
@@ -314,10 +314,8 @@ export default function LifecyclePage() {
                           <span className="text-gray-400 text-xs">Future</span>
                         ) : actualRev === 0 && !actual ? (
                           <span className="text-gray-400 text-xs">No data</span>
-                        ) : variance >= -0.1 ? (
+                        ) : variance >= 0 ? (
                           <span className="inline-block w-3 h-3 rounded-full bg-green-500" title="On track" />
-                        ) : variance >= -0.3 ? (
-                          <span className="inline-block w-3 h-3 rounded-full bg-yellow-500" title="At risk" />
                         ) : (
                           <span className="inline-block w-3 h-3 rounded-full bg-red-500" title="Off track" />
                         )}
@@ -655,8 +653,8 @@ export default function LifecyclePage() {
         )}
       </div>
 
-      {/* Cut-Loss Decision Support */}
-      {(summary.is_spiral || (summary.variance_to_date < -0.3 && summary.months_elapsed >= 3)) && (
+      {/* Cut-Loss Decision Support — shows when in a spending spiral, or off track at 6+ months */}
+      {(summary.is_spiral || (summary.variance_to_date < 0 && summary.months_elapsed >= 6)) && (
         <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
           <h2 className="text-lg font-bold text-red-900 mb-3">Cut-Loss Decision Support</h2>
           <div className="grid grid-cols-2 gap-4 text-sm mb-4">

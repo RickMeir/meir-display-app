@@ -76,8 +76,9 @@ CREATE TABLE lifecycle_reviews (
   tracking_assessment tracking_status,           -- on_track, at_risk, off_track
 
   -- Thresholds used for classification (stored so they are auditable)
-  on_track_threshold NUMERIC(5,4) DEFAULT 0.90,  -- >= 90% of expected = on_track
-  at_risk_threshold NUMERIC(5,4) DEFAULT 0.70,   -- >= 70% of expected = at_risk, below = off_track
+  -- EOS model: binary. On track = at or above forecast. Off track = below forecast.
+  on_track_threshold NUMERIC(5,4) DEFAULT 1.0,   -- >= 100% of expected = on_track
+  at_risk_threshold NUMERIC(5,4) DEFAULT 1.0,    -- kept for future flexibility, not currently used
 
   -- Review notes and actions
   notes TEXT,
@@ -383,13 +384,12 @@ BEGIN
     v_variance := 0;
   END IF;
 
-  -- Determine assessment
+  -- Determine assessment (EOS model: binary on_track / off_track)
+  -- On track = actual >= expected. Off track = actual < expected.
   IF v_expected = 0 THEN
     v_assessment := 'not_started';
-  ELSIF (v_actual / v_expected) >= v_on_track_threshold THEN
+  ELSIF v_actual >= v_expected THEN
     v_assessment := 'on_track';
-  ELSIF (v_actual / v_expected) >= v_at_risk_threshold THEN
-    v_assessment := 'at_risk';
   ELSE
     v_assessment := 'off_track';
   END IF;
