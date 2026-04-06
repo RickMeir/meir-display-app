@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import Image from 'next/image';
 
 interface Product {
   sku_code: string;
@@ -21,7 +22,14 @@ interface FormData {
   salesRep: string;
   brandTier: string;
   displayType: string;
-  displayReason: string;
+  opportunityDescription: string;
+  competitorBrands: string;
+  brandPerceptionImpact: string;
+  plannedInstallDate: string;
+  isNewOrReplacement: string;
+  differentiationPlan: string;
+  storeAgreedLocation: boolean;
+  photosLink: string;
   rebatePercentage: number | '';
   clientDiscountPercentage: number | '';
   boardCost: number | '';
@@ -31,7 +39,6 @@ interface FormData {
   freeSamples: number | '';
   gifts: number | '';
   cataloguesPerYear: number | '';
-  comments: string;
   skus: SKURow[];
 }
 
@@ -45,6 +52,34 @@ const NUMERIC_FIELDS = [
   'freeSamples',
   'gifts',
   'cataloguesPerYear',
+];
+
+const DISPLAY_TIERS = [
+  {
+    value: 'High-end',
+    label: 'High-end',
+    description: 'Flagship experience. Bespoke fixtures, lighting, premium materials.',
+    // Replace with actual image path once Rick provides images
+    imagePlaceholder: true,
+  },
+  {
+    value: 'Premium',
+    label: 'Premium',
+    description: 'High quality boards and fixtures. Strong brand presence.',
+    imagePlaceholder: true,
+  },
+  {
+    value: 'Mid-range',
+    label: 'Mid-range',
+    description: 'Standard display board with product samples.',
+    imagePlaceholder: true,
+  },
+  {
+    value: 'Basic',
+    label: 'Basic',
+    description: 'Simple product placement. Minimal fixtures.',
+    imagePlaceholder: true,
+  },
 ];
 
 export default function NewRequestPage() {
@@ -67,7 +102,14 @@ export default function NewRequestPage() {
     salesRep: '',
     brandTier: '',
     displayType: '',
-    displayReason: '',
+    opportunityDescription: '',
+    competitorBrands: '',
+    brandPerceptionImpact: '',
+    plannedInstallDate: '',
+    isNewOrReplacement: '',
+    differentiationPlan: '',
+    storeAgreedLocation: false,
+    photosLink: '',
     rebatePercentage: '',
     clientDiscountPercentage: '',
     boardCost: '',
@@ -77,7 +119,6 @@ export default function NewRequestPage() {
     freeSamples: '',
     gifts: '',
     cataloguesPerYear: '',
-    comments: '',
     skus: [{ id: '1', code: '', name: '' }],
   });
 
@@ -85,7 +126,6 @@ export default function NewRequestPage() {
     const init = async () => {
       const supabase = createClient();
 
-      // Fetch current user
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -98,7 +138,6 @@ export default function NewRequestPage() {
         }));
       }
 
-      // Fetch product list for SKU dropdown
       try {
         const res = await fetch('/api/products');
         if (res.ok) {
@@ -122,7 +161,14 @@ export default function NewRequestPage() {
                 salesRep: draft.rep_name || user?.email || '',
                 brandTier: draft.brand_tier || '',
                 displayType: draft.display_type || '',
-                displayReason: draft.display_reason || '',
+                opportunityDescription: draft.opportunity_description || draft.display_reason || '',
+                competitorBrands: draft.competitor_brands || '',
+                brandPerceptionImpact: draft.brand_perception_impact || '',
+                plannedInstallDate: draft.planned_install_date || '',
+                isNewOrReplacement: draft.is_new_or_replacement || '',
+                differentiationPlan: draft.differentiation_plan || '',
+                storeAgreedLocation: draft.store_agreed_location || false,
+                photosLink: draft.photos_link || '',
                 rebatePercentage: draft.rebate_pct ? draft.rebate_pct * 100 : '',
                 clientDiscountPercentage: draft.cogs_pct ? draft.cogs_pct * 100 : '',
                 boardCost: draft.board_labour_cost || '',
@@ -132,7 +178,6 @@ export default function NewRequestPage() {
                 freeSamples: draft.free_samples_cost || '',
                 gifts: '',
                 cataloguesPerYear: draft.catalogues_qty || '',
-                comments: draft.comments || '',
                 skus: draft.display_skus && draft.display_skus.length > 0
                   ? draft.display_skus.map((s: { id: string; sku_code: string; sku_name: string }, i: number) => ({
                       id: String(i + 1),
@@ -158,15 +203,20 @@ export default function NewRequestPage() {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: NUMERIC_FIELDS.includes(name)
-        ? value === ''
-          ? ''
-          : parseFloat(value)
-        : value,
-    }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: NUMERIC_FIELDS.includes(name)
+          ? value === ''
+            ? ''
+            : parseFloat(value)
+          : value,
+      }));
+    }
   };
 
   const handleSkuChange = (index: number, selectedCode: string) => {
@@ -177,10 +227,7 @@ export default function NewRequestPage() {
       code: selectedCode,
       name: product?.sku_name || '',
     };
-    setFormData((prev) => ({
-      ...prev,
-      skus: newSkus,
-    }));
+    setFormData((prev) => ({ ...prev, skus: newSkus }));
   };
 
   const addSKU = () => {
@@ -201,40 +248,22 @@ export default function NewRequestPage() {
   };
 
   const validateForm = (): boolean => {
-    if (!formData.storeName.trim()) {
-      setError('Store Name is required');
-      return false;
-    }
-    if (!formData.storeCode.trim()) {
-      setError('Store Code is required');
-      return false;
-    }
-    if (!formData.salesRep.trim()) {
-      setError('Sales Rep is required');
-      return false;
-    }
-    if (!formData.brandTier) {
-      setError('Brand Tier is required');
-      return false;
-    }
-    if (!formData.displayType) {
-      setError('Display Type is required');
-      return false;
-    }
+    if (!formData.storeName.trim()) { setError('Store Name is required'); return false; }
+    if (!formData.storeCode.trim()) { setError('Store Code is required'); return false; }
+    if (!formData.salesRep.trim()) { setError('Sales Rep is required'); return false; }
+    if (!formData.brandTier) { setError('Please select the type of display'); return false; }
+    if (!formData.displayType) { setError('Display Type is required'); return false; }
+    if (!formData.opportunityDescription.trim()) { setError('Please describe the opportunity'); return false; }
+    if (!formData.competitorBrands.trim()) { setError('Please list the 3 closest competitor brands'); return false; }
+    if (!formData.brandPerceptionImpact) { setError('Please select the brand perception impact'); return false; }
+    if (!formData.plannedInstallDate) { setError('Please enter the planned installation date'); return false; }
+    if (!formData.isNewOrReplacement) { setError('Please select whether this is a new display or replacement'); return false; }
     if (formData.salesForecast12Month === '' || formData.salesForecast12Month === null) {
-      setError('12 Month Sales Forecast is required');
-      return false;
+      setError('12 Month Sales Forecast is required'); return false;
     }
-    if (formData.skus.length === 0) {
-      setError('At least one SKU is required');
-      return false;
-    }
+    if (formData.skus.length === 0) { setError('At least one SKU is required'); return false; }
     const validSkus = formData.skus.every((sku) => sku.code.trim() && sku.name.trim());
-    if (!validSkus) {
-      setError('All SKUs must have a product selected');
-      return false;
-    }
-
+    if (!validSkus) { setError('All SKUs must have a product selected'); return false; }
     return true;
   };
 
@@ -253,7 +282,14 @@ export default function NewRequestPage() {
       rep_name: formData.salesRep,
       brand_tier: formData.brandTier,
       display_type: formData.displayType,
-      display_reason: formData.displayReason,
+      display_reason: '', // legacy field
+      opportunity_description: formData.opportunityDescription,
+      competitor_brands: formData.competitorBrands,
+      brand_perception_impact: formData.brandPerceptionImpact,
+      planned_install_date: formData.plannedInstallDate || null,
+      is_new_or_replacement: formData.isNewOrReplacement,
+      differentiation_plan: formData.differentiationPlan,
+      store_agreed_location: formData.storeAgreedLocation,
       rebate_pct: formData.rebatePercentage === '' ? 0 : formData.rebatePercentage,
       cogs_pct: formData.clientDiscountPercentage === '' ? 0 : formData.clientDiscountPercentage,
       board_labour_cost: boardLabourCost,
@@ -262,8 +298,8 @@ export default function NewRequestPage() {
       free_samples_cost: freeSamplesCost,
       catalogues_qty: formData.cataloguesPerYear === '' ? 0 : formData.cataloguesPerYear,
       product_cogs: 0,
-      photos_link: '',
-      comments: formData.comments,
+      photos_link: formData.photosLink,
+      comments: '',
       skus: formData.skus.map((sku) => ({
         code: sku.code,
         name: sku.name,
@@ -309,9 +345,7 @@ export default function NewRequestPage() {
     e.preventDefault();
     setError(null);
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setSubmitting(true);
 
@@ -358,6 +392,9 @@ export default function NewRequestPage() {
     );
   }
 
+  const inputClass = 'w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500';
+  const labelClass = 'block text-sm font-medium text-gray-700 mb-2';
+
   return (
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="mx-auto max-w-4xl px-4">
@@ -368,7 +405,7 @@ export default function NewRequestPage() {
           <p className="mt-2 text-gray-600">
             {currentDraftId
               ? 'Continue working on your draft. Save at any time or submit when ready.'
-              : 'Complete the form below to submit a new display request'}
+              : 'Complete the form below to submit a new display request.'}
           </p>
         </div>
 
@@ -387,85 +424,38 @@ export default function NewRequestPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Store Details Section */}
+
+          {/* ===== Store Details ===== */}
           <div className="rounded-lg bg-white p-6 shadow">
             <h2 className="mb-6 text-xl font-semibold text-gray-900">Store Details</h2>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={labelClass}>
                   Store Name <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="storeName"
-                  value={formData.storeName}
-                  onChange={handleInputChange}
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter store name"
-                  required
-                />
+                <input type="text" name="storeName" value={formData.storeName} onChange={handleInputChange} className={inputClass} placeholder="Enter store name" required />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={labelClass}>
                   Store Code <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="storeCode"
-                  value={formData.storeCode}
-                  onChange={handleInputChange}
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter store code"
-                  required
-                />
+                <input type="text" name="storeCode" value={formData.storeCode} onChange={handleInputChange} className={inputClass} placeholder="Enter store code" required />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={labelClass}>
                   Sales Rep <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  name="salesRep"
-                  value={formData.salesRep}
-                  onChange={handleInputChange}
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter sales rep name or email"
-                  required
-                />
+                <input type="text" name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} placeholder="Enter sales rep name or email" required />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Brand Tier <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="brandTier"
-                  value={formData.brandTier}
-                  onChange={handleInputChange}
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select brand tier</option>
-                  <option value="Premium">Premium</option>
-                  <option value="Mid-Range">Mid Range</option>
-                  <option value="Value">Value</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={labelClass}>
                   Display Type <span className="text-red-500">*</span>
                 </label>
-                <select
-                  name="displayType"
-                  value={formData.displayType}
-                  onChange={handleInputChange}
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  required
-                >
+                <select name="displayType" value={formData.displayType} onChange={handleInputChange} className={inputClass} required>
                   <option value="">Select display type</option>
                   <option value="Freestanding">Freestanding</option>
                   <option value="Shelf">Shelf</option>
@@ -477,163 +467,268 @@ export default function NewRequestPage() {
               </div>
             </div>
 
+            {/* Display Tier Visual Selector */}
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Display Reason</label>
-              <textarea
-                name="displayReason"
-                value={formData.displayReason}
-                onChange={handleInputChange}
-                rows={3}
-                className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Explain why this display is needed"
-              ></textarea>
+              <label className={labelClass}>
+                Select the type of display <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                {DISPLAY_TIERS.map((tier) => (
+                  <button
+                    key={tier.value}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, brandTier: tier.value }))}
+                    className={`relative rounded-lg border-2 p-4 text-left transition-all ${
+                      formData.brandTier === tier.value
+                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                    }`}
+                  >
+                    {/* Placeholder for display tier image — replace with actual images */}
+                    <div className="w-full h-24 bg-gray-100 rounded mb-3 flex items-center justify-center text-gray-400 text-xs">
+                      Image coming soon
+                    </div>
+                    <p className={`font-semibold text-sm ${
+                      formData.brandTier === tier.value ? 'text-blue-700' : 'text-gray-900'
+                    }`}>
+                      {tier.label}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">{tier.description}</p>
+                    {formData.brandTier === tier.value && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Is this new or replacement? */}
+            <div className="mt-6">
+              <label className={labelClass}>
+                Is this a new display or a replacement/update? <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-4">
+                {[
+                  { value: 'new', label: 'New display' },
+                  { value: 'replacement', label: 'Replacing an existing display' },
+                  { value: 'update', label: 'Updating/refreshing an existing display' },
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={`flex-1 cursor-pointer rounded-lg border-2 px-4 py-3 text-center text-sm font-medium transition-all ${
+                      formData.isNewOrReplacement === opt.value
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="isNewOrReplacement"
+                      value={opt.value}
+                      checked={formData.isNewOrReplacement === opt.value}
+                      onChange={handleInputChange}
+                      className="sr-only"
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Financial Details Section */}
+          {/* ===== About This Opportunity ===== */}
+          <div className="rounded-lg bg-white p-6 shadow">
+            <h2 className="mb-6 text-xl font-semibold text-gray-900">About This Opportunity</h2>
+
+            <div className="space-y-6">
+              <div>
+                <label className={labelClass}>
+                  Please describe the opportunity <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  name="opportunityDescription"
+                  value={formData.opportunityDescription}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className={inputClass}
+                  placeholder="What is the opportunity here? Why should we invest in this display?"
+                ></textarea>
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  What will be the 3 closest competitor brands to this new display? <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  name="competitorBrands"
+                  value={formData.competitorBrands}
+                  onChange={handleInputChange}
+                  rows={2}
+                  className={inputClass}
+                  placeholder="e.g. Phoenix Tapware, Caroma, Grohe"
+                ></textarea>
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  Will this display increase our brand perception, make no change, or reduce it? <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="brandPerceptionImpact"
+                  value={formData.brandPerceptionImpact}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  required
+                >
+                  <option value="">Select one</option>
+                  <option value="increase">Increase brand perception</option>
+                  <option value="no_change">No change to brand perception</option>
+                  <option value="reduce">Reduce brand perception</option>
+                </select>
+                {formData.brandPerceptionImpact === 'reduce' && (
+                  <p className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
+                    If this display will reduce brand perception, it is unlikely to be approved. Please reconsider the design or location before submitting.
+                  </p>
+                )}
+                {formData.brandPerceptionImpact === 'no_change' && (
+                  <p className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
+                    Our goal is to increase brand perception with every display. If there is no uplift, consider how the design or positioning could be improved.
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  How will this display stand out from surrounding brands?
+                </label>
+                <textarea
+                  name="differentiationPlan"
+                  value={formData.differentiationPlan}
+                  onChange={handleInputChange}
+                  rows={2}
+                  className={inputClass}
+                  placeholder="What makes this display stand out? Think about positioning, lighting, materials, signage."
+                ></textarea>
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  Date when the display will be installed by <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="plannedInstallDate"
+                  value={formData.plannedInstallDate}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500">Please be accurate with the date you enter</p>
+              </div>
+
+              <div>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="storeAgreedLocation"
+                    checked={formData.storeAgreedLocation}
+                    onChange={handleInputChange}
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">
+                    The store has agreed to the proposed display location
+                  </span>
+                </label>
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  Photos of the installation area
+                </label>
+                <input
+                  type="text"
+                  name="photosLink"
+                  value={formData.photosLink}
+                  onChange={handleInputChange}
+                  className={inputClass}
+                  placeholder="Paste a link to photos (Google Drive, Dropbox, etc.)"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Upload photos of the proposed area to Google Drive or Dropbox and paste the share link here.
+                  Include photos of: the installation area, surrounding brands, and the current display (if replacing).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ===== Financial Details ===== */}
           <div className="rounded-lg bg-white p-6 shadow">
             <h2 className="mb-6 text-xl font-semibold text-gray-900">Financial Details</h2>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rebate %</label>
-                <input
-                  type="number"
-                  name="rebatePercentage"
-                  value={formData.rebatePercentage}
-                  onChange={handleInputChange}
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0"
-                />
+                <label className={labelClass}>Rebate %</label>
+                <input type="number" name="rebatePercentage" value={formData.rebatePercentage} onChange={handleInputChange} min="0" max="100" step="0.1" className={inputClass} placeholder="0" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Client Discount %</label>
-                <input
-                  type="number"
-                  name="clientDiscountPercentage"
-                  value={formData.clientDiscountPercentage}
-                  onChange={handleInputChange}
-                  min="0"
-                  max="100"
-                  step="0.1"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0"
-                />
+                <label className={labelClass}>Client Discount %</label>
+                <input type="number" name="clientDiscountPercentage" value={formData.clientDiscountPercentage} onChange={handleInputChange} min="0" max="100" step="0.1" className={inputClass} placeholder="0" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Board Cost $</label>
-                <input
-                  type="number"
-                  name="boardCost"
-                  value={formData.boardCost}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
+                <label className={labelClass}>Board Cost Materials $</label>
+                <input type="number" name="boardCost" value={formData.boardCost} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Labour Cost $</label>
-                <input
-                  type="number"
-                  name="labourCost"
-                  value={formData.labourCost}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
+                <label className={labelClass}>Display Board Labour Cost $</label>
+                <input type="number" name="labourCost" value={formData.labourCost} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={labelClass}>
                   12 Month Sales Forecast $ <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="number"
-                  name="salesForecast12Month"
-                  value={formData.salesForecast12Month}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0.00"
-                  required
-                />
+                <input type="number" name="salesForecast12Month" value={formData.salesForecast12Month} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" required />
                 <p className="mt-1 text-xs text-gray-500">This value cannot be changed after submission</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={labelClass}>
                   Amount of hours you will spend with this client each month
                 </label>
-                <input
-                  type="number"
-                  name="repHoursPerMonth"
-                  value={formData.repHoursPerMonth}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.5"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0"
-                />
+                <input type="number" name="repHoursPerMonth" value={formData.repHoursPerMonth} onChange={handleInputChange} min="0" step="0.5" className={inputClass} placeholder="0" />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Free Samples $</label>
-                <input
-                  type="number"
-                  name="freeSamples"
-                  value={formData.freeSamples}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
+                <label className={labelClass}>Free Samples $</label>
+                <input type="number" name="freeSamples" value={formData.freeSamples} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
+                <p className="mt-1 text-xs text-gray-500">
+                  This is the total amount of free samples you expect to provide them in 12 months
+                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Gifts $</label>
-                <input
-                  type="number"
-                  name="gifts"
-                  value={formData.gifts}
-                  onChange={handleInputChange}
-                  min="0"
-                  step="0.01"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
+                <label className={labelClass}>Gifts $</label>
+                <input type="number" name="gifts" value={formData.gifts} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
                 <p className="mt-1 text-xs text-gray-500">
                   Enter all estimated costs for the next 12 months including buying lunch, wine, store gifts, or any other expense
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Catalogues per Year</label>
-                <input
-                  type="number"
-                  name="cataloguesPerYear"
-                  value={formData.cataloguesPerYear}
-                  onChange={handleInputChange}
-                  min="0"
-                  className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="0"
-                />
+                <label className={labelClass}>Catalogues per Year</label>
+                <input type="number" name="cataloguesPerYear" value={formData.cataloguesPerYear} onChange={handleInputChange} min="0" className={inputClass} placeholder="0" />
               </div>
             </div>
           </div>
 
-          {/* SKUs Section */}
+          {/* ===== SKUs ===== */}
           <div className="rounded-lg bg-white p-6 shadow">
             <h2 className="mb-6 text-xl font-semibold text-gray-900">
               SKUs <span className="text-red-500">*</span>
@@ -649,12 +744,12 @@ export default function NewRequestPage() {
               {formData.skus.map((sku, index) => (
                 <div key={sku.id} className="flex gap-4 items-end">
                   <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">SKU Code</label>
+                    <label className={labelClass}>SKU Code</label>
                     {products.length > 0 ? (
                       <select
                         value={sku.code}
                         onChange={(e) => handleSkuChange(index, e.target.value)}
-                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className={inputClass}
                         required
                       >
                         <option value="">Select a product</option>
@@ -673,7 +768,7 @@ export default function NewRequestPage() {
                           newSkus[index] = { ...newSkus[index], code: e.target.value };
                           setFormData((prev) => ({ ...prev, skus: newSkus }));
                         }}
-                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className={inputClass}
                         placeholder="Enter SKU code"
                         required
                       />
@@ -681,7 +776,7 @@ export default function NewRequestPage() {
                   </div>
 
                   <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">SKU Name</label>
+                    <label className={labelClass}>SKU Name</label>
                     <input
                       type="text"
                       value={sku.name}
@@ -714,24 +809,7 @@ export default function NewRequestPage() {
             </button>
           </div>
 
-          {/* Additional Section */}
-          <div className="rounded-lg bg-white p-6 shadow">
-            <h2 className="mb-6 text-xl font-semibold text-gray-900">Additional</h2>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Comments</label>
-              <textarea
-                name="comments"
-                value={formData.comments}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Add any additional comments or notes"
-              ></textarea>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
+          {/* ===== Action Buttons ===== */}
           <div className="space-y-3">
             {draftSaved && (
               <div className="rounded-lg bg-green-50 p-3 text-green-700 border border-green-200 text-sm text-center">

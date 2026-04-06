@@ -37,7 +37,14 @@ export interface DisplayRequest {
   rep_name: string
   brand_tier: string | null
   display_type: string | null
-  display_reason: string | null
+  display_reason: string | null  // legacy — replaced by structured fields below
+  opportunity_description: string | null
+  competitor_brands: string | null
+  brand_perception_impact: 'increase' | 'no_change' | 'reduce' | null
+  planned_install_date: string | null
+  is_new_or_replacement: 'new' | 'replacement' | 'update' | null
+  differentiation_plan: string | null
+  store_agreed_location: boolean
 
   // Financial inputs
   rebate_pct: number
@@ -136,7 +143,14 @@ export interface RequestFormInput {
   rep_name: string
   brand_tier: string
   display_type: string
-  display_reason: string
+  display_reason: string  // legacy
+  opportunity_description: string
+  competitor_brands: string
+  brand_perception_impact: string
+  planned_install_date: string
+  is_new_or_replacement: string
+  differentiation_plan: string
+  store_agreed_location: boolean
   rebate_pct: number        // as percentage, e.g. 5 for 5%
   cogs_pct: number          // as percentage, e.g. 60 for 60%
   board_labour_cost: number
