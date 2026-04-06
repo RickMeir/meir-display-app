@@ -259,9 +259,15 @@ export async function POST(request: NextRequest) {
       .select('id, store_name, store_code, status')
       .in('status', ['approved', 'validated', 'pending_approval'])
 
+    // Fetch customer aliases
+    const { data: aliases } = await serviceClient
+      .from('customer_aliases')
+      .select('acumatica_name, display_request_id')
+
     // Build lookup maps for matching
     const displayByName: Record<string, string> = {}
     const displayByCode: Record<string, string> = {}
+    const displayByAlias: Record<string, string> = {}
 
     if (displays) {
       for (const d of displays) {
@@ -270,6 +276,12 @@ export async function POST(request: NextRequest) {
         if (d.store_code) {
           displayByCode[d.store_code.toLowerCase().trim()] = d.id
         }
+      }
+    }
+
+    if (aliases) {
+      for (const a of aliases) {
+        displayByAlias[a.acumatica_name.toLowerCase().trim()] = a.display_request_id
       }
     }
 
@@ -287,6 +299,11 @@ export async function POST(request: NextRequest) {
       if (displayByName[nameKey]) {
         matchedRequestId = displayByName[nameKey]
         matchMethod = 'exact_name'
+      }
+      // Try alias match (previously manually mapped names)
+      else if (displayByAlias[nameKey]) {
+        matchedRequestId = displayByAlias[nameKey]
+        matchMethod = 'alias'
       }
       // Try store code match
       else if (row.customer_code && displayByCode[row.customer_code.toLowerCase().trim()]) {
@@ -350,10 +367,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Refresh monthly actuals from matched rows
-    if (matchedCount > 0) {
-      await serviceClient.rpc('refresh_monthly_actuals', { p_upload_id: upload.id })
-    }
+    // DO NOT refresh monthly actuals yet — upload needs Rick's approval first.
+    // The refresh happens when the upload is approved via /api/actuals/upload/approve
 
     // Top unmatched customers for the summary
     const topUnmatched = Object.entries(unmatchedCustomers)
@@ -371,16 +386,73 @@ export async function POST(request: NextRequest) {
       top_unmatched: topUnmatched,
     }
 
-    // Update upload record
+    // Update upload record — pending approval, NOT completed
     await serviceClient
       .from('sales_uploads')
       .update({
         status: 'completed',
+        approval_status: 'pending_approval',
         matched_rows: matchedCount,
         unmatched_rows: unmatchedCount,
         summary,
       })
       .eq('id', upload.id)
+
+    // Create approval task for Rick
+    const { createTask } = await import('@/lib/tasks')
+
+    // Find Rick's user ID
+    const { data: rickUser } = await serviceClient
+      .from('users')
+      .select('id')
+      .eq('email', 'rick@meir.com.au')
+      .single()
+
+    if (rickUser) {
+      await createTask({
+        assignedTo: rickUser.id,
+        taskType: 'approve_upload',
+        title: `Approve uploaded actuals: ${file.name}`,
+        description: `${parsed.rows.length.toLocaleString()} rows, ${matchedCount.toLocaleString()} matched (${parsed.rows.length > 0 ? Math.round((matchedCount / parsed.rows.length) * 100) : 0}%). Date range: ${parsed.dateFrom || '?'} to ${parsed.dateTo || '?'}. Uploaded by ${userData.id === rickUser.id ? 'you' : 'another user'}.`,
+        priority: 'high',
+        relatedEntityType: 'sales_upload',
+        relatedEntityId: upload.id,
+        metadata: {
+          filename: file.name,
+          total_rows: parsed.rows.length,
+          matched: matchedCount,
+          unmatched: unmatchedCount,
+          uploaded_by: userData.id,
+        },
+        sendEmail: true,
+      })
+    }
+
+    // If there are significant unmatched customers, create a task for Michael to review
+    if (topUnmatched.length > 0) {
+      const { data: michaelUser } = await serviceClient
+        .from('users')
+        .select('id')
+        .eq('email', 'michael@meir.com.au')
+        .single()
+
+      if (michaelUser) {
+        await createTask({
+          assignedTo: michaelUser.id,
+          taskType: 'review_mismatches',
+          title: `Review ${topUnmatched.length} unmatched customers from upload`,
+          description: `${unmatchedCount.toLocaleString()} transaction rows could not be matched to a display request. Top unmatched: ${topUnmatched.slice(0, 5).map((c) => c.name).join(', ')}${topUnmatched.length > 5 ? '...' : ''}.`,
+          priority: unmatchedCount > matchedCount ? 'high' : 'normal',
+          relatedEntityType: 'sales_upload',
+          relatedEntityId: upload.id,
+          metadata: {
+            unmatched_count: unmatchedCount,
+            top_unmatched: topUnmatched.slice(0, 10),
+          },
+          sendEmail: true,
+        })
+      }
+    }
 
     // Audit log
     await serviceClient.from('audit_log').insert({

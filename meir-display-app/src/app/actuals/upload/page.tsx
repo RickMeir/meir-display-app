@@ -28,6 +28,9 @@ interface PastUpload {
   matched_rows: number
   unmatched_rows: number
   status: string
+  approval_status: string
+  approved_by: string | null
+  approved_at: string | null
   summary: UploadSummary | null
 }
 
@@ -42,6 +45,7 @@ export default function UploadActualsPage() {
   const [dragOver, setDragOver] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<PastUpload | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [approving, setApproving] = useState<string | null>(null)
 
   const fetchUploads = useCallback(async () => {
     try {
@@ -127,6 +131,31 @@ export default function UploadActualsPage() {
     setDragOver(false)
     const file = e.dataTransfer.files?.[0]
     if (file) handleUpload(file)
+  }
+
+  async function handleApprove(uploadId: string) {
+    setApproving(uploadId)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/actuals/upload/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uploadId }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Approval failed')
+      } else {
+        fetchUploads()
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setApproving(null)
+    }
   }
 
   async function handleDelete(upload: PastUpload) {
@@ -237,10 +266,13 @@ export default function UploadActualsPage() {
         {/* Result */}
         {result && (
           <div className="mt-6 bg-white border border-gray-200 rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-2">
               <CheckCircle className="w-5 h-5 text-green-500" />
               <h2 className="text-lg font-semibold text-gray-900">Upload Complete</h2>
             </div>
+            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-4">
+              This upload is awaiting approval from Rick before the data flows into monthly actuals.
+            </p>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-gray-50 rounded p-3">
@@ -323,6 +355,7 @@ export default function UploadActualsPage() {
                     <th className="text-right px-4 py-3 text-gray-500 font-medium">Rows</th>
                     <th className="text-right px-4 py-3 text-gray-500 font-medium">Matched</th>
                     <th className="text-center px-4 py-3 text-gray-500 font-medium">Status</th>
+                    <th className="text-center px-4 py-3 text-gray-500 font-medium">Approval</th>
                     <th className="text-right px-4 py-3 text-gray-500 font-medium">Uploaded</th>
                     {userRole && ['admin', 'coo', 'cfo'].includes(userRole) && (
                       <th className="text-center px-4 py-3 text-gray-500 font-medium w-16"></th>
@@ -362,6 +395,33 @@ export default function UploadActualsPage() {
                           <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-xs">
                             <Clock className="w-3 h-3" /> Processing
                           </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {u.approval_status === 'approved' ? (
+                          <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 px-2 py-0.5 rounded text-xs">
+                            <CheckCircle className="w-3 h-3" /> Approved
+                          </span>
+                        ) : u.approval_status === 'rejected' ? (
+                          <span className="inline-flex items-center gap-1 text-red-700 bg-red-50 px-2 py-0.5 rounded text-xs">
+                            <AlertCircle className="w-3 h-3" /> Rejected
+                          </span>
+                        ) : u.status === 'completed' ? (
+                          userRole === 'admin' ? (
+                            <button
+                              onClick={() => handleApprove(u.id)}
+                              disabled={approving === u.id}
+                              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded font-medium transition-colors disabled:opacity-50"
+                            >
+                              {approving === u.id ? 'Approving...' : 'Approve'}
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-xs">
+                              <Clock className="w-3 h-3" /> Awaiting approval
+                            </span>
+                          )
+                        ) : (
+                          <span className="text-gray-400 text-xs">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right text-gray-500">

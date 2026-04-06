@@ -15,6 +15,7 @@ export default function ValidatePage() {
   const [submitting, setSubmitting] = useState(false);
   const [queryNote, setQueryNote] = useState('');
   const [queryError, setQueryError] = useState<string | null>(null);
+  const [customerNameConfirmed, setCustomerNameConfirmed] = useState(false);
 
   const requestId = params?.id as string;
 
@@ -316,6 +317,35 @@ export default function ValidatePage() {
         </div>
       )}
 
+      {/* Customer Name Verification */}
+      <div className="bg-amber-50 border-2 border-amber-300 rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-3">Customer Name Verification</h2>
+        <p className="text-gray-700 mb-4">
+          The store name below will be used to match sales data from Acumatica. It must match the
+          customer name in Acumatica <strong>exactly</strong> — including spelling, spacing, and
+          punctuation. If it does not match, sales will not be attributed to this display.
+        </p>
+        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+          <p className="text-sm text-gray-500">Store name on this request</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{request.store_name}</p>
+          {request.store_code && (
+            <p className="text-sm text-gray-500 mt-1">Store code: {request.store_code}</p>
+          )}
+        </div>
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={customerNameConfirmed}
+            onChange={(e) => setCustomerNameConfirmed(e.target.checked)}
+            className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span className="text-sm text-gray-700">
+            I confirm this store name matches the customer name in Acumatica exactly. I understand
+            that if this name is wrong, sales data will not be attributed to this display.
+          </span>
+        </label>
+      </div>
+
       {/* Actions */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Actions</h2>
@@ -325,11 +355,16 @@ export default function ValidatePage() {
           <div>
             <button
               onClick={handleValidate}
-              disabled={submitting}
+              disabled={submitting || !customerNameConfirmed}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
             >
               {submitting ? 'Validating...' : 'Validate and Proceed'}
             </button>
+            {!customerNameConfirmed && (
+              <p className="text-sm text-amber-600 mt-2 font-medium">
+                You must confirm the customer name matches Acumatica before validating.
+              </p>
+            )}
             <p className="text-sm text-gray-600 mt-2">
               Confirms inputs are correct and routes to financial approver
             </p>
