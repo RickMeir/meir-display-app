@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Clock, ArrowLeft } from 'lucide-react'
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Clock, ArrowLeft, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
 interface UploadSummary {
@@ -15,6 +15,7 @@ interface UploadSummary {
   date_range: { from: string | null; to: string | null }
   sheet_used: string
   top_unmatched: { name: string; rows: number }[]
+  duplicate_warning: string | null
 }
 
 interface PastUpload {
@@ -39,6 +40,8 @@ export default function UploadActualsPage() {
   const [error, setError] = useState<string | null>(null)
   const [pastUploads, setPastUploads] = useState<PastUpload[]>([])
   const [dragOver, setDragOver] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState<PastUpload | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchUploads = useCallback(async () => {
     try {
@@ -124,6 +127,30 @@ export default function UploadActualsPage() {
     setDragOver(false)
     const file = e.dataTransfer.files?.[0]
     if (file) handleUpload(file)
+  }
+
+  async function handleDelete(upload: PastUpload) {
+    setDeleting(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`/api/actuals/upload?id=${upload.id}`, {
+        method: 'DELETE',
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Delete failed')
+      } else {
+        setDeleteConfirm(null)
+        fetchUploads() // Refresh history
+      }
+    } catch {
+      setError('Network error. Please try again.')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   if (loading) {
@@ -238,6 +265,13 @@ export default function UploadActualsPage() {
               </div>
             </div>
 
+            {result.duplicate_warning && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-amber-800">{result.duplicate_warning}</p>
+              </div>
+            )}
+
             {result.date_range.from && result.date_range.to && (
               <p className="text-sm text-gray-500 mb-4">
                 Data covers {result.date_range.from} to {result.date_range.to} (from sheet &quot;{result.sheet_used}&quot;)
@@ -290,6 +324,9 @@ export default function UploadActualsPage() {
                     <th className="text-right px-4 py-3 text-gray-500 font-medium">Matched</th>
                     <th className="text-center px-4 py-3 text-gray-500 font-medium">Status</th>
                     <th className="text-right px-4 py-3 text-gray-500 font-medium">Uploaded</th>
+                    {userRole === 'admin' && (
+                      <th className="text-center px-4 py-3 text-gray-500 font-medium w-16"></th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -334,10 +371,59 @@ export default function UploadActualsPage() {
                           year: 'numeric',
                         })}
                       </td>
+                      {userRole === 'admin' && (
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={() => setDeleteConfirm(u)}
+                            className="text-gray-400 hover:text-red-600 transition-colors"
+                            title="Delete upload"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+        {/* Delete confirmation modal */}
+        {deleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+              <div className="flex items-start gap-3 mb-4">
+                <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Delete upload?</h3>
+                  <p className="text-gray-600 mt-1">
+                    This will permanently remove <strong>{deleteConfirm.filename}</strong> and
+                    all {deleteConfirm.total_rows.toLocaleString()} transaction rows associated
+                    with it. Monthly actuals for affected displays will be recalculated from any
+                    remaining data.
+                  </p>
+                  <p className="text-sm text-red-600 mt-2 font-medium">
+                    This action cannot be undone.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  disabled={deleting}
+                  className="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDelete(deleteConfirm)}
+                  disabled={deleting}
+                  className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {deleting ? 'Deleting...' : 'Yes, delete'}
+                </button>
+              </div>
             </div>
           </div>
         )}

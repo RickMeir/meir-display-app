@@ -220,6 +220,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check for duplicate uploads (same filename and overlapping date range)
+    const { data: existing } = await serviceClient
+      .from('sales_uploads')
+      .select('id, filename, date_range_from, date_range_to, status')
+      .eq('filename', file.name)
+      .eq('status', 'completed')
+
+    const duplicateWarning =
+      existing && existing.length > 0
+        ? `Note: A file named "${file.name}" was already uploaded on a previous occasion. The monthly actuals have been updated with the latest data, but duplicate raw rows now exist. Consider deleting the older upload if it has been replaced.`
+        : null
+
     // Create upload record
     const { data: upload, error: uploadErr } = await serviceClient
       .from('sales_uploads')
@@ -370,14 +382,171 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', upload.id)
 
+    // Audit log
+    await serviceClient.from('audit_log').insert({
+      action: 'actuals_uploaded',
+      entity_type: 'sales_upload',
+      entity_id: upload.id,
+      user_id: userData.id,
+      details: {
+        filename: file.name,
+        total_rows: parsed.rows.length,
+        matched: matchedCount,
+        unmatched: unmatchedCount,
+        date_range: { from: parsed.dateFrom, to: parsed.dateTo },
+      },
+    })
+
     return NextResponse.json({
       data: {
         upload_id: upload.id,
         ...summary,
+        duplicate_warning: duplicateWarning,
       },
     })
   } catch (err) {
     console.error('Upload actuals error:', err)
+    return NextResponse.json(
+      { error: `Server error: ${err instanceof Error ? err.message : 'Unknown error'}` },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE: remove an upload and its associated data
+export async function DELETE(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const serviceClient = createServiceClient()
+    const { data: userData } = await serviceClient
+      .from('users')
+      .select('id, role')
+      .eq('email', user.email)
+      .single()
+
+    // Only admin can delete uploads — managers can upload but not delete
+    if (!userData || !['admin'].includes(userData.role)) {
+      return NextResponse.json(
+        { error: 'Only admins can delete uploads' },
+        { status: 403 }
+      )
+    }
+
+    const { searchParams } = new URL(request.url)
+    const uploadId = searchParams.get('id')
+
+    if (!uploadId) {
+      return NextResponse.json({ error: 'Missing upload ID' }, { status: 400 })
+    }
+
+    // Verify the upload exists
+    const { data: upload, error: fetchErr } = await serviceClient
+      .from('sales_uploads')
+      .select('id, filename, status')
+      .eq('id', uploadId)
+      .single()
+
+    if (fetchErr || !upload) {
+      return NextResponse.json({ error: 'Upload not found' }, { status: 404 })
+    }
+
+    // Find all request_ids affected by this upload so we can clean up monthly_actuals
+    const { data: affectedRequests } = await serviceClient
+      .from('sales_actuals_raw')
+      .select('matched_request_id')
+      .eq('upload_id', uploadId)
+      .not('matched_request_id', 'is', null)
+
+    const affectedRequestIds = [
+      ...new Set((affectedRequests || []).map((r) => r.matched_request_id)),
+    ]
+
+    // Delete the upload record — CASCADE will remove all sales_actuals_raw rows
+    const { error: deleteErr } = await serviceClient
+      .from('sales_uploads')
+      .delete()
+      .eq('id', uploadId)
+
+    if (deleteErr) {
+      return NextResponse.json(
+        { error: `Failed to delete: ${deleteErr.message}` },
+        { status: 500 }
+      )
+    }
+
+    // Rebuild monthly_actuals for affected requests from remaining raw data
+    // Delete the monthly_actuals rows that came from uploads for these requests,
+    // then re-aggregate from whatever raw data remains
+    if (affectedRequestIds.length > 0) {
+      // Remove monthly_actuals entries sourced from uploads for these requests
+      await serviceClient
+        .from('monthly_actuals')
+        .delete()
+        .in('request_id', affectedRequestIds)
+        .eq('source', 'upload')
+
+      // Re-aggregate from any remaining raw data for these requests
+      for (const requestId of affectedRequestIds) {
+        const { data: remaining } = await serviceClient
+          .from('sales_actuals_raw')
+          .select('doc_date, net_sales')
+          .eq('matched_request_id', requestId)
+
+        if (remaining && remaining.length > 0) {
+          // Group by month
+          const byMonth: Record<string, number> = {}
+          for (const row of remaining) {
+            const monthYear = row.doc_date.substring(0, 7) // YYYY-MM
+            byMonth[monthYear] = (byMonth[monthYear] || 0) + row.net_sales
+          }
+
+          // Upsert the re-aggregated data
+          const upsertRows = Object.entries(byMonth).map(([month, revenue]) => ({
+            request_id: requestId,
+            month_year: month,
+            revenue,
+            source: 'upload' as const,
+            acumatica_ref: 're-aggregated',
+            entered_at: new Date().toISOString(),
+          }))
+
+          await serviceClient.from('monthly_actuals').upsert(upsertRows, {
+            onConflict: 'request_id,month_year',
+          })
+        }
+      }
+    }
+
+    // Log to audit trail
+    await serviceClient.from('audit_log').insert({
+      action: 'upload_deleted',
+      entity_type: 'sales_upload',
+      entity_id: uploadId,
+      user_id: userData.id,
+      details: {
+        filename: upload.filename,
+        affected_requests: affectedRequestIds.length,
+      },
+    })
+
+    return NextResponse.json({
+      data: {
+        deleted: true,
+        upload_id: uploadId,
+        filename: upload.filename,
+        affected_requests_recalculated: affectedRequestIds.length,
+      },
+    })
+  } catch (err) {
+    console.error('Delete upload error:', err)
     return NextResponse.json(
       { error: `Server error: ${err instanceof Error ? err.message : 'Unknown error'}` },
       { status: 500 }
