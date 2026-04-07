@@ -813,27 +813,30 @@ export default function NewRequestPage() {
 
             {/* Existing Client Toggle */}
             <div className="mt-6">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    name="isExistingClient"
-                    checked={formData.isExistingClient}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setFormData((prev) => ({ ...prev, isExistingClient: checked }));
-                      if (!checked) {
-                        setSelectedBaseline(null);
-                        setClientSearchResults([]);
-                      }
-                    }}
-                    className="sr-only"
-                  />
-                  <div className={`w-11 h-6 rounded-full transition-colors ${formData.isExistingClient ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.isExistingClient ? 'translate-x-5' : ''}`}></div>
-                </div>
+              <label className="flex items-center justify-between cursor-pointer">
                 <span className="text-sm font-medium text-gray-700">Is this store an existing client?</span>
-                <span className={`text-xs font-semibold ml-2 ${formData.isExistingClient ? 'text-green-600' : 'text-gray-400'}`}>{formData.isExistingClient ? 'Yes' : 'No'}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-medium transition-colors ${!formData.isExistingClient ? 'text-gray-700' : 'text-gray-400'}`}>No</span>
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      name="isExistingClient"
+                      checked={formData.isExistingClient}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setFormData((prev) => ({ ...prev, isExistingClient: checked }));
+                        if (!checked) {
+                          setSelectedBaseline(null);
+                          setClientSearchResults([]);
+                        }
+                      }}
+                      className="sr-only"
+                    />
+                    <div className={`w-11 h-6 rounded-full transition-colors ${formData.isExistingClient ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.isExistingClient ? 'translate-x-5' : ''}`}></div>
+                  </div>
+                  <span className={`text-sm font-medium transition-colors ${formData.isExistingClient ? 'text-blue-600' : 'text-gray-400'}`}>Yes</span>
+                </div>
               </label>
             </div>
 
