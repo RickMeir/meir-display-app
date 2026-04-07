@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { sendOffTrackAlertEmail } from '@/lib/email'
 
 // POST /api/requests/[id]/lifecycle/reviews/[reviewId]
 // Complete a lifecycle review — calculates the performance snapshot
@@ -104,8 +105,44 @@ export async function POST(
       },
     })
 
-    // TODO: If off_track, send notification to rep, manager, and COO
-    // This will use the existing Resend email infrastructure
+    // Send off-track notification if applicable
+    if (updatedReview?.tracking_assessment === 'off_track') {
+      try {
+        const { data: displayReq } = await serviceClient
+          .from('display_requests')
+          .select('*')
+          .eq('id', id)
+          .single()
+
+        if (displayReq) {
+          const reviewerName = userData.role || 'Manager'
+          // Get reviewer's actual name
+          const { data: reviewerData } = await serviceClient
+            .from('users')
+            .select('name')
+            .eq('id', userData.id)
+            .single()
+
+          await sendOffTrackAlertEmail(
+            displayReq,
+            review.interval || 'Scheduled',
+            updatedReview.variance_pct || 0,
+            updatedReview.expected_revenue_cumulative || 0,
+            updatedReview.actual_revenue_cumulative || 0,
+            reviewerData?.name || reviewerName
+          )
+
+          // Mark notification as sent on the review
+          await serviceClient
+            .from('lifecycle_reviews')
+            .update({ notification_sent_at: new Date().toISOString() })
+            .eq('id', reviewId)
+        }
+      } catch (emailErr) {
+        console.error('Failed to send off-track alert email:', emailErr)
+        // Non-critical — review is still completed
+      }
+    }
 
     return NextResponse.json(finalReview)
   } catch (error) {

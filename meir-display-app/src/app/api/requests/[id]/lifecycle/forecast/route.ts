@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { calculateFinancials } from '@/lib/calculations'
+import { sendForecastChangeEmail } from '@/lib/email'
 
 // POST /api/requests/[id]/lifecycle/forecast
 // Change the forecast revenue for a display request.
@@ -183,9 +184,21 @@ export async function POST(
       },
     })
 
-    // TODO: Send notification to Rick and Paul
-    // This will use the existing email infrastructure (Resend)
-    // For now, the notification is logged in the audit trail
+    // Send forecast change notification to Rick and Paul
+    try {
+      await sendForecastChangeEmail(
+        displayReq,
+        oldForecast,
+        newForecast,
+        changePct ?? 0,
+        reason,
+        userData.name || user.email || 'Unknown',
+        newCalc.profitability_flag
+      )
+    } catch (emailErr) {
+      console.error('Failed to send forecast change email:', emailErr)
+      // Non-critical — forecast change is still saved
+    }
 
     return NextResponse.json({
       success: true,

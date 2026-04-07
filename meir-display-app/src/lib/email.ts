@@ -162,6 +162,81 @@ export async function sendOverrideAlertEmail(request: DisplayRequest, approverNa
   }
 }
 
+/** Sent to Rick, Paul, and the rep when a lifecycle review is completed as off_track */
+export async function sendOffTrackAlertEmail(
+  request: DisplayRequest,
+  reviewInterval: string,
+  variancePct: number,
+  expectedRevenue: number,
+  actualRevenue: number,
+  reviewerName: string
+) {
+  const recipients = ['rick@meir.com.au', 'paul@meir.com.au']
+  // Also notify the rep if we have their email
+  if (request.rep_name && request.rep_name.includes('@')) {
+    recipients.push(request.rep_name)
+  }
+
+  const varianceDisplay = Math.abs(variancePct).toFixed(1)
+
+  for (const email of recipients) {
+    await sendEmail(
+      email,
+      `OFF TRACK: ${request.store_name} — ${reviewInterval} Review`,
+      `
+        <p style="color:#c00;font-weight:bold;">Off Track Alert — Lifecycle Review</p>
+        <p>The <strong>${reviewInterval}</strong> review for <strong>${request.store_name}</strong> (${request.store_code}) has been completed and the display is <strong>off track</strong>.</p>
+        <table style="border-collapse:collapse;margin:12px 0;">
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Expected Revenue:</td><td>${formatCurrency(expectedRevenue)}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Actual Revenue:</td><td>${formatCurrency(actualRevenue)}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Variance:</td><td style="color:#c00;">-${varianceDisplay}%</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Reviewed By:</td><td>${reviewerName}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Rep:</td><td>${request.rep_name}</td></tr>
+        </table>
+        <p><a href="${APP_URL}/requests/${request.id}/lifecycle" style="display:inline-block;padding:12px 24px;background:#c00;color:#fff;text-decoration:none;border-radius:6px;">View Lifecycle</a></p>
+      `,
+      request.id
+    )
+  }
+}
+
+/** Sent to Rick and Paul when a forecast is changed */
+export async function sendForecastChangeEmail(
+  request: DisplayRequest,
+  oldForecast: number,
+  newForecast: number,
+  changePct: number,
+  reason: string,
+  changedByName: string,
+  newProfitabilityFlag: string
+) {
+  const recipients = ['rick@meir.com.au', 'paul@meir.com.au']
+  const direction = changePct > 0 ? 'increased' : 'decreased'
+  const flagColour = newProfitabilityFlag === 'green' ? '#16a34a' : '#c00'
+  const flagLabel = newProfitabilityFlag === 'green' ? 'GREEN — Viable' : 'REVIEW — Below thresholds'
+
+  for (const email of recipients) {
+    await sendEmail(
+      email,
+      `Forecast Changed: ${request.store_name} — ${direction} ${Math.abs(changePct).toFixed(1)}%`,
+      `
+        <p><strong>Forecast Revenue Changed</strong></p>
+        <p>The forecast for <strong>${request.store_name}</strong> (${request.store_code}) has been ${direction}.</p>
+        <table style="border-collapse:collapse;margin:12px 0;">
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Previous Forecast:</td><td>${formatCurrency(oldForecast)}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">New Forecast:</td><td>${formatCurrency(newForecast)}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Change:</td><td>${changePct > 0 ? '+' : ''}${changePct.toFixed(1)}%</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Deal Status:</td><td style="color:${flagColour};">${flagLabel}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Changed By:</td><td>${changedByName}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Reason:</td><td>${reason || 'No reason provided'}</td></tr>
+        </table>
+        <p><a href="${APP_URL}/requests/${request.id}/lifecycle" style="display:inline-block;padding:12px 24px;background:#0074c5;color:#fff;text-decoration:none;border-radius:6px;">View Lifecycle</a></p>
+      `,
+      request.id
+    )
+  }
+}
+
 /** Sent when Brooke queries a request */
 export async function sendQueryEmail(request: DisplayRequest, note: string) {
   // Notify the submitting rep

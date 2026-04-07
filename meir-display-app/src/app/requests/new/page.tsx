@@ -85,21 +85,25 @@ const DISPLAY_TIERS = [
     value: 'High-end',
     label: 'High-end',
     description: 'Flagship experience. Bespoke fixtures, lighting, premium materials.',
+    imageUrl: 'https://drive.google.com/thumbnail?id=1IGkKKq4vwfFVQFSrblxR4VH7HojHoQ1i&sz=w400',
   },
   {
     value: 'Premium',
     label: 'Premium',
     description: 'High quality boards and fixtures. Strong brand presence.',
+    imageUrl: 'https://drive.google.com/thumbnail?id=1-yhdzE3iFAD8E6x8qaxAEUnjUI1e7-46&sz=w400',
   },
   {
     value: 'Mid-range',
     label: 'Mid-range',
     description: 'Standard display board with product samples.',
+    imageUrl: 'https://drive.google.com/thumbnail?id=1KVim7J251bGgY2e1ehCO7ghmhgupOyTZ&sz=w400',
   },
   {
     value: 'Basic',
     label: 'Basic',
     description: 'Simple product placement. Minimal fixtures.',
+    imageUrl: 'https://drive.google.com/thumbnail?id=10ZelT8RtDsDCOv8lySXERfz6D2ReMJj2&sz=w400',
   },
 ];
 
@@ -260,6 +264,7 @@ export default function NewRequestPage() {
   const [clientSearchOpen, setClientSearchOpen] = useState(false);
   const [clientSearchLoading, setClientSearchLoading] = useState(false);
   const clientSearchRef = useRef<HTMLDivElement>(null);
+  const [repUsers, setRepUsers] = useState<{ id: string; name: string; email: string }[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
     storeName: '',
@@ -311,6 +316,19 @@ export default function NewRequestPage() {
         }
       } catch (err) {
         console.warn('Could not load products list:', err);
+      }
+
+      // Load sales reps for the dropdown
+      try {
+        const { data: reps } = await supabase
+          .from('users')
+          .select('id, name, email')
+          .eq('is_active', true)
+          .in('role', ['rep', 'manager', 'admin'])
+          .order('name');
+        if (reps) setRepUsers(reps);
+      } catch (err) {
+        console.warn('Could not load reps list:', err);
       }
 
       if (draftId) {
@@ -708,7 +726,18 @@ export default function NewRequestPage() {
               </div>
               <div>
                 <label className={labelClass}>Sales Rep <span className="text-red-500">*</span></label>
-                <input type="text" name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} placeholder="Enter sales rep name or email" required />
+                {repUsers.length > 0 ? (
+                  <select name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} required>
+                    <option value="">Select sales rep</option>
+                    {repUsers.map((rep) => (
+                      <option key={rep.id} value={rep.email}>
+                        {rep.name} ({rep.email})
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input type="text" name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} placeholder="Enter sales rep name or email" required />
+                )}
               </div>
               <div>
                 <label className={labelClass}>Display Type <span className="text-red-500">*</span></label>
@@ -871,8 +900,19 @@ export default function NewRequestPage() {
                         : 'border-gray-200 hover:border-gray-300 bg-white'
                     }`}
                   >
-                    <div className="w-full h-20 sm:h-24 bg-gray-200 rounded mb-2 sm:mb-3 flex items-center justify-center text-gray-400 text-xs">
-                      Image coming soon
+                    <div className="w-full h-28 sm:h-36 bg-gray-200 rounded mb-2 sm:mb-3 overflow-hidden">
+                      {tier.imageUrl ? (
+                        <img
+                          src={tier.imageUrl}
+                          alt={`${tier.label} Meir display`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                          Image coming soon
+                        </div>
+                      )}
                     </div>
                     <p className={`font-semibold text-sm ${formData.brandTier === tier.value ? 'text-blue-700' : 'text-gray-900'}`}>
                       {tier.label}
