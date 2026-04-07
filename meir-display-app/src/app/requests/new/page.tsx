@@ -27,10 +27,8 @@ interface UploadedPhoto {
 interface DisplayFitting {
   fitting_sku: string;
   description: string;
-  qty_per_match: number;
-  unit_cost: number;
-  trigger_patterns: string[];
-  notes: string;
+  qty_per_sku: number;
+  trigger_prefixes: string[];
 }
 
 interface MatchedFitting {
@@ -480,9 +478,9 @@ export default function NewRequestPage() {
     for (const rule of fittingsRules) {
       const triggeredBy: string[] = [];
       for (const code of selectedCodes) {
-        // Check if any trigger pattern is a prefix of the selected SKU code
-        for (const pattern of rule.trigger_patterns) {
-          if (code.toUpperCase().startsWith(pattern.toUpperCase())) {
+        // Check if any trigger prefix matches the start of the selected SKU code
+        for (const prefix of rule.trigger_prefixes) {
+          if (code.toUpperCase().startsWith(prefix.toUpperCase())) {
             triggeredBy.push(code);
             break;
           }
@@ -492,7 +490,7 @@ export default function NewRequestPage() {
         matches.push({
           fitting: rule,
           triggered_by: triggeredBy,
-          total_qty: rule.qty_per_match * triggeredBy.length,
+          total_qty: rule.qty_per_sku * triggeredBy.length,
         });
       }
     }
@@ -1232,14 +1230,10 @@ export default function NewRequestPage() {
                         <p className="text-xs text-gray-600">{match.fitting.description}</p>
                         <p className="text-xs text-gray-400 mt-0.5">
                           Triggered by: {match.triggered_by.join(', ')}
-                          {match.fitting.notes ? ` — ${match.fitting.notes}` : ''}
                         </p>
                       </div>
                       <div className="text-right shrink-0 ml-3">
                         <p className="text-sm font-bold text-blue-900">Qty: {match.total_qty}</p>
-                        {match.fitting.unit_cost > 0 && (
-                          <p className="text-xs text-gray-500">${(match.fitting.unit_cost * match.total_qty).toFixed(2)}</p>
-                        )}
                       </div>
                     </div>
                   ))}

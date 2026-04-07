@@ -1,4 +1,4 @@
--- Migration 010: Full SKU reload (2021 products) + display fittings table
+-- Migration 010: Full SKU reload (2021 products) + updated display fittings
 -- Source: Sales & Margin Analysis 31.03.2026 v5 spreadsheet
 
 -- Clear existing products and reload with full SKU list
@@ -2108,29 +2108,16 @@ INSERT INTO products (sku_code, sku_name) VALUES
   ('WG011', 'Flexible Hose SET H&C for MB01, MB02, MB03, MB04, MB07, MK01, MK02, MK03, MK04, MK05, MK17.'),
   ('WJ034', 'MK05 - Part 23 Rubber Ring - New Version');
 
--- Display fittings: auto-add parts when specific SKU patterns are selected
-CREATE TABLE IF NOT EXISTS display_fittings (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  fitting_sku TEXT NOT NULL,
-  description TEXT NOT NULL DEFAULT '',
-  qty_per_match INTEGER NOT NULL DEFAULT 1,
-  unit_cost NUMERIC(10,2) NOT NULL DEFAULT 0,
-  trigger_patterns TEXT[] NOT NULL DEFAULT '{}',
-  notes TEXT DEFAULT '',
-  is_active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+-- Reload display fittings with updated data from spreadsheet
+TRUNCATE display_fittings CASCADE;
 
-ALTER TABLE display_fittings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Authenticated users can read fittings" ON display_fittings FOR SELECT TO authenticated USING (true);
-
-INSERT INTO display_fittings (fitting_sku, description, qty_per_match, unit_cost, trigger_patterns, notes) VALUES
-  ('P027006-01-25', '25mm Fitting for wall taps (2 per set)', 2, 0, '{"MW04","MW05","MW06","MW08JL"}', 'For wall-mounted taps'),
-  ('P027006-01-20', '20mm Fitting for MW11 wall taps', 1, 2.49, '{"MW11"}', 'For MW11 taps'),
-  ('DMW-Part1', 'Mounting for MW03 (Outdoor SS Mixer)', 1, 0, '{"MW03"}', 'Old type outdoor mounting'),
-  ('MW03-FIN', 'MW03-FIN Display Fitting', 1, 0, '{"MW03-FIN"}', 'MW03 finish kit mount'),
-  ('MW07TS-FIN', 'MW07TS-FIN Display Fitting', 1, 0, '{"MW07TS"}', 'Thermostatic mixer mount'),
-  ('DIV-FIT', 'Diverter Handle Mount (MW07TS)', 1, 0, '{"MW07TS"}', 'Old type diverter mount'),
-  ('838076', 'Brass fitting — pot filler & shower arms', 1, 2.18, '{"MA09","MA02","MA04","MK06"}', 'NOT for 2-in-1 showers'),
-  ('DMQ04', 'MW11 Cutdown Spindles for display (x2)', 2, 8.32, '{"MW11"}', 'Qty 2 per MW11'),
-  ('MPWT01', 'Fitting for spouts & 2-in-1 showers', 1, 0, '{"MS05","MS06","MS07","MS08","MZ09"}', 'Spout/shower mounting');
+INSERT INTO display_fittings (fitting_sku, description, qty_per_sku, trigger_prefixes) VALUES
+  ('P027006-01-25', '25mm Fitting for wall taps (2 per set)', 2, ARRAY['MW04', 'MW05', 'MW06', 'MW08JL']),
+  ('P027006-01-20', '20mm Fitting for MW11 wall taps', 1, ARRAY['MW11']),
+  ('DMW-Part1', 'Mounting for MW03 (Outdoor SS Mixer)', 1, ARRAY['MW03']),
+  ('MW03-FIN', 'MW03-FIN Display Fitting', 1, ARRAY['MW03-FIN']),
+  ('MW07TS-FIN', 'MW07TS-FIN Display Fitting', 1, ARRAY['MW07TS']),
+  ('DIV-FIT', 'Diverter Handle Mount (MW07TS)', 1, ARRAY['MW07TS']),
+  ('838076', 'Brass fitting — pot filler & shower arms', 1, ARRAY['MA09', 'MA02', 'MA04', 'MK06']),
+  ('DMQ04', 'MW11 Cutdown Spindles for display (x2)', 2, ARRAY['MW11']),
+  ('MPWT01', 'Fitting for spouts & 2-in-1 showers', 1, ARRAY['MS05', 'MS06', 'MS07', 'MS08', 'MZ09']);
