@@ -10,6 +10,7 @@ import {
   AdditionalExpense,
   ForecastChange,
   MonthlyActual,
+  MarginAlert,
   TrackingStatus,
   INTERVAL_LABELS,
   EXPENSE_CATEGORY_LABELS,
@@ -93,6 +94,9 @@ export default function LifecyclePage() {
   })
   const [forecastSubmitting, setForecastSubmitting] = useState(false)
 
+  // Margin alerts state
+  const [marginAlerts, setMarginAlerts] = useState<MarginAlert[]>([])
+
   useEffect(() => {
     async function load() {
       const supabase = createClient()
@@ -113,6 +117,14 @@ export default function LifecyclePage() {
       } else {
         setError('Failed to load lifecycle data')
       }
+
+      // Load margin alerts
+      const alertsRes = await fetch(`/api/requests/${params.id}/margin-alerts`)
+      if (alertsRes.ok) {
+        const alertsData = await alertsRes.json()
+        setMarginAlerts(Array.isArray(alertsData) ? alertsData : alertsData.data || [])
+      }
+
       setLoading(false)
     }
     load()
@@ -206,6 +218,7 @@ export default function LifecyclePage() {
 
   const { request: req, reviews, expected_performance, additional_expenses, forecast_changes, monthly_actuals, summary } = data
   const canManage = ['manager', 'cfo', 'coo', 'admin'].includes(userRole)
+  const isManager = canManage
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -408,6 +421,68 @@ export default function LifecyclePage() {
           </div>
         )}
       </div>
+
+      {/* Margin Alerts */}
+      {marginAlerts.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-red-900 mb-4">
+            Margin Discrepancy Alerts ({marginAlerts.length})
+          </h2>
+          <p className="text-sm text-red-700 mb-4">
+            The actual COGS% for this display is higher than the approved discount rate. This may indicate
+            the rep has given additional discounts not captured in the original request.
+          </p>
+          <div className="space-y-3">
+            {marginAlerts.map((alert) => (
+              <div key={alert.id} className={`rounded-lg p-4 border ${alert.acknowledged_at ? 'bg-gray-50 border-gray-200' : 'bg-white border-red-200'}`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{alert.month_year}</p>
+                    <div className="mt-1 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                      <div>
+                        <p className="text-gray-500">Approved COGS%</p>
+                        <p className="font-medium">{(alert.approved_cogs_pct * 100).toFixed(1)}%</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Actual COGS%</p>
+                        <p className="font-medium text-red-600">{(alert.actual_cogs_pct * 100).toFixed(1)}%</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Variance</p>
+                        <p className="font-medium text-red-600">+{(alert.variance_pct * 100).toFixed(1)}%</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Margin Impact</p>
+                        <p className="font-medium text-red-600">{formatCurrency(alert.impact_amount)}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {!alert.acknowledged_at && isManager && (
+                    <button
+                      onClick={async () => {
+                        await fetch(`/api/requests/${req.id}/margin-alerts`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ alert_id: alert.id }),
+                        })
+                        setMarginAlerts((prev) =>
+                          prev.map((a) => a.id === alert.id ? { ...a, acknowledged_at: new Date().toISOString() } : a)
+                        )
+                      }}
+                      className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                    >
+                      Acknowledge
+                    </button>
+                  )}
+                  {alert.acknowledged_at && (
+                    <span className="text-xs text-gray-400">Acknowledged</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Additional Expenses */}
       <div className="bg-gray-400 rounded-lg shadow p-6">

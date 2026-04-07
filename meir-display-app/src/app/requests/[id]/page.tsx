@@ -168,7 +168,8 @@ export default function RequestDetailPage() {
         <div className="bg-gray-400 rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Financial Assessment</h2>
 
-          <div className="mb-4">
+          {/* Verdict + Profitability badges */}
+          <div className="mb-4 flex flex-wrap gap-2">
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
               request.profitability_flag === 'green'
                 ? 'bg-green-100 text-green-800'
@@ -176,12 +177,47 @@ export default function RequestDetailPage() {
             }`}>
               {request.profitability_flag === 'green' ? 'GREEN — Viable' : 'REVIEW — Below Thresholds'}
             </span>
+            {request.verdict && (
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
+                request.verdict === 'worth_it' ? 'bg-green-100 text-green-800' :
+                request.verdict === 'marginal' ? 'bg-amber-100 text-amber-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {request.verdict === 'worth_it' ? '✅ Worth It' :
+                 request.verdict === 'marginal' ? '⚠️ Marginal' :
+                 '❌ Not Worth It'}
+                {request.roi_multiplier != null && ` (${request.roi_multiplier.toFixed(1)}x ROI)`}
+              </span>
+            )}
           </div>
+
+          {/* Existing client baseline info */}
+          {request.is_existing_client && request.existing_annual_revenue > 0 && (
+            <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs font-semibold text-blue-800 mb-2">Existing Client Baseline</p>
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div>
+                  <p className="text-blue-600">Current Revenue</p>
+                  <p className="font-bold text-blue-900">{formatCurrency(request.existing_annual_revenue)}</p>
+                </div>
+                <div>
+                  <p className="text-blue-600">Baseline (+ 15% growth)</p>
+                  <p className="font-bold text-blue-900">{formatCurrency(request.baseline_revenue)}</p>
+                </div>
+                <div>
+                  <p className="text-blue-600">Incremental Revenue</p>
+                  <p className={`font-bold ${request.incremental_revenue >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                    {formatCurrency(request.incremental_revenue)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <dl className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <dt className="text-gray-500">Net Contribution</dt>
-              <dd className={`font-bold text-lg ${request.net_contribution >= 5000 ? 'text-green-700' : 'text-red-600'}`}>
+              <dd className={`font-bold text-lg ${request.net_contribution >= 2000 ? 'text-green-700' : 'text-red-600'}`}>
                 {formatCurrency(request.net_contribution)}
               </dd>
             </div>
@@ -191,6 +227,14 @@ export default function RequestDetailPage() {
                 {formatPercent(request.net_margin)}
               </dd>
             </div>
+            {request.roi_multiplier != null && (
+              <div>
+                <dt className="text-gray-500">ROI Multiplier</dt>
+                <dd className={`font-bold text-lg ${request.roi_multiplier >= 2 ? 'text-green-700' : request.roi_multiplier >= 1 ? 'text-amber-600' : 'text-red-600'}`}>
+                  {request.roi_multiplier.toFixed(2)}x
+                </dd>
+              </div>
+            )}
             <div>
               <dt className="text-gray-500">Gross Profit</dt>
               <dd className="font-medium">{formatCurrency(request.gross_profit)}</dd>
@@ -200,8 +244,8 @@ export default function RequestDetailPage() {
               <dd className="font-medium">{formatPercent(request.gross_margin)}</dd>
             </div>
             <div>
-              <dt className="text-gray-500">Revenue After Discount</dt>
-              <dd className="font-medium">{formatCurrency(request.revenue_after_discount)}</dd>
+              <dt className="text-gray-500">Net Revenue</dt>
+              <dd className="font-medium">{formatCurrency(request.net_revenue || request.revenue_after_discount)}</dd>
             </div>
             <div>
               <dt className="text-gray-500">Total Costs</dt>

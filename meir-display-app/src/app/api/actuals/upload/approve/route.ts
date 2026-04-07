@@ -51,9 +51,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Upload already approved' }, { status: 400 })
     }
 
-    // Now commit: refresh monthly actuals from matched rows
+    // Now commit: refresh monthly actuals from matched rows, then detect margin alerts
     if (upload.matched_rows > 0) {
       await serviceClient.rpc('refresh_monthly_actuals', { p_upload_id: uploadId })
+
+      // Detect margin discrepancies (compares actual COGS% vs approved COGS%)
+      const { data: alertCount } = await serviceClient.rpc('detect_margin_alerts', { p_upload_id: uploadId })
+      if (alertCount && alertCount > 0) {
+        console.log(`Margin alerts generated: ${alertCount} discrepancies found for upload ${uploadId}`)
+      }
     }
 
     // Update the upload record

@@ -61,6 +61,7 @@ export interface DisplayRequest {
   // Calculated
   total_investment: number
   revenue_after_discount: number
+  net_revenue: number
   rebate_cost: number
   cogs_on_sales: number
   est_orders: number
@@ -73,6 +74,17 @@ export interface DisplayRequest {
   net_contribution: number
   net_margin: number
   profitability_flag: ProfitabilityFlag
+  roi_multiplier: number | null
+  verdict: string | null
+
+  // Existing client baseline
+  is_existing_client: boolean
+  existing_annual_revenue: number
+  existing_orders: number
+  existing_aov: number
+  existing_cogs_pct: number
+  baseline_revenue: number
+  incremental_revenue: number
 
   // Initial order commitment
   has_initial_order: boolean
@@ -122,6 +134,10 @@ export interface MonthlyActual {
   request_id: string
   month_year: string
   revenue: number
+  cogs: number
+  gross_profit: number
+  gross_margin_pct: number
+  order_count: number
   catalogues_used: number
   source: 'manual' | 'acumatica'
   acumatica_ref: string | null
@@ -281,6 +297,7 @@ export interface RequestFormInput {
   is_new_or_replacement: string
   differentiation_plan: string
   store_agreed_location: boolean
+  is_existing_client: boolean
   rebate_pct: number        // as percentage, e.g. 5 for 5%
   cogs_pct: number          // as percentage, e.g. 60 for 60%
   board_labour_cost: number
@@ -295,6 +312,36 @@ export interface RequestFormInput {
   initial_order_value: number
   initial_order_notes: string
   skus: { code: string; name: string }[]
+}
+
+export interface ClientBaseline {
+  customer_group: string
+  customer_code: string | null
+  net_sales: number
+  cogs: number
+  cogs_pct: number
+  order_count: number
+  avg_order_value: number
+  display_costs: number
+  margin_before_ops: number
+  margin_pct: number
+  rebate_pct: number
+}
+
+export interface MarginAlert {
+  id: string
+  request_id: string
+  month_year: string
+  approved_cogs_pct: number
+  actual_cogs_pct: number
+  variance_pct: number
+  approved_margin_pct: number
+  actual_margin_pct: number
+  revenue: number
+  impact_amount: number
+  acknowledged_by: string | null
+  acknowledged_at: string | null
+  created_at: string
 }
 
 // ============================================================

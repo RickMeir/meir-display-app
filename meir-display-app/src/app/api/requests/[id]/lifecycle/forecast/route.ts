@@ -96,6 +96,7 @@ export async function POST(
       is_new_or_replacement: displayReq.is_new_or_replacement || '',
       differentiation_plan: displayReq.differentiation_plan || '',
       store_agreed_location: displayReq.store_agreed_location || false,
+      is_existing_client: displayReq.is_existing_client || false,
       rebate_pct: Number(displayReq.rebate_pct) * 100,
       cogs_pct: Number(displayReq.cogs_pct) * 100,
       board_labour_cost: Number(displayReq.board_labour_cost),
@@ -112,7 +113,18 @@ export async function POST(
       skus: [],
     }
 
-    const newCalc = calculateFinancials(recalcInput)
+    // Build existing client data if applicable
+    let existingClientData = null
+    if (displayReq.is_existing_client) {
+      existingClientData = {
+        annual_revenue: Number(displayReq.existing_annual_revenue) || 0,
+        order_count: Number(displayReq.existing_orders) || 0,
+        avg_order_value: Number(displayReq.existing_aov) || 0,
+        cogs_pct: Number(displayReq.existing_cogs_pct) || 0,
+      }
+    }
+
+    const newCalc = calculateFinancials(recalcInput, existingClientData)
 
     // The trigger on display_requests will handle logging to forecast_changes.
     // But we need to use the service client to bypass RLS, and the trigger uses

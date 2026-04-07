@@ -24,12 +24,27 @@ interface UploadedPhoto {
   filename: string;
 }
 
+interface ClientBaseline {
+  customer_group: string;
+  customer_code: string | null;
+  net_sales: number;
+  cogs: number;
+  cogs_pct: number;
+  order_count: number;
+  avg_order_value: number;
+  display_costs: number;
+  margin_before_ops: number;
+  margin_pct: number;
+  rebate_pct: number;
+}
+
 interface FormData {
   storeName: string;
   storeCode: string;
   salesRep: string;
   brandTier: string;
   displayType: string;
+  isExistingClient: boolean;
   opportunityDescription: string;
   competitorBrands: string;
   brandAcknowledged: boolean;
@@ -240,6 +255,11 @@ export default function NewRequestPage() {
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [showBrandModal, setShowBrandModal] = useState(true);
+  const [clientSearchResults, setClientSearchResults] = useState<ClientBaseline[]>([]);
+  const [selectedBaseline, setSelectedBaseline] = useState<ClientBaseline | null>(null);
+  const [clientSearchOpen, setClientSearchOpen] = useState(false);
+  const [clientSearchLoading, setClientSearchLoading] = useState(false);
+  const clientSearchRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState<FormData>({
     storeName: '',
@@ -247,6 +267,7 @@ export default function NewRequestPage() {
     salesRep: '',
     brandTier: '',
     displayType: '',
+    isExistingClient: false,
     opportunityDescription: '',
     competitorBrands: '',
     brandAcknowledged: false,
@@ -304,6 +325,7 @@ export default function NewRequestPage() {
                 salesRep: draft.rep_name || user?.email || '',
                 brandTier: draft.brand_tier || '',
                 displayType: draft.display_type || '',
+                isExistingClient: draft.is_existing_client || false,
                 opportunityDescription: draft.opportunity_description || draft.display_reason || '',
                 competitorBrands: draft.competitor_brands || '',
                 brandAcknowledged: false,
@@ -355,6 +377,49 @@ export default function NewRequestPage() {
 
     init();
   }, [draftId]);
+
+  // Client search for existing client dropdown
+  const searchClients = async (term: string) => {
+    if (term.length < 2) {
+      setClientSearchResults([]);
+      return;
+    }
+    setClientSearchLoading(true);
+    try {
+      const res = await fetch(`/api/clients?search=${encodeURIComponent(term)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setClientSearchResults(data);
+        setClientSearchOpen(true);
+      }
+    } catch {
+      console.warn('Client search failed');
+    }
+    setClientSearchLoading(false);
+  };
+
+  const selectClient = (client: ClientBaseline) => {
+    setSelectedBaseline(client);
+    setFormData((prev) => ({
+      ...prev,
+      storeName: client.customer_group,
+      storeCode: client.customer_code || prev.storeCode,
+      clientDiscountPercentage: client.cogs_pct ? Math.round(client.cogs_pct * 10000) / 100 : prev.clientDiscountPercentage,
+      rebatePercentage: client.rebate_pct ? Math.round(client.rebate_pct * 10000) / 100 : prev.rebatePercentage,
+    }));
+    setClientSearchOpen(false);
+  };
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (clientSearchRef.current && !clientSearchRef.current.contains(e.target as Node)) {
+        setClientSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -490,6 +555,7 @@ export default function NewRequestPage() {
       brand_tier: formData.brandTier,
       display_type: formData.displayType,
       display_reason: '',
+      is_existing_client: formData.isExistingClient,
       opportunity_description: formData.opportunityDescription,
       competitor_brands: formData.competitorBrands,
       brand_perception_impact: 'acknowledged',
@@ -658,6 +724,138 @@ export default function NewRequestPage() {
               </div>
             </div>
 
+            {/* Existing Client Toggle */}
+            <div className="mt-6">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    name="isExistingClient"
+                    checked={formData.isExistingClient}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setFormData((prev) => ({ ...prev, isExistingClient: checked }));
+                      if (!checked) {
+                        setSelectedBaseline(null);
+                        setClientSearchResults([]);
+                      }
+                    }}
+                    className="sr-only"
+                  />
+                  <div className={`w-11 h-6 rounded-full transition-colors ${formData.isExistingClient ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.isExistingClient ? 'translate-x-5' : ''}`}></div>
+                </div>
+                <span className="text-sm font-medium text-gray-700">This is an existing Meir client</span>
+              </label>
+            </div>
+
+            {/* Existing Client Search + Baseline Panel */}
+            {formData.isExistingClient && (
+              <div className="mt-4 space-y-4">
+                <div ref={clientSearchRef} className="relative">
+                  <label className={labelClass}>Search for existing client <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={formData.storeName}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, storeName: e.target.value }));
+                      searchClients(e.target.value);
+                    }}
+                    className={inputClass}
+                    placeholder="Start typing to search clients..."
+                    autoComplete="off"
+                  />
+                  {clientSearchLoading && (
+                    <div className="absolute right-3 top-9 text-xs text-gray-400">Searching...</div>
+                  )}
+                  {clientSearchOpen && clientSearchResults.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {clientSearchResults.map((client) => (
+                        <button
+                          key={client.customer_group}
+                          type="button"
+                          onClick={() => selectClient(client)}
+                          className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">{client.customer_group}</p>
+                              {client.customer_code && (
+                                <p className="text-xs text-gray-500">{client.customer_code}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-medium text-gray-700">
+                                ${client.net_sales.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              </p>
+                              <p className="text-xs text-gray-500">{client.order_count} orders</p>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Baseline Revenue Panel */}
+                {selectedBaseline && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="text-sm font-semibold text-blue-900 mb-3">Current Client Performance (Last 12 Months)</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div>
+                        <p className="text-xs text-blue-600">Annual Revenue</p>
+                        <p className="text-sm font-bold text-blue-900">
+                          ${selectedBaseline.net_sales.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-blue-600">Orders</p>
+                        <p className="text-sm font-bold text-blue-900">{selectedBaseline.order_count}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-blue-600">Avg Order Value</p>
+                        <p className="text-sm font-bold text-blue-900">
+                          ${selectedBaseline.avg_order_value.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-blue-600">Gross Margin</p>
+                        <p className="text-sm font-bold text-blue-900">
+                          {(selectedBaseline.margin_pct * 100).toFixed(1)}%
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-blue-200">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-xs text-blue-600">Baseline with 15% YoY Growth</p>
+                          <p className="text-sm font-bold text-blue-900">
+                            ${(selectedBaseline.net_sales * 1.15).toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-blue-600">Existing Display Investment</p>
+                          <p className="text-sm font-bold text-blue-900">
+                            ${selectedBaseline.display_costs.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 bg-amber-50 border border-amber-200 rounded p-3">
+                      <p className="text-xs font-medium text-amber-800">
+                        <AlertTriangle className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />
+                        Your 12 month forecast below must represent the TOTAL expected revenue (including existing baseline).
+                        The system will automatically calculate the incremental uplift above the baseline of
+                        ${' '}${(selectedBaseline.net_sales * 1.15).toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Display Tier Visual Selector */}
             <div className="mt-6">
               <label className={labelClass}>Select the type of display <span className="text-red-500">*</span></label>
@@ -809,7 +1007,7 @@ export default function NewRequestPage() {
               <div>
                 <p className="text-sm font-medium text-amber-800">Meir always owns the display.</p>
                 <p className="text-sm text-amber-700 mt-1">
-                  The store is never charged for the display itself. However, we expect reps to negotiate an initial product order as part of the commitment. Do not give away a display for free without asking for a commitment first.
+                  The store is never charged for the display itself, as the display is owned by Meir and sits on our balance sheet. However, we encourage our reps to negotiate where possible, an initial order as part of the store's commitment if we are offering no charge for the display. We do not expect a commitment, but a good partnership is about give and take.
                 </p>
               </div>
             </div>

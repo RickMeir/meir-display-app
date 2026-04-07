@@ -35,7 +35,32 @@ export async function POST(request: NextRequest) {
       product_cogs: body.product_cogs || 0,
     };
 
-    const financials = calculateFinancials(safeBody);
+    // Look up existing client baseline if flagged
+    let existingClientData = null
+    if (body.is_existing_client && body.store_name) {
+      const serviceClient = createServiceClient()
+      const { data: baseline } = await serviceClient
+        .from('client_baseline')
+        .select('net_sales, order_count, avg_order_value, cogs_pct')
+        .eq('customer_group', body.store_name)
+        .single()
+
+      if (baseline) {
+        existingClientData = {
+          annual_revenue: baseline.net_sales,
+          order_count: baseline.order_count,
+          avg_order_value: baseline.avg_order_value,
+          cogs_pct: baseline.cogs_pct,
+        }
+      }
+    }
+
+    const financials = calculateFinancials(safeBody, existingClientData);
+
+    // Calculate baseline fields
+    const existingRevenue = existingClientData?.annual_revenue || 0
+    const baselineRevenue = existingRevenue * 1.15  // 15% growth
+    const incrementalRevenue = safeBody.forecast_revenue - baselineRevenue
 
     // Prepare request data
     const requestData = {
@@ -58,6 +83,15 @@ export async function POST(request: NextRequest) {
       differentiation_plan: body.differentiation_plan || null,
       store_agreed_location: body.store_agreed_location || false,
 
+      // Existing client
+      is_existing_client: body.is_existing_client || false,
+      existing_annual_revenue: existingRevenue,
+      existing_orders: existingClientData?.order_count || 0,
+      existing_aov: existingClientData?.avg_order_value || 0,
+      existing_cogs_pct: existingClientData?.cogs_pct || 0,
+      baseline_revenue: body.is_existing_client ? baselineRevenue : 0,
+      incremental_revenue: body.is_existing_client ? incrementalRevenue : safeBody.forecast_revenue,
+
       // Financial inputs
       rebate_pct: safeBody.rebate_pct / 100,
       cogs_pct: safeBody.cogs_pct / 100,
@@ -78,6 +112,7 @@ export async function POST(request: NextRequest) {
       // Calculated financial outputs
       total_investment: financials.total_investment,
       revenue_after_discount: financials.revenue_after_discount,
+      net_revenue: financials.net_revenue,
       rebate_cost: financials.rebate_cost,
       cogs_on_sales: financials.cogs_on_sales,
       est_orders: financials.est_orders,
@@ -91,6 +126,8 @@ export async function POST(request: NextRequest) {
       net_margin: financials.net_margin,
       profitability_flag: financials.profitability_flag,
       approval_tier: financials.approval_tier,
+      roi_multiplier: financials.roi_multiplier,
+      verdict: financials.verdict,
 
       // Additional fields
       approval_note: null,
@@ -228,7 +265,30 @@ export async function PUT(request: NextRequest) {
       product_cogs: body.product_cogs || 0,
     };
 
-    const financials = calculateFinancials(safeBody);
+    // Look up existing client baseline if flagged
+    let existingClientData = null
+    if (body.is_existing_client && body.store_name) {
+      const { data: baseline } = await serviceSupabase
+        .from('client_baseline')
+        .select('net_sales, order_count, avg_order_value, cogs_pct')
+        .eq('customer_group', body.store_name)
+        .single()
+
+      if (baseline) {
+        existingClientData = {
+          annual_revenue: baseline.net_sales,
+          order_count: baseline.order_count,
+          avg_order_value: baseline.avg_order_value,
+          cogs_pct: baseline.cogs_pct,
+        }
+      }
+    }
+
+    const financials = calculateFinancials(safeBody, existingClientData);
+
+    const existingRevenue = existingClientData?.annual_revenue || 0
+    const baselineRevenue = existingRevenue * 1.15
+    const incrementalRevenue = safeBody.forecast_revenue - baselineRevenue
 
     const updateData = {
       submitted_at: isSubmitting ? new Date().toISOString() : null,
@@ -246,6 +306,13 @@ export async function PUT(request: NextRequest) {
       is_new_or_replacement: body.is_new_or_replacement || null,
       differentiation_plan: body.differentiation_plan || null,
       store_agreed_location: body.store_agreed_location || false,
+      is_existing_client: body.is_existing_client || false,
+      existing_annual_revenue: existingRevenue,
+      existing_orders: existingClientData?.order_count || 0,
+      existing_aov: existingClientData?.avg_order_value || 0,
+      existing_cogs_pct: existingClientData?.cogs_pct || 0,
+      baseline_revenue: body.is_existing_client ? baselineRevenue : 0,
+      incremental_revenue: body.is_existing_client ? incrementalRevenue : safeBody.forecast_revenue,
       rebate_pct: safeBody.rebate_pct / 100,
       cogs_pct: safeBody.cogs_pct / 100,
       board_labour_cost: safeBody.board_labour_cost,
@@ -261,6 +328,7 @@ export async function PUT(request: NextRequest) {
       initial_order_notes: body.initial_order_notes || null,
       total_investment: financials.total_investment,
       revenue_after_discount: financials.revenue_after_discount,
+      net_revenue: financials.net_revenue,
       rebate_cost: financials.rebate_cost,
       cogs_on_sales: financials.cogs_on_sales,
       est_orders: financials.est_orders,
@@ -274,6 +342,8 @@ export async function PUT(request: NextRequest) {
       net_margin: financials.net_margin,
       profitability_flag: financials.profitability_flag,
       approval_tier: financials.approval_tier,
+      roi_multiplier: financials.roi_multiplier,
+      verdict: financials.verdict,
     };
 
     const { data: updated, error: updateErr } = await serviceSupabase

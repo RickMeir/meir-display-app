@@ -228,6 +228,7 @@ export async function POST(request: NextRequest) {
 
         if (uploadRecord?.approval_status === 'approved') {
           await serviceClient.rpc('refresh_monthly_actuals', { p_upload_id: uid })
+          await serviceClient.rpc('detect_margin_alerts', { p_upload_id: uid })
         }
       }
     }
