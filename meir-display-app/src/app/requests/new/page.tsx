@@ -24,6 +24,21 @@ interface UploadedPhoto {
   filename: string;
 }
 
+interface DisplayFitting {
+  fitting_sku: string;
+  description: string;
+  qty_per_match: number;
+  unit_cost: number;
+  trigger_patterns: string[];
+  notes: string;
+}
+
+interface MatchedFitting {
+  fitting: DisplayFitting;
+  triggered_by: string[];
+  total_qty: number;
+}
+
 interface ClientBaseline {
   customer_group: string;
   customer_code: string | null;
@@ -265,6 +280,8 @@ export default function NewRequestPage() {
   const [clientSearchLoading, setClientSearchLoading] = useState(false);
   const clientSearchRef = useRef<HTMLDivElement>(null);
   const [repUsers, setRepUsers] = useState<{ id: string; name: string; email: string }[]>([]);
+  const [fittingsRules, setFittingsRules] = useState<DisplayFitting[]>([]);
+  const [matchedFittings, setMatchedFittings] = useState<MatchedFitting[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
     storeName: '',
@@ -329,6 +346,17 @@ export default function NewRequestPage() {
         if (reps) setRepUsers(reps);
       } catch (err) {
         console.warn('Could not load reps list:', err);
+      }
+
+      // Load display fittings rules for auto-add logic
+      try {
+        const fittingsRes = await fetch('/api/fittings');
+        if (fittingsRes.ok) {
+          const fittingsJson = await fittingsRes.json();
+          setFittingsRules(fittingsJson.data || []);
+        }
+      } catch (err) {
+        console.warn('Could not load fittings rules:', err);
       }
 
       if (draftId) {
@@ -439,6 +467,38 @@ export default function NewRequestPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Auto-match display fittings when SKU selections change
+  useEffect(() => {
+    if (fittingsRules.length === 0) return;
+    const selectedCodes = formData.skus.map((s) => s.code).filter(Boolean);
+    if (selectedCodes.length === 0) {
+      setMatchedFittings([]);
+      return;
+    }
+
+    const matches: MatchedFitting[] = [];
+    for (const rule of fittingsRules) {
+      const triggeredBy: string[] = [];
+      for (const code of selectedCodes) {
+        // Check if any trigger pattern is a prefix of the selected SKU code
+        for (const pattern of rule.trigger_patterns) {
+          if (code.toUpperCase().startsWith(pattern.toUpperCase())) {
+            triggeredBy.push(code);
+            break;
+          }
+        }
+      }
+      if (triggeredBy.length > 0) {
+        matches.push({
+          fitting: rule,
+          triggered_by: triggeredBy,
+          total_qty: rule.qty_per_match * triggeredBy.length,
+        });
+      }
+    }
+    setMatchedFittings(matches);
+  }, [formData.skus, fittingsRules]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -541,7 +601,7 @@ export default function NewRequestPage() {
     if (!formData.plannedInstallDate) { setError('Please enter the planned installation date'); return false; }
     if (!formData.isNewOrReplacement) { setError('Please select whether this is a new display or replacement'); return false; }
     if (formData.salesForecast12Month === '' || formData.salesForecast12Month === null) {
-      setError('12 Month Sales Forecast is required'); return false;
+      setError('Sales forecast is required — how much do you expect this display to increase sales?'); return false;
     }
 
     // Check for location photos
@@ -553,7 +613,7 @@ export default function NewRequestPage() {
 
     if (formData.skus.length === 0) { setError('At least one SKU is required'); return false; }
     const validSkus = formData.skus.every((sku) => sku.code.trim() && sku.name.trim());
-    if (!validSkus) { setError('All SKUs must have a product selected'); return false; }
+    if (!validSkus) { setError('All display products must have a product selected'); return false; }
     return true;
   };
 
@@ -774,7 +834,8 @@ export default function NewRequestPage() {
                   <div className={`w-11 h-6 rounded-full transition-colors ${formData.isExistingClient ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
                   <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${formData.isExistingClient ? 'translate-x-5' : ''}`}></div>
                 </div>
-                <span className="text-sm font-medium text-gray-700">This is an existing Meir client</span>
+                <span className="text-sm font-medium text-gray-700">Is this store an existing client?</span>
+                <span className={`text-xs font-semibold ml-2 ${formData.isExistingClient ? 'text-green-600' : 'text-gray-400'}`}>{formData.isExistingClient ? 'Yes' : 'No'}</span>
               </label>
             </div>
 
@@ -826,60 +887,13 @@ export default function NewRequestPage() {
                   )}
                 </div>
 
-                {/* Baseline Revenue Panel */}
+                {/* Confirmation that client was selected */}
                 {selectedBaseline && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="text-sm font-semibold text-blue-900 mb-3">Current Client Performance (Last 12 Months)</h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div>
-                        <p className="text-xs text-blue-600">Annual Revenue</p>
-                        <p className="text-sm font-bold text-blue-900">
-                          ${selectedBaseline.net_sales.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-blue-600">Orders</p>
-                        <p className="text-sm font-bold text-blue-900">{selectedBaseline.order_count}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-blue-600">Avg Order Value</p>
-                        <p className="text-sm font-bold text-blue-900">
-                          ${selectedBaseline.avg_order_value.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-blue-600">Gross Margin</p>
-                        <p className="text-sm font-bold text-blue-900">
-                          {(selectedBaseline.margin_pct * 100).toFixed(1)}%
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-blue-200">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <p className="text-xs text-blue-600">Baseline with 15% YoY Growth</p>
-                          <p className="text-sm font-bold text-blue-900">
-                            ${(selectedBaseline.net_sales * 1.15).toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-blue-600">Existing Display Investment</p>
-                          <p className="text-sm font-bold text-blue-900">
-                            ${selectedBaseline.display_costs.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 bg-amber-50 border border-amber-200 rounded p-3">
-                      <p className="text-xs font-medium text-amber-800">
-                        <AlertTriangle className="w-3.5 h-3.5 inline mr-1 -mt-0.5" />
-                        Your 12 month forecast below must represent the TOTAL expected revenue (including existing baseline).
-                        The system will automatically calculate the incremental uplift above the baseline of
-                        ${' '}${(selectedBaseline.net_sales * 1.15).toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}.
-                      </p>
-                    </div>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p className="text-sm text-green-800">
+                      <CheckCircle className="w-4 h-4 inline mr-1.5 -mt-0.5" />
+                      Existing client selected: <strong>{selectedBaseline.customer_group}</strong>
+                    </p>
                   </div>
                 )}
               </div>
@@ -1122,13 +1136,15 @@ export default function NewRequestPage() {
               <div>
                 <label className={labelClass}>Board Cost Materials $</label>
                 <input type="number" name="boardCost" value={formData.boardCost} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
+                <p className="mt-1 text-xs text-gray-500">This should NOT include the product costs</p>
               </div>
               <div>
-                <label className={labelClass}>Display Board Labour Cost $</label>
+                <label className={labelClass}>Display Board Labour Installation Cost $</label>
                 <input type="number" name="labourCost" value={formData.labourCost} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
+                <p className="mt-1 text-xs text-gray-500">This should NOT include the product costs</p>
               </div>
               <div>
-                <label className={labelClass}>12 Month Sales Forecast $ <span className="text-red-500">*</span></label>
+                <label className={labelClass}>How much do you expect this display to INCREASE this client&apos;s sales in the next 12 months? $ <span className="text-red-500">*</span></label>
                 <input type="number" name="salesForecast12Month" value={formData.salesForecast12Month} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" required />
                 <p className="mt-1 text-xs text-gray-500">This value cannot be changed after submission</p>
               </div>
@@ -1147,7 +1163,7 @@ export default function NewRequestPage() {
                 <p className="mt-1 text-xs text-gray-500">All estimated costs for the next 12 months including lunch, wine, store gifts, or any other expense</p>
               </div>
               <div>
-                <label className={labelClass}>Catalogues per Year</label>
+                <label className={labelClass}>How many catalogues will you issue them for the next 12 months?</label>
                 <input type="number" name="cataloguesPerYear" value={formData.cataloguesPerYear} onChange={handleInputChange} min="0" className={inputClass} placeholder="0" />
               </div>
             </div>
@@ -1155,7 +1171,8 @@ export default function NewRequestPage() {
 
           {/* ===== SKUs ===== */}
           <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
-            <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">SKUs <span className="text-red-500">*</span></h2>
+            <h2 className="mb-2 text-lg sm:text-xl font-semibold text-gray-900">Select all the display products here <span className="text-red-500">*</span></h2>
+            <p className="mb-4 sm:mb-6 text-sm text-gray-500">Associated fitting parts will be automatically added to the list where relevant.</p>
 
             {products.length === 0 && (
               <div className="mb-4 rounded bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
@@ -1197,8 +1214,38 @@ export default function NewRequestPage() {
             </div>
 
             <button type="button" onClick={addSKU} className="mt-4 rounded bg-blue-50 px-4 py-2 text-blue-600 hover:bg-blue-100 font-medium text-sm">
-              Add SKU
+              Add Product
             </button>
+
+            {/* Auto-matched fittings */}
+            {matchedFittings.length > 0 && (
+              <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-blue-900 mb-3">
+                  <CheckCircle className="w-4 h-4 inline mr-1.5 -mt-0.5" />
+                  Associated fittings automatically added
+                </h4>
+                <div className="space-y-2">
+                  {matchedFittings.map((match) => (
+                    <div key={match.fitting.fitting_sku} className="flex justify-between items-start bg-white rounded p-3 border border-blue-100">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{match.fitting.fitting_sku}</p>
+                        <p className="text-xs text-gray-600">{match.fitting.description}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Triggered by: {match.triggered_by.join(', ')}
+                          {match.fitting.notes ? ` — ${match.fitting.notes}` : ''}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0 ml-3">
+                        <p className="text-sm font-bold text-blue-900">Qty: {match.total_qty}</p>
+                        {match.fitting.unit_cost > 0 && (
+                          <p className="text-xs text-gray-500">${(match.fitting.unit_cost * match.total_qty).toFixed(2)}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ===== Action Buttons ===== */}
