@@ -13,11 +13,13 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Supabase defaults to 1000 rows — we have 2021+ products so must override
     const { data: products, error } = await supabase
       .from('products')
       .select('sku_code, sku_name, unit_cost')
       .eq('is_active', true)
       .order('sku_code', { ascending: true })
+      .limit(5000)
 
     if (error) {
       console.error('Error fetching products:', error)
