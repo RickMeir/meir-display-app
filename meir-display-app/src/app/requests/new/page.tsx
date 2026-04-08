@@ -591,7 +591,7 @@ export default function NewRequestPage() {
     if (!formData.storeName.trim()) { setError('Store Name is required'); return false; }
     if (!formData.storeCode.trim()) { setError('Store Code is required'); return false; }
     if (!formData.salesRep.trim()) { setError('Sales Rep is required'); return false; }
-    if (!formData.brandTier) { setError('Please select the type of display'); return false; }
+    if (formData.isNewOrReplacement !== 'update' && !formData.brandTier) { setError('Please select the type of display'); return false; }
     if (!formData.displayType) { setError('Display Type is required'); return false; }
     if (!formData.opportunityDescription.trim()) { setError('Please describe the opportunity'); return false; }
     if (!formData.competitorBrands.trim()) { setError('Please list the 3 closest competitor brands'); return false; }
@@ -898,52 +898,7 @@ export default function NewRequestPage() {
               </div>
             )}
 
-            {/* Display Tier Visual Selector */}
-            <div className="mt-6">
-              <label className={labelClass}>Select the type of display <span className="text-red-500">*</span></label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-2">
-                {DISPLAY_TIERS.map((tier) => (
-                  <button
-                    key={tier.value}
-                    type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, brandTier: tier.value }))}
-                    className={`relative rounded-lg border-2 p-3 sm:p-4 text-left transition-all ${
-                      formData.brandTier === tier.value
-                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <div className="w-full h-28 sm:h-36 bg-gray-200 rounded mb-2 sm:mb-3 overflow-hidden">
-                      {tier.imageUrl ? (
-                        <img
-                          src={tier.imageUrl}
-                          alt={`${tier.label} Meir display`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                          Image coming soon
-                        </div>
-                      )}
-                    </div>
-                    <p className={`font-semibold text-sm ${formData.brandTier === tier.value ? 'text-blue-700' : 'text-gray-900'}`}>
-                      {tier.label}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1 hidden sm:block">{tier.description}</p>
-                    {formData.brandTier === tier.value && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* New or replacement */}
+            {/* New or replacement — shown first so tier selector can be conditional */}
             <div className="mt-6">
               <label className={labelClass}>Is this a new display or a replacement/update? <span className="text-red-500">*</span></label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -960,12 +915,72 @@ export default function NewRequestPage() {
                         : 'border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}
                   >
-                    <input type="radio" name="isNewOrReplacement" value={opt.value} checked={formData.isNewOrReplacement === opt.value} onChange={handleInputChange} className="sr-only" />
+                    <input
+                      type="radio"
+                      name="isNewOrReplacement"
+                      value={opt.value}
+                      checked={formData.isNewOrReplacement === opt.value}
+                      onChange={(e) => {
+                        handleInputChange(e);
+                        // Clear brand tier if switching to update (no new display being installed)
+                        if (e.target.value === 'update') {
+                          setFormData((prev) => ({ ...prev, brandTier: '' }));
+                        }
+                      }}
+                      className="sr-only"
+                    />
                     {opt.label}
                   </label>
                 ))}
               </div>
             </div>
+
+            {/* Display Tier Visual Selector — only for new or replacement displays */}
+            {formData.isNewOrReplacement !== 'update' && (
+              <div className="mt-6">
+                <label className={labelClass}>Select the type of display <span className="text-red-500">*</span></label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-2">
+                  {DISPLAY_TIERS.map((tier) => (
+                    <button
+                      key={tier.value}
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, brandTier: tier.value }))}
+                      className={`relative rounded-lg border-2 p-3 sm:p-4 text-left transition-all ${
+                        formData.brandTier === tier.value
+                          ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
+                    >
+                      <div className="w-full h-28 sm:h-36 bg-gray-200 rounded mb-2 sm:mb-3 overflow-hidden">
+                        {tier.imageUrl ? (
+                          <img
+                            src={tier.imageUrl}
+                            alt={`${tier.label} Meir display`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                            Image coming soon
+                          </div>
+                        )}
+                      </div>
+                      <p className={`font-semibold text-sm ${formData.brandTier === tier.value ? 'text-blue-700' : 'text-gray-900'}`}>
+                        {tier.label}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1 hidden sm:block">{tier.description}</p>
+                      {formData.brandTier === tier.value && (
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ===== About This Opportunity ===== */}
