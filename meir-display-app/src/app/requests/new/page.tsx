@@ -656,8 +656,33 @@ export default function NewRequestPage() {
     if (!formData.brandAcknowledged) { setError('Please read and acknowledge the Meir Brand Standard before submitting'); return false; }
     if (!formData.plannedInstallDate) { setError('Please enter the planned installation date'); return false; }
     if (!formData.isNewOrReplacement) { setError('Please select whether this is a new display or replacement'); return false; }
+    // All financial fields are mandatory — the manager cannot assess ROI without them
+    if (formData.clientDiscountPercentage === '' || formData.clientDiscountPercentage === null) {
+      setError('Client discount % is required — the ROI calculation depends on it'); return false;
+    }
+    if (formData.rebatePercentage === '' || formData.rebatePercentage === null) {
+      setError('Rebate % is required — enter 0 if there is no rebate'); return false;
+    }
+    if (formData.boardCost === '' || formData.boardCost === null) {
+      setError('Board cost is required — enter 0 if there is no board cost'); return false;
+    }
+    if (formData.labourCost === '' || formData.labourCost === null) {
+      setError('Labour cost is required — enter 0 if there is no labour cost'); return false;
+    }
     if (formData.salesForecast12Month === '' || formData.salesForecast12Month === null) {
-      setError('Sales forecast is required — how much do you expect this display to increase sales?'); return false;
+      setError('Sales forecast is required — how much do you expect this display to generate in sales?'); return false;
+    }
+    if (formData.repHoursPerMonth === '' || formData.repHoursPerMonth === null) {
+      setError('Rep hours per month is required — enter 0 if no regular visits planned'); return false;
+    }
+    if (formData.freeSamples === '' || formData.freeSamples === null) {
+      setError('Free samples cost is required — enter 0 if none'); return false;
+    }
+    if (formData.gifts === '' || formData.gifts === null) {
+      setError('Gifts cost is required — enter 0 if none'); return false;
+    }
+    if (formData.cataloguesPerYear === '' || formData.cataloguesPerYear === null) {
+      setError('Catalogues per year is required — enter 0 if none'); return false;
     }
 
     // Check for location photos
@@ -1198,22 +1223,23 @@ export default function NewRequestPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>Rebate %</label>
-                <input type="number" name="rebatePercentage" value={formData.rebatePercentage} onChange={handleInputChange} min="0" max="100" step="0.1" className={inputClass} placeholder="0" />
+                <label className={labelClass}>Rebate % <span className="text-red-500">*</span></label>
+                <input type="number" name="rebatePercentage" value={formData.rebatePercentage} onChange={handleInputChange} min="0" max="100" step="0.1" className={inputClass} placeholder="0" required />
+                <p className="mt-1 text-xs text-gray-500">Enter 0 if no rebate</p>
               </div>
               <div>
-                <label className={labelClass}>Client Discount %</label>
-                <input type="number" name="clientDiscountPercentage" value={formData.clientDiscountPercentage} onChange={handleInputChange} min="0" max="100" step="0.1" className={inputClass} placeholder="0" />
+                <label className={labelClass}>Client Discount % <span className="text-red-500">*</span></label>
+                <input type="number" name="clientDiscountPercentage" value={formData.clientDiscountPercentage} onChange={handleInputChange} min="0" max="100" step="0.1" className={inputClass} placeholder="0" required />
               </div>
               <div>
-                <label className={labelClass}>Board Cost Materials $</label>
-                <input type="number" name="boardCost" value={formData.boardCost} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
-                <p className="mt-1 text-xs text-gray-500">This should NOT include the product costs</p>
+                <label className={labelClass}>Board Cost Materials $ <span className="text-red-500">*</span></label>
+                <input type="number" name="boardCost" value={formData.boardCost} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" required />
+                <p className="mt-1 text-xs text-gray-500">Enter 0 if none. This should NOT include the product costs.</p>
               </div>
               <div>
-                <label className={labelClass}>Display Board Labour Installation Cost $</label>
-                <input type="number" name="labourCost" value={formData.labourCost} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
-                <p className="mt-1 text-xs text-gray-500">This should NOT include the product costs</p>
+                <label className={labelClass}>Display Board Labour Installation Cost $ <span className="text-red-500">*</span></label>
+                <input type="number" name="labourCost" value={formData.labourCost} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" required />
+                <p className="mt-1 text-xs text-gray-500">Enter 0 if none. This should NOT include the product costs.</p>
               </div>
               <div>
                 <label className={labelClass}>How much do you expect this display to INCREASE this client&apos;s sales in the next 12 months? $ <span className="text-red-500">*</span></label>
@@ -1221,22 +1247,24 @@ export default function NewRequestPage() {
                 <p className="mt-1 text-xs text-gray-500">This value cannot be changed after submission</p>
               </div>
               <div>
-                <label className={labelClass}>Amount of hours you will spend with this client each month</label>
-                <input type="number" name="repHoursPerMonth" value={formData.repHoursPerMonth} onChange={handleInputChange} min="0" step="0.5" className={inputClass} placeholder="0" />
+                <label className={labelClass}>Amount of hours you will spend with this client each month <span className="text-red-500">*</span></label>
+                <input type="number" name="repHoursPerMonth" value={formData.repHoursPerMonth} onChange={handleInputChange} min="0" step="0.5" className={inputClass} placeholder="0" required />
+                <p className="mt-1 text-xs text-gray-500">Enter 0 if no regular visits planned</p>
               </div>
               <div>
-                <label className={labelClass}>Free Samples $</label>
-                <input type="number" name="freeSamples" value={formData.freeSamples} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
-                <p className="mt-1 text-xs text-gray-500">This is the total amount of free samples you expect to provide them in 12 months</p>
+                <label className={labelClass}>Free Samples $ <span className="text-red-500">*</span></label>
+                <input type="number" name="freeSamples" value={formData.freeSamples} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" required />
+                <p className="mt-1 text-xs text-gray-500">Total for next 12 months. Enter 0 if none.</p>
               </div>
               <div>
-                <label className={labelClass}>Gifts $</label>
-                <input type="number" name="gifts" value={formData.gifts} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" />
-                <p className="mt-1 text-xs text-gray-500">All estimated costs for the next 12 months including lunch, wine, store gifts, or any other expense</p>
+                <label className={labelClass}>Gifts $ <span className="text-red-500">*</span></label>
+                <input type="number" name="gifts" value={formData.gifts} onChange={handleInputChange} min="0" step="0.01" className={inputClass} placeholder="0.00" required />
+                <p className="mt-1 text-xs text-gray-500">All estimated costs for next 12 months (lunch, wine, store gifts, etc). Enter 0 if none.</p>
               </div>
               <div>
-                <label className={labelClass}>How many catalogues will you issue them for the next 12 months?</label>
-                <input type="number" name="cataloguesPerYear" value={formData.cataloguesPerYear} onChange={handleInputChange} min="0" className={inputClass} placeholder="0" />
+                <label className={labelClass}>How many catalogues will you issue them for the next 12 months? <span className="text-red-500">*</span></label>
+                <input type="number" name="cataloguesPerYear" value={formData.cataloguesPerYear} onChange={handleInputChange} min="0" className={inputClass} placeholder="0" required />
+                <p className="mt-1 text-xs text-gray-500">Enter 0 if none</p>
               </div>
             </div>
           </div>
