@@ -20,7 +20,7 @@ export async function GET() {
 
     const { data: fittings, error } = await supabase
       .from('display_fittings')
-      .select('fitting_sku, description, qty_per_sku, trigger_prefixes')
+      .select('fitting_sku, description, qty_per_sku, unit_cost, trigger_prefixes')
       .eq('is_active', true)
 
     if (error) {

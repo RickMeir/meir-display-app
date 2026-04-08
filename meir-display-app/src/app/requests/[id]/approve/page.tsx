@@ -280,12 +280,15 @@ export default function ApprovePage() {
       {/* SKUs */}
       {request.skus && request.skus.length > 0 && (
         <div className="bg-gray-400 rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">SKUs</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Display Products</h2>
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">SKU Code</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">SKU Name</th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Description</th>
+                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Qty</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Unit Cost</th>
+                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Line Total</th>
               </tr>
             </thead>
             <tbody>
@@ -293,9 +296,20 @@ export default function ApprovePage() {
                 <tr key={sku.id} className={index % 2 === 0 ? 'bg-gray-300' : 'bg-gray-200'}>
                   <td className="py-3 px-4 text-sm text-gray-900 font-mono">{sku.sku_code}</td>
                   <td className="py-3 px-4 text-sm text-gray-900">{sku.sku_name || '—'}</td>
+                  <td className="py-3 px-4 text-sm text-center">{sku.quantity || 1}</td>
+                  <td className="py-3 px-4 text-sm text-right">{formatCurrency(sku.unit_cost || 0)}</td>
+                  <td className="py-3 px-4 text-sm text-right font-medium">{formatCurrency(sku.line_cost || (sku.unit_cost || 0) * (sku.quantity || 1))}</td>
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr className="border-t-2 border-gray-400">
+                <td colSpan={4} className="py-3 px-4 text-sm font-semibold text-right">Total Product COGS</td>
+                <td className="py-3 px-4 text-sm font-bold text-right">
+                  {formatCurrency(request.skus.reduce((sum, s) => sum + (s.line_cost || (s.unit_cost || 0) * (s.quantity || 1)), 0))}
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       )}

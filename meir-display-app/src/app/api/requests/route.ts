@@ -155,12 +155,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert SKUs (if any — drafts may have none)
-    const validSkus = (body.skus || []).filter((sku) => sku.code && sku.code.trim());
+    const validSkus = (body.skus || []).filter((sku: any) => sku.code && sku.code.trim());
     if (validSkus.length > 0) {
-      const skuData = validSkus.map((sku) => ({
+      const skuData = validSkus.map((sku: any) => ({
         request_id: displayRequest.id,
         sku_code: sku.code,
         sku_name: sku.name,
+        quantity: sku.qty || 1,
+        unit_cost: sku.unit_cost || 0,
+        line_cost: (sku.unit_cost || 0) * (sku.qty || 1),
       }));
 
       const { error: skuError } = await serviceSupabase
@@ -363,14 +366,17 @@ export async function PUT(request: NextRequest) {
       .delete()
       .eq('request_id', body.id);
 
-    const validSkus = (body.skus || []).filter((sku) => sku.code && sku.code.trim());
+    const validSkus = (body.skus || []).filter((sku: any) => sku.code && sku.code.trim());
     if (validSkus.length > 0) {
       await serviceSupabase
         .from('display_skus')
-        .insert(validSkus.map((sku) => ({
+        .insert(validSkus.map((sku: any) => ({
           request_id: body.id,
           sku_code: sku.code,
           sku_name: sku.name,
+          quantity: sku.qty || 1,
+          unit_cost: sku.unit_cost || 0,
+          line_cost: (sku.unit_cost || 0) * (sku.qty || 1),
         })));
     }
 

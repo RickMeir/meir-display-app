@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
       case 'skus': {
         const { data: rows } = await serviceClient
           .from('display_skus')
-          .select('id, request_id, sku_code, sku_name, sort_order')
+          .select('id, request_id, sku_code, sku_name, quantity, unit_cost, line_cost, sort_order')
           .order('request_id', { ascending: true })
         data = (rows || []) as Record<string, unknown>[]
         filename = 'display_skus'

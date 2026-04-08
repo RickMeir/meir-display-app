@@ -15,9 +15,9 @@ export async function GET() {
 
     const { data: products, error } = await supabase
       .from('products')
-      .select('sku_code, sku_name')
+      .select('sku_code, sku_name, unit_cost')
       .eq('is_active', true)
-      .order('sku_name', { ascending: true })
+      .order('sku_code', { ascending: true })
 
     if (error) {
       console.error('Error fetching products:', error)

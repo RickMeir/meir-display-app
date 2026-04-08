@@ -8,12 +8,15 @@ import { Camera, X, Upload, AlertTriangle, CheckCircle, XCircle, ShieldCheck } f
 interface Product {
   sku_code: string;
   sku_name: string;
+  unit_cost: number;
 }
 
 interface SKURow {
   id: string;
   code: string;
   name: string;
+  qty: number;
+  unitCost: number;
 }
 
 interface UploadedPhoto {
@@ -28,6 +31,7 @@ interface DisplayFitting {
   fitting_sku: string;
   description: string;
   qty_per_sku: number;
+  unit_cost: number;
   trigger_prefixes: string[];
 }
 
@@ -35,6 +39,7 @@ interface MatchedFitting {
   fitting: DisplayFitting;
   triggered_by: string[];
   total_qty: number;
+  total_cost: number;
 }
 
 interface ClientBaseline {
@@ -307,7 +312,7 @@ export default function NewRequestPage() {
     freeSamples: '',
     gifts: '',
     cataloguesPerYear: '',
-    skus: [{ id: '1', code: '', name: '' }],
+    skus: [{ id: '1', code: '', name: '', qty: 1, unitCost: 0 }],
   });
 
   useEffect(() => {
@@ -487,10 +492,12 @@ export default function NewRequestPage() {
         }
       }
       if (triggeredBy.length > 0) {
+        const totalQty = rule.qty_per_sku * triggeredBy.length;
         matches.push({
           fitting: rule,
           triggered_by: triggeredBy,
-          total_qty: rule.qty_per_sku * triggeredBy.length,
+          total_qty: totalQty,
+          total_cost: totalQty * (rule.unit_cost || 0),
         });
       }
     }
@@ -517,15 +524,31 @@ export default function NewRequestPage() {
   const handleSkuChange = (index: number, selectedCode: string) => {
     const newSkus = [...formData.skus];
     const product = products.find((p) => p.sku_code === selectedCode);
-    newSkus[index] = { ...newSkus[index], code: selectedCode, name: product?.sku_name || '' };
+    newSkus[index] = {
+      ...newSkus[index],
+      code: selectedCode,
+      name: product?.sku_name || '',
+      unitCost: product?.unit_cost || 0,
+    };
     setFormData((prev) => ({ ...prev, skus: newSkus }));
   };
+
+  const handleSkuQtyChange = (index: number, qty: number) => {
+    const newSkus = [...formData.skus];
+    newSkus[index] = { ...newSkus[index], qty: Math.max(1, qty) };
+    setFormData((prev) => ({ ...prev, skus: newSkus }));
+  };
+
+  // Auto-calculate product_cogs from SKU selections + fittings
+  const skuProductCost = formData.skus.reduce((sum, sku) => sum + (sku.unitCost * sku.qty), 0);
+  const fittingsCost = matchedFittings.reduce((sum, m) => sum + m.total_cost, 0);
+  const calculatedProductCogs = skuProductCost + fittingsCost;
 
   const addSKU = () => {
     const newId = Math.max(0, ...formData.skus.map((s) => parseInt(s.id))) + 1;
     setFormData((prev) => ({
       ...prev,
-      skus: [...prev.skus, { id: newId.toString(), code: '', name: '' }],
+      skus: [...prev.skus, { id: newId.toString(), code: '', name: '', qty: 1, unitCost: 0 }],
     }));
   };
 
@@ -649,10 +672,10 @@ export default function NewRequestPage() {
       rep_hours_monthly: formData.repHoursPerMonth === '' ? 0 : formData.repHoursPerMonth,
       free_samples_cost: freeSamplesCost,
       catalogues_qty: formData.cataloguesPerYear === '' ? 0 : formData.cataloguesPerYear,
-      product_cogs: 0,
+      product_cogs: calculatedProductCogs,
       photos_link: '',
       comments: '',
-      skus: formData.skus.map((sku) => ({ code: sku.code, name: sku.name })),
+      skus: formData.skus.map((sku) => ({ code: sku.code, name: sku.name, qty: sku.qty, unit_cost: sku.unitCost })),
     };
   }
 
@@ -1197,13 +1220,13 @@ export default function NewRequestPage() {
             <div className="space-y-4">
               {formData.skus.map((sku, index) => (
                 <div key={sku.id} className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
-                  <div className="flex-1">
+                  <div className="flex-[2]">
                     <label className={labelClass}>SKU Code</label>
                     {products.length > 0 ? (
                       <select value={sku.code} onChange={(e) => handleSkuChange(index, e.target.value)} className={inputClass} required>
                         <option value="">Select a product</option>
                         {products.map((product) => (
-                          <option key={product.sku_code} value={product.sku_code}>{product.sku_code}</option>
+                          <option key={product.sku_code} value={product.sku_code}>{product.sku_code} — {product.sku_name}</option>
                         ))}
                       </select>
                     ) : (
@@ -1214,9 +1237,17 @@ export default function NewRequestPage() {
                       }} className={inputClass} placeholder="Enter SKU code" required />
                     )}
                   </div>
-                  <div className="flex-1">
-                    <label className={labelClass}>SKU Name</label>
-                    <input type="text" value={sku.name} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700 text-base" placeholder={products.length > 0 ? 'Auto filled from selection' : 'Enter SKU name'} />
+                  <div className="w-20">
+                    <label className={labelClass}>Qty</label>
+                    <input type="number" min="1" value={sku.qty} onChange={(e) => handleSkuQtyChange(index, parseInt(e.target.value) || 1)} className={inputClass} />
+                  </div>
+                  <div className="w-28">
+                    <label className={labelClass}>Unit Cost</label>
+                    <input type="text" value={sku.unitCost > 0 ? `$${sku.unitCost.toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500 text-sm" />
+                  </div>
+                  <div className="w-28">
+                    <label className={labelClass}>Line Total</label>
+                    <input type="text" value={sku.unitCost > 0 ? `$${(sku.unitCost * sku.qty).toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700 font-medium text-sm" />
                   </div>
                   <div>
                     <button type="button" onClick={() => removeSKU(sku.id)} disabled={formData.skus.length === 1} className="w-full sm:w-auto rounded bg-red-50 px-4 py-2 text-red-600 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm">
@@ -1226,6 +1257,26 @@ export default function NewRequestPage() {
                 </div>
               ))}
             </div>
+
+            {/* Product COGS total */}
+            {(skuProductCost > 0 || fittingsCost > 0) && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex justify-between items-center text-sm text-blue-800">
+                  <span>Display Products</span>
+                  <span className="font-medium">${skuProductCost.toFixed(2)}</span>
+                </div>
+                {fittingsCost > 0 && (
+                  <div className="flex justify-between items-center text-sm text-blue-800 mt-1">
+                    <span>Display Fittings</span>
+                    <span className="font-medium">${fittingsCost.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center mt-2 pt-2 border-t border-blue-200">
+                  <span className="text-sm font-semibold text-blue-900">Total Display COGS (auto calculated)</span>
+                  <span className="text-lg font-bold text-blue-900">${calculatedProductCogs.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
 
             <button type="button" onClick={addSKU} className="mt-4 rounded bg-blue-50 px-4 py-2 text-blue-600 hover:bg-blue-100 font-medium text-sm">
               Add Product
@@ -1250,6 +1301,9 @@ export default function NewRequestPage() {
                       </div>
                       <div className="text-right shrink-0 ml-3">
                         <p className="text-sm font-bold text-blue-900">Qty: {match.total_qty}</p>
+                        {match.total_cost > 0 && (
+                          <p className="text-xs text-blue-700">${match.total_cost.toFixed(2)}</p>
+                        )}
                       </div>
                     </div>
                   ))}

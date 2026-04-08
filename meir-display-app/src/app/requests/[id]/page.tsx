@@ -272,15 +272,39 @@ export default function RequestDetailPage() {
       {/* SKUs */}
       {request.skus && request.skus.length > 0 && (
         <div className="bg-gray-400 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">SKUs</h2>
-          <div className="space-y-2">
-            {request.skus.map((sku) => (
-              <div key={sku.id} className="flex items-center gap-4 text-sm">
-                <span className="font-mono bg-gray-200 px-2 py-1 rounded">{sku.sku_code}</span>
-                <span className="text-gray-700">{sku.sku_name || '—'}</span>
-              </div>
-            ))}
-          </div>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Display Products</h2>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">SKU Code</th>
+                <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Description</th>
+                <th className="text-center py-2 px-3 text-xs font-semibold text-gray-600">Qty</th>
+                {canSeeFinancials && <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Unit Cost</th>}
+                {canSeeFinancials && <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Line Total</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {request.skus.map((sku, index) => (
+                <tr key={sku.id} className={index % 2 === 0 ? 'bg-gray-300' : 'bg-gray-200'}>
+                  <td className="py-2 px-3 text-sm font-mono">{sku.sku_code}</td>
+                  <td className="py-2 px-3 text-sm text-gray-700">{sku.sku_name || '—'}</td>
+                  <td className="py-2 px-3 text-sm text-center">{sku.quantity || 1}</td>
+                  {canSeeFinancials && <td className="py-2 px-3 text-sm text-right">{formatCurrency(sku.unit_cost || 0)}</td>}
+                  {canSeeFinancials && <td className="py-2 px-3 text-sm text-right font-medium">{formatCurrency(sku.line_cost || (sku.unit_cost || 0) * (sku.quantity || 1))}</td>}
+                </tr>
+              ))}
+            </tbody>
+            {canSeeFinancials && (
+              <tfoot>
+                <tr className="border-t-2 border-gray-400">
+                  <td colSpan={4} className="py-2 px-3 text-sm font-semibold text-right">Total Product COGS</td>
+                  <td className="py-2 px-3 text-sm font-bold text-right">
+                    {formatCurrency(request.skus.reduce((sum, s) => sum + (s.line_cost || (s.unit_cost || 0) * (s.quantity || 1)), 0))}
+                  </td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
         </div>
       )}
 

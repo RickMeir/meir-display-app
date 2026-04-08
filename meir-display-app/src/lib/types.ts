@@ -126,6 +126,9 @@ export interface DisplaySku {
   request_id: string
   sku_code: string
   sku_name: string | null
+  quantity: number
+  unit_cost: number
+  line_cost: number
   sort_order: number
 }
 
@@ -311,7 +314,7 @@ export interface RequestFormInput {
   has_initial_order: boolean
   initial_order_value: number
   initial_order_notes: string
-  skus: { code: string; name: string }[]
+  skus: { code: string; name: string; qty: number; unit_cost: number }[]
 }
 
 export interface ClientBaseline {
