@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { sendExpenseProposedEmail } from '@/lib/email'
+import { EXPENSE_CATEGORY_LABELS } from '@/lib/types'
 
 // POST /api/requests/[id]/lifecycle/expenses
 // Submit a new additional expense request for a display.
@@ -134,6 +136,38 @@ export async function POST(
         is_spiral: currentRound >= 2,
       },
     })
+
+    // Send notification email to Rick + Paul
+    try {
+      // Fetch full display request for the email
+      const { data: fullReq } = await serviceClient
+        .from('display_requests')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (fullReq) {
+        // Get requester name
+        const { data: requesterData } = await serviceClient
+          .from('users')
+          .select('name')
+          .eq('id', userData.id)
+          .single()
+
+        await sendExpenseProposedEmail(
+          fullReq,
+          (EXPENSE_CATEGORY_LABELS as Record<string, string>)[category] || category,
+          Number(amount),
+          rationale || '',
+          currentRound,
+          makesUnviable,
+          requesterData?.name || user.email || 'Unknown'
+        )
+      }
+    } catch (emailErr) {
+      console.error('Failed to send expense proposed email:', emailErr)
+      // Non-critical
+    }
 
     return NextResponse.json(expense, { status: 201 })
   } catch (error) {

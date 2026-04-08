@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { sendExpenseDecisionEmail } from '@/lib/email'
+import { EXPENSE_CATEGORY_LABELS } from '@/lib/types'
 
 // POST /api/requests/[id]/lifecycle/expenses/[expenseId]/approve
 // Approve or reject an additional expense request.
@@ -90,6 +92,30 @@ export async function POST(
         note: note || null,
       },
     })
+
+    // Send notification email
+    try {
+      const { data: fullReq } = await serviceClient
+        .from('display_requests')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (fullReq) {
+        await sendExpenseDecisionEmail(
+          fullReq,
+          (EXPENSE_CATEGORY_LABELS as Record<string, string>)[expense.category] || expense.category,
+          Number(expense.amount),
+          action,
+          note || null,
+          expense.expense_round,
+          expense.makes_unviable
+        )
+      }
+    } catch (emailErr) {
+      console.error('Failed to send expense decision email:', emailErr)
+      // Non-critical
+    }
 
     return NextResponse.json(updated)
   } catch (error) {

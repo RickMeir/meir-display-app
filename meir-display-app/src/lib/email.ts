@@ -77,11 +77,41 @@ export async function sendApprovalRequestEmail(request: DisplayRequest, approver
       <h2>Display Request — Financial Approval Required</h2>
       <p><strong>Store:</strong> ${request.store_name} (${request.store_code})</p>
       <p><strong>Rep:</strong> ${request.rep_name}</p>
-      <p><strong>Total Investment:</strong> ${formatCurrency(request.total_investment)}</p>
+      <p><strong>Brand Tier:</strong> ${request.brand_tier || 'Not specified'}</p>
+      <table style="border-collapse:collapse;margin:12px 0;width:100%;">
+        <tr>
+          <td style="padding:6px 12px;font-weight:bold;">Total Investment</td>
+          <td style="padding:6px 12px;">${formatCurrency(request.total_investment)}</td>
+          <td style="padding:6px 12px;font-weight:bold;">Forecast Revenue</td>
+          <td style="padding:6px 12px;">${formatCurrency(request.forecast_revenue)}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 12px;font-weight:bold;">Net Contribution</td>
+          <td style="padding:6px 12px;">${formatCurrency(request.net_contribution)}</td>
+          <td style="padding:6px 12px;font-weight:bold;">Net Margin</td>
+          <td style="padding:6px 12px;">${formatPercent(request.net_margin)}</td>
+        </tr>
+        ${request.roi_multiplier != null ? `
+        <tr>
+          <td style="padding:6px 12px;font-weight:bold;">ROI Multiplier</td>
+          <td style="padding:6px 12px;">${request.roi_multiplier.toFixed(2)}x</td>
+          <td style="padding:6px 12px;font-weight:bold;">Verdict</td>
+          <td style="padding:6px 12px;font-weight:bold;color:${request.verdict === 'worth_it' ? '#16a34a' : request.verdict === 'marginal' ? '#d97706' : '#dc2626'};">${request.verdict === 'worth_it' ? 'Worth It' : request.verdict === 'marginal' ? 'Marginal' : 'Not Worth It'}</td>
+        </tr>
+        ` : ''}
+      </table>
+      ${request.has_initial_order && request.initial_order_value > 0 ? `
+      <p style="background:#eff6ff;padding:8px 12px;border-radius:4px;font-size:13px;">
+        <strong>Initial Order:</strong> ${formatCurrency(request.initial_order_value)} committed
+        ${request.forecast_revenue > 0 ? ` (${Math.round((request.initial_order_value / request.forecast_revenue) * 100)}% of forecast)` : ''}
+      </p>` : ''}
+      ${request.is_existing_client && request.existing_annual_revenue > 0 ? `
+      <p style="background:#eff6ff;padding:8px 12px;border-radius:4px;font-size:13px;">
+        <strong>Existing Client:</strong> Current revenue ${formatCurrency(request.existing_annual_revenue)}.
+        Incremental revenue from display: ${formatCurrency(request.incremental_revenue)}.
+      </p>` : ''}
       <p><strong>Approval Tier:</strong> ${TIER_LABELS[request.approval_tier || 'manager']}</p>
-      <p><strong>Net Contribution:</strong> ${formatCurrency(request.net_contribution)}</p>
-      <p><strong>Net Margin:</strong> ${formatPercent(request.net_margin)}</p>
-      <p><strong>Deal Status:</strong> ${request.profitability_flag === 'green' ? 'GREEN — Viable' : 'REVIEW — Below thresholds'}</p>
+      <p><strong>Deal Status:</strong> <span style="color:${request.profitability_flag === 'green' ? '#16a34a' : '#dc2626'};font-weight:bold;">${request.profitability_flag === 'green' ? 'GREEN — Viable' : 'REVIEW — Below thresholds'}</span></p>
       <hr/>
       <p><a href="${link}" style="display:inline-block;padding:12px 24px;background:#0074c5;color:#fff;text-decoration:none;border-radius:6px;">Review & Approve</a></p>
     `,
@@ -229,6 +259,86 @@ export async function sendForecastChangeEmail(
           <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Deal Status:</td><td style="color:${flagColour};">${flagLabel}</td></tr>
           <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Changed By:</td><td>${changedByName}</td></tr>
           <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Reason:</td><td>${reason || 'No reason provided'}</td></tr>
+        </table>
+        <p><a href="${APP_URL}/requests/${request.id}/lifecycle" style="display:inline-block;padding:12px 24px;background:#0074c5;color:#fff;text-decoration:none;border-radius:6px;">View Lifecycle</a></p>
+      `,
+      request.id
+    )
+  }
+}
+
+/** Sent to Rick + Paul when a new additional expense is proposed */
+export async function sendExpenseProposedEmail(
+  request: DisplayRequest,
+  category: string,
+  amount: number,
+  rationale: string,
+  expenseRound: number,
+  makesUnviable: boolean,
+  requestedByName: string
+) {
+  const recipients = ['rick@meir.com.au', 'paul@meir.com.au']
+  const viabilityWarning = makesUnviable
+    ? '<p style="color:#dc2626;font-weight:bold;">This expense would push the display below viability thresholds.</p>'
+    : ''
+  const spiralWarning = expenseRound >= 2
+    ? `<p style="color:#d97706;font-weight:bold;">Expense spiral detected — this is round ${expenseRound} of additional spend.</p>`
+    : ''
+
+  for (const email of recipients) {
+    await sendEmail(
+      email,
+      `Additional Expense Proposed: ${request.store_name} — ${formatCurrency(amount)}`,
+      `
+        <h2>Additional Expense Proposed</h2>
+        <p>A new expense has been submitted for <strong>${request.store_name}</strong> (${request.store_code}).</p>
+        ${spiralWarning}
+        ${viabilityWarning}
+        <table style="border-collapse:collapse;margin:12px 0;">
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Category:</td><td>${category}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Amount:</td><td>${formatCurrency(amount)}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Rationale:</td><td>${rationale || 'Not provided'}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Requested By:</td><td>${requestedByName}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Expense Round:</td><td>${expenseRound}</td></tr>
+        </table>
+        <p><a href="${APP_URL}/requests/${request.id}/lifecycle" style="display:inline-block;padding:12px 24px;background:#0074c5;color:#fff;text-decoration:none;border-radius:6px;">Review Expense</a></p>
+      `,
+      request.id
+    )
+  }
+}
+
+/** Sent to Rick + Paul + requester when an expense is approved or rejected */
+export async function sendExpenseDecisionEmail(
+  request: DisplayRequest,
+  category: string,
+  amount: number,
+  decision: 'approved' | 'rejected',
+  decisionNote: string | null,
+  expenseRound: number,
+  makesUnviable: boolean
+) {
+  const recipients = ['rick@meir.com.au', 'paul@meir.com.au']
+  const isApproved = decision === 'approved'
+  const statusColour = isApproved ? '#16a34a' : '#dc2626'
+  const statusLabel = isApproved ? 'APPROVED' : 'REJECTED'
+  const viabilityWarning = isApproved && makesUnviable
+    ? '<p style="color:#dc2626;font-weight:bold;">Warning: This approved expense pushes the display below viability thresholds.</p>'
+    : ''
+
+  for (const email of recipients) {
+    await sendEmail(
+      email,
+      `Expense ${statusLabel}: ${request.store_name} — ${formatCurrency(amount)}`,
+      `
+        <h2>Additional Expense ${statusLabel}</h2>
+        <p>An expense for <strong>${request.store_name}</strong> (${request.store_code}) has been <span style="color:${statusColour};font-weight:bold;">${statusLabel}</span>.</p>
+        ${viabilityWarning}
+        <table style="border-collapse:collapse;margin:12px 0;">
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Category:</td><td>${category}</td></tr>
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Amount:</td><td>${formatCurrency(amount)}</td></tr>
+          ${decisionNote ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Note:</td><td>${decisionNote}</td></tr>` : ''}
+          <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Expense Round:</td><td>${expenseRound}</td></tr>
         </table>
         <p><a href="${APP_URL}/requests/${request.id}/lifecycle" style="display:inline-block;padding:12px 24px;background:#0074c5;color:#fff;text-decoration:none;border-radius:6px;">View Lifecycle</a></p>
       `,

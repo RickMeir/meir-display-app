@@ -177,6 +177,68 @@ export default function ApprovePage() {
       {/* Financial Summary */}
       <div className="bg-gray-400 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Financial Summary</h2>
+
+        {/* Verdict + Profitability badges */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
+            request.profitability_flag === 'green'
+              ? 'bg-green-100 text-green-800'
+              : 'bg-yellow-100 text-yellow-800'
+          }`}>
+            {request.profitability_flag === 'green' ? 'GREEN — Viable' : 'REVIEW — Below Thresholds'}
+          </span>
+          {request.verdict && (
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
+              request.verdict === 'worth_it' ? 'bg-green-100 text-green-800' :
+              request.verdict === 'marginal' ? 'bg-amber-100 text-amber-800' :
+              'bg-red-100 text-red-800'
+            }`}>
+              {request.verdict === 'worth_it' ? 'Worth It' :
+               request.verdict === 'marginal' ? 'Marginal' :
+               'Not Worth It'}
+              {request.roi_multiplier != null && ` (${request.roi_multiplier.toFixed(1)}x ROI)`}
+            </span>
+          )}
+        </div>
+
+        {/* Initial order confidence indicator */}
+        {request.has_initial_order && request.initial_order_value > 0 && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <span className="font-semibold">Initial Order Committed:</span>{' '}
+              {formatCurrency(request.initial_order_value)}
+              {request.forecast_revenue > 0 && (
+                <span className="ml-1">
+                  ({Math.round((request.initial_order_value / request.forecast_revenue) * 100)}% of forecast already secured)
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+
+        {/* Existing client baseline */}
+        {request.is_existing_client && request.existing_annual_revenue > 0 && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs font-semibold text-blue-800 mb-2">Existing Client Baseline</p>
+            <div className="grid grid-cols-3 gap-3 text-xs">
+              <div>
+                <p className="text-blue-600">Current Revenue</p>
+                <p className="font-bold text-blue-900">{formatCurrency(request.existing_annual_revenue)}</p>
+              </div>
+              <div>
+                <p className="text-blue-600">Baseline (+ 15% growth)</p>
+                <p className="font-bold text-blue-900">{formatCurrency(request.baseline_revenue)}</p>
+              </div>
+              <div>
+                <p className="text-blue-600">Incremental Revenue</p>
+                <p className={`font-bold ${request.incremental_revenue >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                  {formatCurrency(request.incremental_revenue)}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div className="p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-2">Total Investment</p>
@@ -188,11 +250,21 @@ export default function ApprovePage() {
           </div>
           <div className="p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-2">Net Contribution</p>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(request.net_contribution)}</p>
+            <p className={`text-2xl font-bold ${request.net_contribution >= 2000 ? 'text-green-700' : 'text-red-600'}`}>{formatCurrency(request.net_contribution)}</p>
           </div>
           <div className="p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-2">Net Margin</p>
-            <p className="text-2xl font-bold text-gray-900">{formatPercent(request.net_margin)}</p>
+            <p className={`text-2xl font-bold ${request.net_margin >= 0.15 ? 'text-green-700' : 'text-red-600'}`}>{formatPercent(request.net_margin)}</p>
+          </div>
+          {request.roi_multiplier != null && (
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600 mb-2">ROI Multiplier</p>
+              <p className={`text-2xl font-bold ${request.roi_multiplier >= 2 ? 'text-green-700' : request.roi_multiplier >= 1 ? 'text-amber-600' : 'text-red-600'}`}>{request.roi_multiplier.toFixed(2)}x</p>
+            </div>
+          )}
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600 mb-2">Gross Profit</p>
+            <p className="text-2xl font-bold text-gray-900">{formatCurrency(request.gross_profit)}</p>
           </div>
         </div>
 

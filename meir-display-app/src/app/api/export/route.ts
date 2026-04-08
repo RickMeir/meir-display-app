@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       case 'requests': {
         const { data: rows } = await serviceClient
           .from('display_requests')
-          .select('id, status, store_name, store_code, rep_name, brand_tier, display_type, opportunity_description, competitor_brands, is_new_or_replacement, planned_install_date, differentiation_plan, store_agreed_location, has_initial_order, initial_order_value, initial_order_notes, rebate_pct, cogs_pct, board_labour_cost, forecast_revenue, rep_hours_monthly, free_samples_cost, catalogues_qty, total_investment, net_contribution, net_margin, profitability_flag, approval_tier, tracking_status, installation_date, submitted_at, validated_at, approved_at, created_at')
+          .select('id, status, store_name, store_code, rep_name, brand_tier, display_type, display_reason, opportunity_description, competitor_brands, is_new_or_replacement, planned_install_date, differentiation_plan, store_agreed_location, is_existing_client, existing_annual_revenue, baseline_revenue, incremental_revenue, has_initial_order, initial_order_value, initial_order_notes, rebate_pct, cogs_pct, board_labour_cost, product_cogs, forecast_revenue, rep_hours_monthly, free_samples_cost, catalogues_qty, total_investment, gross_profit, gross_margin, net_contribution, net_margin, roi_multiplier, verdict, profitability_flag, approval_tier, approved_by, was_override, tracking_status, installation_date, submitted_at, validated_at, approved_at, created_at')
           .order('created_at', { ascending: false })
         data = (rows || []) as Record<string, unknown>[]
         filename = 'display_requests'
