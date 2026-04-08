@@ -85,6 +85,41 @@ interface FormData {
   skus: SKURow[];
 }
 
+// Meir colour suffix mapping — last segment of SKU code after hyphen
+const COLOUR_MAP: Record<string, string> = {
+  'PVDBB': 'Tiger Bronze',
+  'PVDBN': 'Brushed Nickel',
+  'PVDBZ': 'Brushed Bronze',
+  'PVDGM': 'Gun Metal',
+  'PVDCH': 'Champagne (PVD)',
+  'PVDBBV2': 'Tiger Bronze',
+  'PVDBNV2': 'Brushed Nickel',
+  'PVDBZV2': 'Brushed Bronze',
+  'PVDGMV2': 'Gun Metal',
+  'PVDGMS': 'Gun Metal',
+  'CH': 'Champagne',
+  'CHV2': 'Champagne',
+  'C': 'Chrome',
+  'CR': 'Chrome',
+  'BK': 'Matte Black',
+  'BB': 'Tiger Bronze',
+  'BN': 'Brushed Nickel',
+  'BZ': 'Brushed Bronze',
+  'GM': 'Gun Metal',
+  'SS': 'Stainless Steel',
+  'SS304': 'Stainless Steel',
+  'SS316': 'Stainless Steel',
+  'PB': 'Polished Chrome',
+};
+
+function getColourFromSku(skuCode: string): string {
+  if (!skuCode) return '';
+  const parts = skuCode.split('-');
+  if (parts.length < 2) return '';
+  const suffix = parts[parts.length - 1];
+  return COLOUR_MAP[suffix] || '';
+}
+
 const NUMERIC_FIELDS = [
   'rebatePercentage',
   'clientDiscountPercentage',
@@ -1219,60 +1254,68 @@ export default function NewRequestPage() {
 
             <div className="space-y-4">
               {formData.skus.map((sku, index) => (
-                <div key={sku.id} className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
-                  <div className="flex-[2]">
-                    <label className={labelClass}>SKU Code</label>
-                    {products.length > 0 ? (
-                      <select value={sku.code} onChange={(e) => handleSkuChange(index, e.target.value)} className={inputClass} required>
-                        <option value="">Select a product</option>
-                        {products.map((product) => (
-                          <option key={product.sku_code} value={product.sku_code}>{product.sku_code} — {product.sku_name}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input type="text" value={sku.code} onChange={(e) => {
-                        const newSkus = [...formData.skus];
-                        newSkus[index] = { ...newSkus[index], code: e.target.value };
-                        setFormData((prev) => ({ ...prev, skus: newSkus }));
-                      }} className={inputClass} placeholder="Enter SKU code" required />
-                    )}
+                <div key={sku.id} className="flex flex-col gap-2">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
+                    <div className="flex-[2]">
+                      <label className={labelClass}>SKU Code</label>
+                      {products.length > 0 ? (
+                        <select value={sku.code} onChange={(e) => handleSkuChange(index, e.target.value)} className={inputClass} required>
+                          <option value="">Select a product</option>
+                          {products.map((product) => (
+                            <option key={product.sku_code} value={product.sku_code}>{product.sku_code} — {product.sku_name}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input type="text" value={sku.code} onChange={(e) => {
+                          const newSkus = [...formData.skus];
+                          newSkus[index] = { ...newSkus[index], code: e.target.value };
+                          setFormData((prev) => ({ ...prev, skus: newSkus }));
+                        }} className={inputClass} placeholder="Enter SKU code" required />
+                      )}
+                    </div>
+                    <div className="w-20">
+                      <label className={labelClass}>Qty</label>
+                      <input type="number" min="1" value={sku.qty} onChange={(e) => handleSkuQtyChange(index, parseInt(e.target.value) || 1)} className={inputClass} />
+                    </div>
+                    <div className="w-28">
+                      <label className={labelClass}>Unit Cost</label>
+                      <input type="text" value={sku.unitCost > 0 ? `$${sku.unitCost.toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500 text-sm" />
+                    </div>
+                    <div className="w-28">
+                      <label className={labelClass}>Line Total</label>
+                      <input type="text" value={sku.unitCost > 0 ? `$${(sku.unitCost * sku.qty).toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700 font-medium text-sm" />
+                    </div>
+                    <div>
+                      <button type="button" onClick={() => removeSKU(sku.id)} disabled={formData.skus.length === 1} className="w-full sm:w-auto rounded bg-red-50 px-4 py-2 text-red-600 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm">
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                  <div className="w-20">
-                    <label className={labelClass}>Qty</label>
-                    <input type="number" min="1" value={sku.qty} onChange={(e) => handleSkuQtyChange(index, parseInt(e.target.value) || 1)} className={inputClass} />
-                  </div>
-                  <div className="w-28">
-                    <label className={labelClass}>Unit Cost</label>
-                    <input type="text" value={sku.unitCost > 0 ? `$${sku.unitCost.toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500 text-sm" />
-                  </div>
-                  <div className="w-28">
-                    <label className={labelClass}>Line Total</label>
-                    <input type="text" value={sku.unitCost > 0 ? `$${(sku.unitCost * sku.qty).toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700 font-medium text-sm" />
-                  </div>
-                  <div>
-                    <button type="button" onClick={() => removeSKU(sku.id)} disabled={formData.skus.length === 1} className="w-full sm:w-auto rounded bg-red-50 px-4 py-2 text-red-600 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm">
-                      Remove
-                    </button>
-                  </div>
+                  {sku.code && getColourFromSku(sku.code) && (
+                    <p className="text-xs text-gray-500 ml-1">Colour: <span className="font-medium text-gray-700">{getColourFromSku(sku.code)}</span></p>
+                  )}
                 </div>
               ))}
             </div>
 
-            {/* Product COGS total */}
-            {(skuProductCost > 0 || fittingsCost > 0) && (
+            {/* Total Display COGS */}
+            {calculatedProductCogs > 0 && (
               <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex justify-between items-center text-sm text-blue-800">
-                  <span>Display Products</span>
-                  <span className="font-medium">${skuProductCost.toFixed(2)}</span>
-                </div>
                 {fittingsCost > 0 && (
-                  <div className="flex justify-between items-center text-sm text-blue-800 mt-1">
-                    <span>Display Fittings</span>
-                    <span className="font-medium">${fittingsCost.toFixed(2)}</span>
-                  </div>
+                  <>
+                    <div className="flex justify-between items-center text-sm text-blue-800">
+                      <span>Products</span>
+                      <span className="font-medium">${skuProductCost.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-blue-800 mt-1">
+                      <span>Fittings</span>
+                      <span className="font-medium">${fittingsCost.toFixed(2)}</span>
+                    </div>
+                    <div className="border-t border-blue-200 mt-2 pt-2" />
+                  </>
                 )}
-                <div className="flex justify-between items-center mt-2 pt-2 border-t border-blue-200">
-                  <span className="text-sm font-semibold text-blue-900">Total Display COGS (auto calculated)</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-blue-900">Total Display COGS</span>
                   <span className="text-lg font-bold text-blue-900">${calculatedProductCogs.toFixed(2)}</span>
                 </div>
               </div>
