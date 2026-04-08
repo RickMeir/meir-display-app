@@ -124,7 +124,7 @@ export async function POST(
 
       // Send emails
       try {
-        await sendCSProcessingEmail(updatedRequest);
+        await sendCSProcessingEmail(updatedRequest, approverName);
         await sendApprovalConfirmationEmail(updatedRequest);
 
         // If override, send discrete alert (approver does not know)

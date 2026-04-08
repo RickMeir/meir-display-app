@@ -120,7 +120,11 @@ export async function sendApprovalRequestEmail(request: DisplayRequest, approver
 }
 
 /** Sent to CS team when approved */
-export async function sendCSProcessingEmail(request: DisplayRequest) {
+export async function sendCSProcessingEmail(request: DisplayRequest, approverName?: string) {
+  const approvedDate = request.approved_at
+    ? new Date(request.approved_at).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' })
+    : new Date().toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' })
+
   await sendEmail(
     'sales@meir.com.au',
     `APPROVED — Display Order: ${request.store_name} — Please Process`,
@@ -128,12 +132,28 @@ export async function sendCSProcessingEmail(request: DisplayRequest) {
       <h2>Display Order Approved — Please Process</h2>
       <p><strong>Store:</strong> ${request.store_name} (${request.store_code})</p>
       <p><strong>Rep:</strong> ${request.rep_name}</p>
-      <p><strong>Total Investment:</strong> ${formatCurrency(request.total_investment)}</p>
       <p><strong>Brand Tier:</strong> ${request.brand_tier || 'Not specified'}</p>
+      <p><strong>Display Type:</strong> ${request.display_type || 'Not specified'}</p>
+      <p><strong>Total Investment:</strong> ${formatCurrency(request.total_investment)}</p>
+      <table style="border-collapse:collapse;margin:12px 0;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;">
+        <tr>
+          <td style="padding:8px 12px;font-weight:bold;color:#166534;">Approved By:</td>
+          <td style="padding:8px 12px;color:#166534;">${approverName || request.approval_tier?.toUpperCase() || 'Manager'}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 12px;font-weight:bold;color:#166534;">Approved At:</td>
+          <td style="padding:8px 12px;color:#166534;">${approvedDate}</td>
+        </tr>
+        ${request.approval_note ? `
+        <tr>
+          <td style="padding:8px 12px;font-weight:bold;color:#166534;">Approval Note:</td>
+          <td style="padding:8px 12px;color:#166534;">${request.approval_note}</td>
+        </tr>` : ''}
+      </table>
       <hr/>
       <p>Please create a Display Order (DO) in Acumatica for this request.</p>
       <p>Once created, enter the reference number in the system:</p>
-      <p><a href="${APP_URL}/requests/${request.id}">Update CS Reference</a></p>
+      <p><a href="${APP_URL}/requests/${request.id}" style="display:inline-block;padding:12px 24px;background:#0074c5;color:#fff;text-decoration:none;border-radius:6px;">Update CS Reference</a></p>
       <p style="color:#c00;font-weight:bold;">Only process orders that appear in this system with status "Approved".</p>
     `,
     request.id
