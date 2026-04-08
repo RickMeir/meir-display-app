@@ -379,7 +379,7 @@ export default function NewRequestPage() {
           .from('users')
           .select('id, name, email')
           .eq('is_active', true)
-          .in('role', ['rep', 'manager', 'admin'])
+          .eq('role', 'rep')
           .order('name');
         if (reps) setRepUsers(reps);
       } catch (err) {
@@ -646,9 +646,8 @@ export default function NewRequestPage() {
   }
 
   const validateForm = (): boolean => {
-    if (!formData.storeName.trim()) { setError('Store Name is required'); return false; }
-    if (!formData.storeCode.trim()) { setError('Store Code is required'); return false; }
     if (!formData.salesRep.trim()) { setError('Sales Rep is required'); return false; }
+    if (!formData.storeName.trim()) { setError('Store Name is required'); return false; }
     if (formData.isNewOrReplacement !== 'update' && !formData.brandTier) { setError('Please select the type of display'); return false; }
     if (!formData.displayType) { setError('Display Type is required'); return false; }
     if (!formData.opportunityDescription.trim()) { setError('Please describe the opportunity'); return false; }
@@ -856,46 +855,25 @@ export default function NewRequestPage() {
           <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">Store Details</h2>
 
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Store Name <span className="text-red-500">*</span></label>
-                <input type="text" name="storeName" value={formData.storeName} onChange={handleInputChange} className={inputClass} placeholder="Enter store name" required />
-              </div>
-              <div>
-                <label className={labelClass}>Store Code <span className="text-red-500">*</span></label>
-                <input type="text" name="storeCode" value={formData.storeCode} onChange={handleInputChange} className={inputClass} placeholder="Enter store code" required />
-              </div>
-              <div>
-                <label className={labelClass}>Sales Rep <span className="text-red-500">*</span></label>
-                {repUsers.length > 0 ? (
-                  <select name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} required>
-                    <option value="">Select sales rep</option>
-                    {repUsers.map((rep) => (
-                      <option key={rep.id} value={rep.email}>
-                        {rep.name} ({rep.email})
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input type="text" name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} placeholder="Enter sales rep name or email" required />
-                )}
-              </div>
-              <div>
-                <label className={labelClass}>Display Type <span className="text-red-500">*</span></label>
-                <select name="displayType" value={formData.displayType} onChange={handleInputChange} className={inputClass} required>
-                  <option value="">Select display type</option>
-                  <option value="Freestanding">Freestanding</option>
-                  <option value="Shelf">Shelf</option>
-                  <option value="Counter">Counter</option>
-                  <option value="Wall">Wall</option>
-                  <option value="End Cap">End Cap</option>
-                  <option value="Other">Other</option>
+            {/* 1. Sales Rep */}
+            <div className="mb-6">
+              <label className={labelClass}>Sales Rep <span className="text-red-500">*</span></label>
+              {repUsers.length > 0 ? (
+                <select name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} required>
+                  <option value="">Select sales rep</option>
+                  {repUsers.map((rep) => (
+                    <option key={rep.id} value={rep.email}>
+                      {rep.name}
+                    </option>
+                  ))}
                 </select>
-              </div>
+              ) : (
+                <input type="text" name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} placeholder="Enter sales rep name or email" required />
+              )}
             </div>
 
-            {/* Existing Client Toggle */}
-            <div className="mt-6">
+            {/* 2. Existing Client Toggle */}
+            <div className="mb-6">
               <label className="inline-flex items-center gap-3 cursor-pointer">
                 <span className="text-sm font-medium text-gray-700">Is this store an existing client?</span>
                 <span className={`text-sm font-medium ${!formData.isExistingClient ? 'text-gray-700' : 'text-gray-400'}`}>No</span>
@@ -906,7 +884,7 @@ export default function NewRequestPage() {
                     checked={formData.isExistingClient}
                     onChange={(e) => {
                       const checked = e.target.checked;
-                      setFormData((prev) => ({ ...prev, isExistingClient: checked }));
+                      setFormData((prev) => ({ ...prev, isExistingClient: checked, storeName: checked ? prev.storeName : '' }));
                       if (!checked) {
                         setSelectedBaseline(null);
                         setClientSearchResults([]);
@@ -921,9 +899,9 @@ export default function NewRequestPage() {
               </label>
             </div>
 
-            {/* Existing Client Search + Baseline Panel */}
+            {/* 3a. If existing client: search dropdown */}
             {formData.isExistingClient && (
-              <div className="mt-4 space-y-4">
+              <div className="mb-6 space-y-4">
                 <div ref={clientSearchRef} className="relative">
                   <label className={labelClass}>Search for existing client <span className="text-red-500">*</span></label>
                   <input
@@ -980,6 +958,28 @@ export default function NewRequestPage() {
                 )}
               </div>
             )}
+
+            {/* 3b. If new client: free-form store name */}
+            {!formData.isExistingClient && (
+              <div className="mb-6">
+                <label className={labelClass}>Store Name <span className="text-red-500">*</span></label>
+                <input type="text" name="storeName" value={formData.storeName} onChange={handleInputChange} className={inputClass} placeholder="Enter the new store name" required />
+              </div>
+            )}
+
+            {/* 4. Display Type */}
+            <div className="mb-6">
+              <label className={labelClass}>Display Type <span className="text-red-500">*</span></label>
+              <select name="displayType" value={formData.displayType} onChange={handleInputChange} className={inputClass} required>
+                <option value="">Select display type</option>
+                <option value="Freestanding">Freestanding</option>
+                <option value="Shelf">Shelf</option>
+                <option value="Counter">Counter</option>
+                <option value="Wall">Wall</option>
+                <option value="End Cap">End Cap</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
 
             {/* New or replacement — shown first so tier selector can be conditional */}
             <div className="mt-6">
