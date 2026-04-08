@@ -1254,46 +1254,45 @@ export default function NewRequestPage() {
 
             <div className="space-y-4">
               {formData.skus.map((sku, index) => (
-                <div key={sku.id} className="flex flex-col gap-2">
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
-                    <div className="flex-[2]">
-                      <label className={labelClass}>SKU Code</label>
-                      {products.length > 0 ? (
-                        <select value={sku.code} onChange={(e) => handleSkuChange(index, e.target.value)} className={inputClass} required>
-                          <option value="">Select a product</option>
-                          {products.map((product) => (
-                            <option key={product.sku_code} value={product.sku_code}>{product.sku_code} — {product.sku_name}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input type="text" value={sku.code} onChange={(e) => {
-                          const newSkus = [...formData.skus];
-                          newSkus[index] = { ...newSkus[index], code: e.target.value };
-                          setFormData((prev) => ({ ...prev, skus: newSkus }));
-                        }} className={inputClass} placeholder="Enter SKU code" required />
-                      )}
-                    </div>
-                    <div className="w-20">
-                      <label className={labelClass}>Qty</label>
-                      <input type="number" min="1" value={sku.qty} onChange={(e) => handleSkuQtyChange(index, parseInt(e.target.value) || 1)} className={inputClass} />
-                    </div>
-                    <div className="w-28">
-                      <label className={labelClass}>Unit Cost</label>
-                      <input type="text" value={sku.unitCost > 0 ? `$${sku.unitCost.toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500 text-sm" />
-                    </div>
-                    <div className="w-28">
-                      <label className={labelClass}>Line Total</label>
-                      <input type="text" value={sku.unitCost > 0 ? `$${(sku.unitCost * sku.qty).toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700 font-medium text-sm" />
-                    </div>
-                    <div>
-                      <button type="button" onClick={() => removeSKU(sku.id)} disabled={formData.skus.length === 1} className="w-full sm:w-auto rounded bg-red-50 px-4 py-2 text-red-600 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm">
-                        Remove
-                      </button>
-                    </div>
+                <div key={sku.id} className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
+                  <div className="flex-[2]">
+                    <label className={labelClass}>SKU Code</label>
+                    {products.length > 0 ? (
+                      <select value={sku.code} onChange={(e) => handleSkuChange(index, e.target.value)} className={inputClass} required>
+                        <option value="">Select a product</option>
+                        {products.map((product) => (
+                          <option key={product.sku_code} value={product.sku_code}>{product.sku_code} — {product.sku_name}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input type="text" value={sku.code} onChange={(e) => {
+                        const newSkus = [...formData.skus];
+                        newSkus[index] = { ...newSkus[index], code: e.target.value };
+                        setFormData((prev) => ({ ...prev, skus: newSkus }));
+                      }} className={inputClass} placeholder="Enter SKU code" required />
+                    )}
                   </div>
-                  {sku.code && getColourFromSku(sku.code) && (
-                    <p className="text-xs text-gray-500 ml-1">Colour: <span className="font-medium text-gray-700">{getColourFromSku(sku.code)}</span></p>
-                  )}
+                  <div className="w-24">
+                    <label className={labelClass}>Colour</label>
+                    <input type="text" value={sku.code ? (getColourFromSku(sku.code) || '—') : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-2 py-2 text-gray-600 text-sm" />
+                  </div>
+                  <div className="w-14">
+                    <label className={labelClass}>Qty</label>
+                    <input type="number" min="1" value={sku.qty} onChange={(e) => handleSkuQtyChange(index, parseInt(e.target.value) || 1)} className={`${inputClass} text-center px-1`} />
+                  </div>
+                  <div className="w-28">
+                    <label className={labelClass}>Unit Cost</label>
+                    <input type="text" value={sku.unitCost > 0 ? `$${sku.unitCost.toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-500 text-sm" />
+                  </div>
+                  <div className="w-28">
+                    <label className={labelClass}>Line Total</label>
+                    <input type="text" value={sku.unitCost > 0 ? `$${(sku.unitCost * sku.qty).toFixed(2)}` : '—'} readOnly className="w-full rounded border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700 font-medium text-sm" />
+                  </div>
+                  <div>
+                    <button type="button" onClick={() => removeSKU(sku.id)} disabled={formData.skus.length === 1} className="w-full sm:w-auto rounded bg-red-50 px-4 py-2 text-red-600 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm">
+                      Remove
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
