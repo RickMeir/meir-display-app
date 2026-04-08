@@ -318,6 +318,7 @@ export default function NewRequestPage() {
   const [clientSearchLoading, setClientSearchLoading] = useState(false);
   const clientSearchRef = useRef<HTMLDivElement>(null);
   const [repUsers, setRepUsers] = useState<{ id: string; name: string; email: string }[]>([]);
+  const [loggedInRepName, setLoggedInRepName] = useState<string | null>(null);
   const [fittingsRules, setFittingsRules] = useState<DisplayFitting[]>([]);
   const [matchedFittings, setMatchedFittings] = useState<MatchedFitting[]>([]);
 
@@ -381,7 +382,17 @@ export default function NewRequestPage() {
           .eq('is_active', true)
           .eq('role', 'rep')
           .order('name');
-        if (reps) setRepUsers(reps);
+        if (reps) {
+          setRepUsers(reps);
+          // Auto-detect if logged in user is a rep
+          if (user?.email) {
+            const matchedRep = reps.find((r) => r.email === user.email);
+            if (matchedRep) {
+              setLoggedInRepName(matchedRep.name);
+              setFormData((prev) => ({ ...prev, salesRep: matchedRep.email }));
+            }
+          }
+        }
       } catch (err) {
         console.warn('Could not load reps list:', err);
       }
@@ -855,9 +866,14 @@ export default function NewRequestPage() {
           <div className="rounded-lg bg-gray-400 p-4 sm:p-6 shadow">
             <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-gray-900">Store Details</h2>
 
-            {/* 1. Sales Rep */}
+            {/* 1. Sales Rep — auto-detected from login, changeable if wrong */}
             <div className="mb-6">
               <label className={labelClass}>Sales Rep <span className="text-red-500">*</span></label>
+              {loggedInRepName && formData.salesRep === currentUser && (
+                <p className="mb-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
+                  Logged in as <strong>{loggedInRepName}</strong>. If this is not you, select a different rep below.
+                </p>
+              )}
               {repUsers.length > 0 ? (
                 <select name="salesRep" value={formData.salesRep} onChange={handleInputChange} className={inputClass} required>
                   <option value="">Select sales rep</option>
