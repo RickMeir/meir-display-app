@@ -17,6 +17,7 @@ export default function ValidatePage() {
   const [queryNote, setQueryNote] = useState('');
   const [queryError, setQueryError] = useState<string | null>(null);
   const [customerNameConfirmed, setCustomerNameConfirmed] = useState(false);
+  const [showValidateConfirm, setShowValidateConfirm] = useState(false);
 
   const requestId = params?.id as string;
 
@@ -45,7 +46,18 @@ export default function ValidatePage() {
     fetchRequest();
   }, [requestId]);
 
-  const handleValidate = async () => {
+  const APPROVER_NAMES: Record<string, string> = {
+    manager: 'Michael',
+    cfo: 'Elan (CFO)',
+    coo: 'Paul (COO)',
+  };
+
+  const handleValidateClick = () => {
+    setShowValidateConfirm(true);
+  };
+
+  const handleValidateConfirm = async () => {
+    setShowValidateConfirm(false);
     setSubmitting(true);
     try {
       const response = await fetch(`/api/requests/${requestId}/validate`, {
@@ -358,7 +370,7 @@ export default function ValidatePage() {
           {/* Validate Button */}
           <div>
             <button
-              onClick={handleValidate}
+              onClick={handleValidateClick}
               disabled={submitting || !customerNameConfirmed}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
             >
@@ -402,6 +414,37 @@ export default function ValidatePage() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {showValidateConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Confirm Validation</h3>
+            <p className="text-gray-700 mb-2">
+              You are about to validate this request for <strong>{request.store_name}</strong>.
+            </p>
+            <p className="text-gray-700 mb-4">
+              This will send it to{' '}
+              <strong>{APPROVER_NAMES[request.approval_tier || 'manager'] || 'the financial approver'}</strong>{' '}
+              for financial approval. An email will be sent immediately and <strong>cannot be recalled</strong>.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowValidateConfirm(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleValidateConfirm}
+                className="px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors"
+              >
+                Yes, validate and send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

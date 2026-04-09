@@ -210,6 +210,9 @@ VERDICT:
 - **File:** `src/app/requests/[id]/validate/page.tsx`.
 
 ### 3.2a Brooke validates (inputs are correct)
+- Brooke clicks "Validate and Proceed".
+- **Confirmation dialog appears:** "You are about to validate this request for {store}. This will send it to {approver name} for financial approval. An email will be sent immediately and cannot be recalled."
+- Brooke must click "Yes, validate and send" to proceed. Cancel returns to the review.
 - POST `/api/requests/{id}/validate` with action='validate'.
 - Server side:
   1. Auth + role check (must be validator or admin).
@@ -218,7 +221,7 @@ VERDICT:
   4. INSERT audit_log: action='validated'.
   5. Send `sendDesignReviewEmail()` to rick@meir.com.au (FYI, plaintext, no action needed).
   6. Send `sendApprovalRequestEmail()` to the financial approver (michael/elan/paul based on tier).
-- **File:** `src/app/api/requests/[id]/validate/route.ts`.
+- **File:** `src/app/requests/[id]/validate/page.tsx` (confirmation dialog) + `src/app/api/requests/[id]/validate/route.ts` (server).
 
 ### 3.2b Brooke queries (inputs need fixing)
 - POST `/api/requests/{id}/validate` with action='query', note='{explanation}'.
@@ -226,7 +229,7 @@ VERDICT:
   1. UPDATE display_requests: status='queried', validation_note=note.
   2. INSERT audit_log: action='queried'.
   3. Send query notification email.
-- **KNOWN GAP:** Query email currently goes to Brooke, not to the rep. This needs fixing.
+- Query email goes to the rep (primary) AND Brooke (for visibility).
 - **File:** `src/app/api/requests/[id]/validate/route.ts`.
 
 ---
@@ -264,7 +267,7 @@ VERDICT:
   1. UPDATE display_requests: status='rejected', approval_note=note.
   2. INSERT audit_log: action='rejected'.
   3. Send `sendRejectionEmail()` to brooke@meir.com.au AND michael@meir.com.au.
-- **KNOWN GAP:** Rep is not notified of rejection. This needs fixing.
+- Rep is also notified (in addition to Brooke and Michael).
 - **File:** `src/app/api/requests/[id]/approve/route.ts`.
 
 ---
@@ -335,11 +338,11 @@ VERDICT:
 | Rep submits | sendValidationEmail | brooke@meir.com.au | [Meir Display] {store} — VALIDATE INPUTS |
 | Brooke validates | sendDesignReviewEmail | rick@meir.com.au | Display Request: {store} — For Design Review |
 | Brooke validates | sendApprovalRequestEmail | michael/elan/paul | Display Request VALIDATED: {store} — Financial Approval Required |
-| Brooke queries | sendQueryEmail | brooke (GAP: should go to rep) | Display Request QUERIED: {store} — Inputs Need Correction |
+| Brooke queries | sendQueryEmail | rep + brooke | Display Request QUERIED: {store} — Inputs Need Correction |
 | Approver approves | sendCSProcessingEmail | sales@meir.com.au | APPROVED — Display Order: {store} — Please Process |
-| Approver approves | sendApprovalConfirmationEmail | brooke@meir.com.au | Display Approved: {store} |
+| Approver approves | sendApprovalConfirmationEmail | brooke + rep | Display Approved: {store} |
 | Approver approves (override) | sendOverrideAlertEmail | rick + paul | Override Alert: {store} approved despite review flag |
-| Approver rejects | sendRejectionEmail | brooke + michael | Display REJECTED: {store} |
+| Approver rejects | sendRejectionEmail | brooke + michael + rep | Display REJECTED: {store} |
 | Forecast changed | sendForecastChangeEmail | rick + paul | Forecast Changed: {store} — {direction} {pct}% |
 | Expense proposed | sendExpenseProposedEmail | rick + paul | Additional Expense Proposed: {store} — {amount} |
 | Expense decided | sendExpenseDecisionEmail | rick + paul | Expense {approved/rejected}: {store} — {category} |
@@ -371,11 +374,9 @@ VERDICT:
 
 ## KNOWN GAPS (not yet built or broken)
 
-1. **Query email goes to Brooke, not the rep** — rep is not notified when their request is queried.
-2. **Rep not notified on approval or rejection** — only Brooke and Michael get rejection emails.
-3. **Monthly summary report** — exists in Google Sheet script, not yet in web app.
-4. **Dashboard KPIs** — no overview dashboard for managers/admins.
-5. **Display register view** — no list/table view of all active displays with tracking status.
-6. **Acumatica actuals automation** — PINNED, blocked on Paul. Currently manual entry.
-7. **Margin alerts** — table exists, not wired into the UI or email flow.
-8. **CS reference number entry** — UI exists but needs verification.
+1. **Monthly summary report** — exists in Google Sheet script, not yet in web app.
+2. **Dashboard KPIs** — no overview dashboard for managers/admins.
+3. **Display register view** — no list/table view of all active displays with tracking status.
+4. **Acumatica actuals automation** — PINNED, blocked on Paul. Currently manual entry.
+5. **Margin alerts** — table exists, not wired into the UI or email flow.
+6. **CS reference number entry** — UI exists but needs verification.

@@ -160,23 +160,34 @@ export async function sendCSProcessingEmail(request: DisplayRequest, approverNam
   )
 }
 
-/** Sent to Brooke when financially approved */
+/** Sent to Brooke AND the submitting rep when financially approved */
 export async function sendApprovalConfirmationEmail(request: DisplayRequest) {
-  await sendEmail(
-    'brooke@meir.com.au',
-    `Display Approved: ${request.store_name}`,
-    `
-      <p>The display request for <strong>${request.store_name}</strong> has been financially approved.</p>
-      <p>Approved by: ${request.approval_tier?.toUpperCase()}</p>
-      <p><a href="${APP_URL}/requests/${request.id}">View request</a></p>
-    `,
-    request.id
-  )
+  const recipients = ['brooke@meir.com.au']
+  if (request.rep_name && request.rep_name.includes('@')) {
+    recipients.push(request.rep_name)
+  }
+
+  for (const email of recipients) {
+    await sendEmail(
+      email,
+      `Display Approved: ${request.store_name}`,
+      `
+        <p>The display request for <strong>${request.store_name}</strong> has been financially approved.</p>
+        <p>Approved by: ${request.approval_tier?.toUpperCase()}</p>
+        <p><a href="${APP_URL}/requests/${request.id}">View request</a></p>
+      `,
+      request.id
+    )
+  }
 }
 
-/** Sent to Brooke + Michael when rejected */
+/** Sent to Brooke, Michael, AND the submitting rep when rejected */
 export async function sendRejectionEmail(request: DisplayRequest, note: string) {
   const recipients = ['brooke@meir.com.au', 'michael@meir.com.au']
+  if (request.rep_name && request.rep_name.includes('@')) {
+    recipients.push(request.rep_name)
+  }
+
   for (const email of recipients) {
     await sendEmail(
       email,
@@ -367,19 +378,28 @@ export async function sendExpenseDecisionEmail(
   }
 }
 
-/** Sent when Brooke queries a request */
+/** Sent to the submitting rep (and Brooke for visibility) when a request is queried */
 export async function sendQueryEmail(request: DisplayRequest, note: string) {
-  // Notify the submitting rep
-  await sendEmail(
-    'brooke@meir.com.au', // For now goes to Brooke; in future, to the rep directly
-    `Display Request QUERIED: ${request.store_name} — Inputs Need Correction`,
-    `
-      <p>The display request for <strong>${request.store_name}</strong> has been queried.</p>
-      <p><strong>Issue:</strong> ${note}</p>
-      <p><a href="${APP_URL}/requests/${request.id}">View request</a></p>
-    `,
-    request.id
-  )
+  const recipients: string[] = []
+  // Primary recipient: the rep who submitted it
+  if (request.rep_name && request.rep_name.includes('@')) {
+    recipients.push(request.rep_name)
+  }
+  // Brooke always gets a copy for visibility
+  recipients.push('brooke@meir.com.au')
+
+  for (const email of recipients) {
+    await sendEmail(
+      email,
+      `Display Request QUERIED: ${request.store_name} — Inputs Need Correction`,
+      `
+        <p>The display request for <strong>${request.store_name}</strong> has been queried and needs correction.</p>
+        <p><strong>Issue:</strong> ${note}</p>
+        <p><a href="${APP_URL}/requests/${request.id}">View request</a></p>
+      `,
+      request.id
+    )
+  }
 }
 
 // ============================================================
