@@ -50,7 +50,8 @@ Receives monthly summary reports. No active role in approval workflow.
 |---|---|
 | Up to $10,000 | Michael (manager) |
 | $10,001 to $50,000 | Elan (CFO) |
-| Over $50,000 | Paul (COO) |
+| $50,001 to $100,000 | Paul (COO) |
+| Over $100,000 | Rick (admin) |
 
 ## Key Decisions
 

@@ -21,9 +21,10 @@ const ROI_WORTH_IT = 2.0
 const ROI_MARGINAL = 1.0
 
 // Financial approval tiers
-const TIER_MANAGER_MAX = 5000          // Up to $5,000 → Michael
-const TIER_CFO_MAX = 10000             // $5,001 to $10,000 → Elan
-                                        // Over $10,000 → Paul
+const TIER_MANAGER_MAX = 10000         // Up to $10,000 → Michael
+const TIER_CFO_MAX = 50000             // $10,001 to $50,000 → Elan
+const TIER_COO_MAX = 100000            // $50,001 to $100,000 → Paul
+                                        // Over $100,000 → Rick (admin)
 
 // ============================================================
 // Exported constants (for use in UI and other modules)
@@ -63,7 +64,7 @@ export interface CalculatedFields {
   net_contribution: number
   net_margin: number
   profitability_flag: ProfitabilityFlag
-  approval_tier: 'manager' | 'cfo' | 'coo'
+  approval_tier: 'manager' | 'cfo' | 'coo' | 'admin'
   roi_multiplier: number | null
   verdict: Verdict | null
 }
@@ -134,13 +135,15 @@ export function calculateFinancials(
       : 'review'
 
   // Approval tier routing based on total investment
-  let approval_tier: 'manager' | 'cfo' | 'coo'
+  let approval_tier: 'manager' | 'cfo' | 'coo' | 'admin'
   if (total_investment <= TIER_MANAGER_MAX) {
     approval_tier = 'manager'
   } else if (total_investment <= TIER_CFO_MAX) {
     approval_tier = 'cfo'
-  } else {
+  } else if (total_investment <= TIER_COO_MAX) {
     approval_tier = 'coo'
+  } else {
+    approval_tier = 'admin'
   }
 
   // ROI and Verdict
@@ -213,12 +216,14 @@ export const TIER_APPROVER: Record<string, string> = {
   manager: 'michael@meir.com.au',
   cfo: 'elan@meir.com.au',
   coo: 'paul@meir.com.au',
+  admin: 'rick@meir.com.au',
 }
 
 export const TIER_LABELS: Record<string, string> = {
-  manager: 'Manager (up to $5,000)',
-  cfo: 'CFO ($5,001 to $10,000)',
-  coo: 'COO (over $10,000)',
+  manager: 'Manager (up to $10,000)',
+  cfo: 'CFO ($10,001 to $50,000)',
+  coo: 'COO ($50,001 to $100,000)',
+  admin: 'Rick (over $100,000)',
 }
 
 export const VERDICT_LABELS: Record<Verdict, string> = {

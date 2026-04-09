@@ -163,9 +163,10 @@ All of the following must pass or submission is blocked with a specific error me
     REVIEW otherwise
 
 12. approval_tier:
-    manager if total_investment <= $5,000
-    cfo if total_investment <= $10,000
-    coo if total_investment > $10,000
+    manager if total_investment <= $10,000
+    cfo if total_investment <= $50,000
+    coo if total_investment <= $100,000
+    admin (Rick) if total_investment > $100,000
 ```
 
 #### ROI calculation:
@@ -245,9 +246,10 @@ VERDICT:
 ### 4.2 Approver tier routing
 | Total Investment | Approver | Role |
 |---|---|---|
-| Up to $5,000 | Michael (michael@meir.com.au) | manager |
-| $5,001 to $10,000 | Elan (elan@meir.com.au) | cfo |
-| Over $10,000 | Paul (paul@meir.com.au) | coo |
+| Up to $10,000 | Michael (michael@meir.com.au) | manager |
+| $10,001 to $50,000 | Elan (elan@meir.com.au) | cfo |
+| $50,001 to $100,000 | Paul (paul@meir.com.au) | coo |
+| Over $100,000 | Rick (rick@meir.com.au) | admin |
 
 ### 4.3a Approver approves
 - POST `/api/requests/{id}/approve` with action='approve', note (optional).

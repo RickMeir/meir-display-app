@@ -50,6 +50,7 @@ export default function ValidatePage() {
     manager: 'Michael',
     cfo: 'Elan (CFO)',
     coo: 'Paul (COO)',
+    admin: 'Rick',
   };
 
   const handleValidateClick = () => {
