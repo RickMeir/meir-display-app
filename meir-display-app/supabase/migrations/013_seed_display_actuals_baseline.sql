@@ -1,11 +1,8 @@
--- Migration: Widen roi_multiplier column, then seed display_requests and monthly_actuals
--- Source: Sales & Margin Analysis 31.03.2026 v6.xlsx, 'Sales Data and ROI' tab
--- 229 customers with active displays, 12 months of actual sales data (Apr 2025 - Mar 2026)
+-- Seed 179 display_requests + 2148 monthly_actuals
+-- Source: Sales & Margin Analysis 31.03.2026 v6.xlsx
+-- All values clamped to fit existing column constraints. No schema changes needed.
+-- Skipped 50 rows with bad source data
 
--- Step 1: Widen roi_multiplier from NUMERIC(8,4) to NUMERIC(12,4) to handle high ROI values
-ALTER TABLE display_requests ALTER COLUMN roi_multiplier TYPE NUMERIC(12,4);
-
--- Step 2: Seed data
 DO $$
 DECLARE
   admin_id UUID;
@@ -16,7 +13,7 @@ BEGIN
     RAISE EXCEPTION 'Admin user rick@meir.com.au not found';
   END IF;
 
-  -- [1/229] Harvey Norman
+  -- [1/179] Harvey Norman
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -70,7 +67,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 325034.86, 0, 'spreadsheet_seed');
 
-  -- [2/229] Beaumont Tiles
+  -- [2/179] Beaumont Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -124,7 +121,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 161620.0, 0, 'spreadsheet_seed');
 
-  -- [3/229] SIBO Trading
+  -- [3/179] SIBO Trading
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -178,7 +175,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 158105.75, 0, 'spreadsheet_seed');
 
-  -- [4/229] United Spaces Pty Ltd (The Blue Space)
+  -- [4/179] United Spaces Pty Ltd (The Blue Space)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -232,7 +229,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 72576.35, 0, 'spreadsheet_seed');
 
-  -- [5/229] Reece
+  -- [5/179] Reece
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -286,7 +283,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 66879.17, 0, 'spreadsheet_seed');
 
-  -- [6/229] Bathroom Sales Direct
+  -- [6/179] Bathroom Sales Direct
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -340,7 +337,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 60293.35, 0, 'spreadsheet_seed');
 
-  -- [7/229] My Homeware Bathroom and Kitchen Supplies
+  -- [7/179] My Homeware Bathroom and Kitchen Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -394,7 +391,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 43517.62, 0, 'spreadsheet_seed');
 
-  -- [8/229] Designer Bathware
+  -- [8/179] Designer Bathware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -448,7 +445,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 48293.68, 0, 'spreadsheet_seed');
 
-  -- [9/229] Amber Tiles
+  -- [9/179] Amber Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -502,7 +499,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 30237.81, 0, 'spreadsheet_seed');
 
-  -- [10/229] Samios
+  -- [10/179] Samios
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -556,7 +553,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 22454.37, 0, 'spreadsheet_seed');
 
-  -- [11/229] Buildmat
+  -- [11/179] Buildmat
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -610,7 +607,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 18755.85, 0, 'spreadsheet_seed');
 
-  -- [12/229] Renovation Kingdom
+  -- [12/179] Renovation Kingdom
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -664,7 +661,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 17226.99, 0, 'spreadsheet_seed');
 
-  -- [13/229] Tradelink
+  -- [13/179] Tradelink
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -718,7 +715,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 15599.28, 0, 'spreadsheet_seed');
 
-  -- [14/229] Sydney Taps
+  -- [14/179] Sydney Taps
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -772,7 +769,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 19282.01, 0, 'spreadsheet_seed');
 
-  -- [15/229] Elia Bathrooms
+  -- [15/179] Elia Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -826,7 +823,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 15195.5, 0, 'spreadsheet_seed');
 
-  -- [16/229] Clifton Bathrooms and Kitchens
+  -- [16/179] Clifton Bathrooms and Kitchens
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -880,7 +877,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 14197.84, 0, 'spreadsheet_seed');
 
-  -- [17/229] Icon Bathware
+  -- [17/179] Icon Bathware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -934,7 +931,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 14812.98, 0, 'spreadsheet_seed');
 
-  -- [18/229] Yeomans Bagno & Ceramiche
+  -- [18/179] Yeomans Bagno & Ceramiche
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -988,7 +985,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 15029.8, 0, 'spreadsheet_seed');
 
-  -- [19/229] Blue Leaf Bathware & Tiles
+  -- [19/179] Blue Leaf Bathware & Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1042,7 +1039,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 13667.57, 0, 'spreadsheet_seed');
 
-  -- [20/229] Empire Bathrooms
+  -- [20/179] Empire Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1096,7 +1093,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 11284.63, 0, 'spreadsheet_seed');
 
-  -- [21/229] Bathroom Space
+  -- [21/179] Bathroom Space
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1150,7 +1147,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 11255.0, 0, 'spreadsheet_seed');
 
-  -- [22/229] Ideal Bathrooms
+  -- [22/179] Ideal Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1204,7 +1201,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 10014.71, 0, 'spreadsheet_seed');
 
-  -- [23/229] Jacoba Tiles
+  -- [23/179] Jacoba Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1258,7 +1255,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 10892.02, 0, 'spreadsheet_seed');
 
-  -- [24/229] Benton's Plumbing Supplies
+  -- [24/179] Benton's Plumbing Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1312,7 +1309,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 10753.23, 0, 'spreadsheet_seed');
 
-  -- [25/229] Design Bathware
+  -- [25/179] Design Bathware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1366,7 +1363,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 10297.46, 0, 'spreadsheet_seed');
 
-  -- [26/229] JB Camerons (Plumbing, Steel, Welding & Industrial)
+  -- [26/179] JB Camerons (Plumbing, Steel, Welding & Industrial)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1420,7 +1417,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 10239.4, 0, 'spreadsheet_seed');
 
-  -- [27/229] BMC Sharm LTD
+  -- [27/179] BMC Sharm LTD
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1474,7 +1471,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 13088.56, 0, 'spreadsheet_seed');
 
-  -- [28/229] Elegance Tiles
+  -- [28/179] Elegance Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1528,7 +1525,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 11820.49, 0, 'spreadsheet_seed');
 
-  -- [29/229] Metcash Hardings / D10
+  -- [29/179] Metcash Hardings / D10
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1582,7 +1579,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 12586.61, 0, 'spreadsheet_seed');
 
-  -- [30/229] Tile Republic
+  -- [30/179] Tile Republic
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1636,7 +1633,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 9995.48, 0, 'spreadsheet_seed');
 
-  -- [31/229] Brands Direct Online
+  -- [31/179] Brands Direct Online
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1690,7 +1687,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 11627.62, 0, 'spreadsheet_seed');
 
-  -- [32/229] FAS Group Pty Ltd (GT&B)
+  -- [32/179] FAS Group Pty Ltd (GT&B)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1744,7 +1741,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 8943.86, 0, 'spreadsheet_seed');
 
-  -- [33/229] Sannine Bathrooms
+  -- [33/179] Sannine Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1798,7 +1795,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 8988.78, 0, 'spreadsheet_seed');
 
-  -- [34/229] Temple and Webster
+  -- [34/179] Temple and Webster
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1852,7 +1849,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 13855.31, 0, 'spreadsheet_seed');
 
-  -- [35/229] NCP
+  -- [35/179] NCP
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1906,7 +1903,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 7203.02, 0, 'spreadsheet_seed');
 
-  -- [36/229] Biga Limited
+  -- [36/179] Biga Limited
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -1960,7 +1957,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 6473.52, 0, 'spreadsheet_seed');
 
-  -- [37/229] Bina Warehouse
+  -- [37/179] Bina Warehouse
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2014,7 +2011,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 8664.75, 0, 'spreadsheet_seed');
 
-  -- [38/229] Eos Bathware
+  -- [38/179] Eos Bathware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2068,7 +2065,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 6513.44, 0, 'spreadsheet_seed');
 
-  -- [39/229] Wentworth Tiles
+  -- [39/179] Wentworth Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2122,7 +2119,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 5210.87, 0, 'spreadsheet_seed');
 
-  -- [40/229] Routleys Bathroom Kitchen Laundry
+  -- [40/179] Routleys Bathroom Kitchen Laundry
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2176,7 +2173,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 5657.98, 0, 'spreadsheet_seed');
 
-  -- [41/229] Wellsons Plumbing and Bathroom Supplies
+  -- [41/179] Wellsons Plumbing and Bathroom Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2230,7 +2227,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 5418.55, 0, 'spreadsheet_seed');
 
-  -- [42/229] Embracing Space
+  -- [42/179] Embracing Space
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2284,7 +2281,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3976.58, 0, 'spreadsheet_seed');
 
-  -- [43/229] Djati&Mastello B.V.
+  -- [43/179] Djati&Mastello B.V.
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2338,7 +2335,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 17126.36, 0, 'spreadsheet_seed');
 
-  -- [44/229] Armanti Tiles and Bathroom
+  -- [44/179] Armanti Tiles and Bathroom
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2392,7 +2389,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4965.14, 0, 'spreadsheet_seed');
 
-  -- [45/229] Portelli Home Centre
+  -- [45/179] Portelli Home Centre
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2446,7 +2443,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 5681.85, 0, 'spreadsheet_seed');
 
-  -- [46/229] W.Eagles Plumbing Supplies Pty Ltd
+  -- [46/179] W.Eagles Plumbing Supplies Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2500,7 +2497,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4588.67, 0, 'spreadsheet_seed');
 
-  -- [47/229] Gratico Tile and Bath
+  -- [47/179] Gratico Tile and Bath
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2554,7 +2551,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4482.57, 0, 'spreadsheet_seed');
 
-  -- [48/229] Burdens Plumbing
+  -- [48/179] Burdens Plumbing
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2608,7 +2605,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 7861.61, 0, 'spreadsheet_seed');
 
-  -- [49/229] Hasl
+  -- [49/179] Hasl
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2662,7 +2659,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4110.27, 0, 'spreadsheet_seed');
 
-  -- [50/229] Regal Concept Design
+  -- [50/179] Regal Concept Design
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2716,7 +2713,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3921.8, 0, 'spreadsheet_seed');
 
-  -- [51/229] Cass Brothers
+  -- [51/179] Cass Brothers
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2770,7 +2767,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3902.14, 0, 'spreadsheet_seed');
 
-  -- [52/229] Ken's Plumbing Plus
+  -- [52/179] Ken's Plumbing Plus
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2824,7 +2821,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3731.26, 0, 'spreadsheet_seed');
 
-  -- [53/229] Art Bathrooms And Kitcheware Pty Ltd
+  -- [53/179] Art Bathrooms And Kitcheware Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2878,7 +2875,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4480.92, 0, 'spreadsheet_seed');
 
-  -- [54/229] Ceramico Tiles & Bathrooms
+  -- [54/179] Ceramico Tiles & Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2932,7 +2929,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3540.72, 0, 'spreadsheet_seed');
 
-  -- [55/229] Fred Rose Bathrooms
+  -- [55/179] Fred Rose Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -2986,7 +2983,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3567.42, 0, 'spreadsheet_seed');
 
-  -- [56/229] Stocks Designer Appliances and Bathrooms
+  -- [56/179] Stocks Designer Appliances and Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3040,7 +3037,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3206.82, 0, 'spreadsheet_seed');
 
-  -- [57/229] Mitre 10
+  -- [57/179] Mitre 10
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3094,7 +3091,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4039.35, 0, 'spreadsheet_seed');
 
-  -- [58/229] Sunlight Bathrooms
+  -- [58/179] Sunlight Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3148,7 +3145,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4251.6, 0, 'spreadsheet_seed');
 
-  -- [59/229] The Renovation Hub
+  -- [59/179] The Renovation Hub
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3202,7 +3199,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3304.51, 0, 'spreadsheet_seed');
 
-  -- [60/229] Design Tiles
+  -- [60/179] Design Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3256,7 +3253,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4065.57, 0, 'spreadsheet_seed');
 
-  -- [61/229] Ken Bathroom & Tiles
+  -- [61/179] Ken Bathroom & Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3310,7 +3307,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3326.12, 0, 'spreadsheet_seed');
 
-  -- [62/229] Essential Building Supplies
+  -- [62/179] Essential Building Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3364,7 +3361,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3492.4, 0, 'spreadsheet_seed');
 
-  -- [63/229] Spigot and More
+  -- [63/179] Spigot and More
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3418,7 +3415,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3326.19, 0, 'spreadsheet_seed');
 
-  -- [64/229] Mandk Pte Ltd
+  -- [64/179] Mandk Pte Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3472,7 +3469,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 8312.31, 0, 'spreadsheet_seed');
 
-  -- [65/229] MTS Bathroomware
+  -- [65/179] MTS Bathroomware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3526,7 +3523,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2997.12, 0, 'spreadsheet_seed');
 
-  -- [66/229] Retail Customer
+  -- [66/179] Retail Customer
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3580,7 +3577,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 8129.15, 0, 'spreadsheet_seed');
 
-  -- [67/229] Toowoomba Tiles
+  -- [67/179] Toowoomba Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3634,7 +3631,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3034.41, 0, 'spreadsheet_seed');
 
-  -- [68/229] Topware
+  -- [68/179] Topware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3688,7 +3685,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2997.09, 0, 'spreadsheet_seed');
 
-  -- [69/229] Tile House (previously AA Tiles)
+  -- [69/179] Tile House (previously AA Tiles)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3742,7 +3739,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3241.37, 0, 'spreadsheet_seed');
 
-  -- [70/229] Cook's Plumbing Supplies
+  -- [70/179] Cook's Plumbing Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3796,7 +3793,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2537.42, 0, 'spreadsheet_seed');
 
-  -- [71/229] Canberra Tile House
+  -- [71/179] Canberra Tile House
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3850,7 +3847,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3876.94, 0, 'spreadsheet_seed');
 
-  -- [72/229] Walkers
+  -- [72/179] Walkers
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3904,7 +3901,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2803.87, 0, 'spreadsheet_seed');
 
-  -- [73/229] Melbourne Tile Gallery Tullamarine
+  -- [73/179] Melbourne Tile Gallery Tullamarine
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -3958,7 +3955,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2716.99, 0, 'spreadsheet_seed');
 
-  -- [74/229] K & R Plumbing Supplies
+  -- [74/179] K & R Plumbing Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4012,7 +4009,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2462.33, 0, 'spreadsheet_seed');
 
-  -- [75/229] Luscombe Tiles
+  -- [75/179] Luscombe Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4066,7 +4063,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3306.84, 0, 'spreadsheet_seed');
 
-  -- [76/229] Phillips Tiles
+  -- [76/179] Phillips Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4120,7 +4117,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3670.52, 0, 'spreadsheet_seed');
 
-  -- [77/229] Tile Gallery Aus Pty Ltd
+  -- [77/179] Tile Gallery Aus Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4174,7 +4171,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2532.82, 0, 'spreadsheet_seed');
 
-  -- [78/229] Pambula Tiles
+  -- [78/179] Pambula Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4228,7 +4225,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2306.82, 0, 'spreadsheet_seed');
 
-  -- [79/229] Derwent Park Plumbing
+  -- [79/179] Derwent Park Plumbing
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4282,7 +4279,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2080.88, 0, 'spreadsheet_seed');
 
-  -- [80/229] YT Bathroom
+  -- [80/179] YT Bathroom
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4336,7 +4333,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1851.26, 0, 'spreadsheet_seed');
 
-  -- [81/229] Kents H Hardware
+  -- [81/179] Kents H Hardware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4390,7 +4387,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2069.51, 0, 'spreadsheet_seed');
 
-  -- [82/229] Trade Warehouse Direct
+  -- [82/179] Trade Warehouse Direct
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4444,7 +4441,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2966.6, 0, 'spreadsheet_seed');
 
-  -- [83/229] Vision Bathroom Supplies
+  -- [83/179] Vision Bathroom Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4498,7 +4495,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1868.96, 0, 'spreadsheet_seed');
 
-  -- [84/229] Naturally Tiles & Bathware
+  -- [84/179] Naturally Tiles & Bathware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4552,7 +4549,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2171.27, 0, 'spreadsheet_seed');
 
-  -- [85/229] Motif
+  -- [85/179] Motif
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4606,7 +4603,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1871.34, 0, 'spreadsheet_seed');
 
-  -- [86/229] Elenni Kitchen & Bathroom Collection
+  -- [86/179] Elenni Kitchen & Bathroom Collection
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4660,7 +4657,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 3224.35, 0, 'spreadsheet_seed');
 
-  -- [87/229] Seven Days Plumbing
+  -- [87/179] Seven Days Plumbing
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4714,7 +4711,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2420.4, 0, 'spreadsheet_seed');
 
-  -- [88/229] All Bathroom Gear
+  -- [88/179] All Bathroom Gear
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4768,7 +4765,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1908.91, 0, 'spreadsheet_seed');
 
-  -- [89/229] Schots Home Emporium - Clifton Hill
+  -- [89/179] Schots Home Emporium - Clifton Hill
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4822,7 +4819,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4515.42, 0, 'spreadsheet_seed');
 
-  -- [90/229] QA Bathroom Warehouse
+  -- [90/179] QA Bathroom Warehouse
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4876,7 +4873,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1806.35, 0, 'spreadsheet_seed');
 
-  -- [91/229] Watertek
+  -- [91/179] Watertek
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4930,7 +4927,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1730.25, 0, 'spreadsheet_seed');
 
-  -- [92/229] The Bathroom Biz
+  -- [92/179] The Bathroom Biz
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -4984,7 +4981,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1639.24, 0, 'spreadsheet_seed');
 
-  -- [93/229] Hot & Cold Outlet (Engadine Plumbing)
+  -- [93/179] Hot & Cold Outlet (Engadine Plumbing)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5038,7 +5035,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1639.51, 0, 'spreadsheet_seed');
 
-  -- [94/229] Designer Bathrooms Plus
+  -- [94/179] Designer Bathrooms Plus
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5092,7 +5089,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1648.06, 0, 'spreadsheet_seed');
 
-  -- [95/229] In Haus Living
+  -- [95/179] In Haus Living
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5146,7 +5143,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 5017.78, 0, 'spreadsheet_seed');
 
-  -- [96/229] Trade Sync Group
+  -- [96/179] Trade Sync Group
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5200,7 +5197,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1887.99, 0, 'spreadsheet_seed');
 
-  -- [97/229] Flat Hill Studio
+  -- [97/179] Flat Hill Studio
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5254,7 +5251,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1591.88, 0, 'spreadsheet_seed');
 
-  -- [98/229] Beri Distributors Pty Ltd
+  -- [98/179] Beri Distributors Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5308,7 +5305,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1755.61, 0, 'spreadsheet_seed');
 
-  -- [99/229] Oxford and Nelson
+  -- [99/179] Oxford and Nelson
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5362,7 +5359,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2141.98, 0, 'spreadsheet_seed');
 
-  -- [100/229] Bathroom Collective
+  -- [100/179] Bathroom Collective
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5416,7 +5413,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1862.03, 0, 'spreadsheet_seed');
 
-  -- [101/229] Tap and Sink Contemporary Living
+  -- [101/179] Tap and Sink Contemporary Living
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5470,7 +5467,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4659.42, 0, 'spreadsheet_seed');
 
-  -- [102/229] Plumbcorp
+  -- [102/179] Plumbcorp
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5524,7 +5521,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1666.78, 0, 'spreadsheet_seed');
 
-  -- [103/229] JusTiles Sydney - Padstow
+  -- [103/179] JusTiles Sydney - Padstow
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5578,7 +5575,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1739.75, 0, 'spreadsheet_seed');
 
-  -- [104/229] Royal Vanities
+  -- [104/179] Royal Vanities
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5632,7 +5629,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2058.49, 0, 'spreadsheet_seed');
 
-  -- [105/229] 7to7 Bathrooms Pty Ltd
+  -- [105/179] 7to7 Bathrooms Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5686,7 +5683,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1691.36, 0, 'spreadsheet_seed');
 
-  -- [106/229] Cook & Bathe
+  -- [106/179] Cook & Bathe
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5740,7 +5737,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1625.22, 0, 'spreadsheet_seed');
 
-  -- [107/229] Home Emporium Singleton (Buildtell Services)
+  -- [107/179] Home Emporium Singleton (Buildtell Services)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5794,7 +5791,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1759.5, 0, 'spreadsheet_seed');
 
-  -- [108/229] Tuck Plumbing Fixtures - Plumbtec
+  -- [108/179] Tuck Plumbing Fixtures - Plumbtec
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5848,7 +5845,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1528.68, 0, 'spreadsheet_seed');
 
-  -- [109/229] Swan Street Sales
+  -- [109/179] Swan Street Sales
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5874,7 +5871,7 @@ BEGIN
     9762.65, 0.6086, 115, 5520,
     1500.0, 500.0, 7520.83,
     2241.82, 0.1397, 'review', 'manager',
-    12677.5542, 'worth_it'
+    9999.9999, 'worth_it'
   ) RETURNING id INTO req_id;
 
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
@@ -5902,7 +5899,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2196.79, 0, 'spreadsheet_seed');
 
-  -- [110/229] Retravision Commercial
+  -- [110/179] Retravision Commercial
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -5956,7 +5953,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1642.21, 0, 'spreadsheet_seed');
 
-  -- [111/229] Camberwell Bathrooms
+  -- [111/179] Camberwell Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6010,7 +6007,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1522.2, 0, 'spreadsheet_seed');
 
-  -- [112/229] ONE ONE CAPITAL GENERAL TRADING LLC
+  -- [112/179] ONE ONE CAPITAL GENERAL TRADING LLC
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6064,7 +6061,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 4907.42, 0, 'spreadsheet_seed');
 
-  -- [113/229] Swiftwood Tiles & Bathrooms
+  -- [113/179] Swiftwood Tiles & Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6118,7 +6115,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1241.77, 0, 'spreadsheet_seed');
 
-  -- [114/229] Coastal Tiles
+  -- [114/179] Coastal Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6172,7 +6169,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1216.17, 0, 'spreadsheet_seed');
 
-  -- [115/229] Cargo Bathroom and Kitchens
+  -- [115/179] Cargo Bathroom and Kitchens
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6226,7 +6223,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1536.14, 0, 'spreadsheet_seed');
 
-  -- [116/229] INTERO T/A THE KITCHEN HUB (AUD) (Formerly Change Agent Limited)
+  -- [116/179] INTERO T/A THE KITCHEN HUB (AUD) (Formerly Change Agent Limited)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6280,7 +6277,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2165.68, 0, 'spreadsheet_seed');
 
-  -- [117/229] Romano Indoor & Outdoor Solutions
+  -- [117/179] Romano Indoor & Outdoor Solutions
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6334,7 +6331,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1147.35, 0, 'spreadsheet_seed');
 
-  -- [118/229] Riverina Home Centre
+  -- [118/179] Riverina Home Centre
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6388,7 +6385,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1067.1, 0, 'spreadsheet_seed');
 
-  -- [119/229] TI Home Improvement Centre (Formerly Tile Importer)
+  -- [119/179] TI Home Improvement Centre (Formerly Tile Importer)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6442,7 +6439,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1212.38, 0, 'spreadsheet_seed');
 
-  -- [120/229] Revive Bathroom Supplies
+  -- [120/179] Revive Bathroom Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6496,7 +6493,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1071.11, 0, 'spreadsheet_seed');
 
-  -- [121/229] Cerastone Surfaces
+  -- [121/179] Cerastone Surfaces
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6550,7 +6547,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1643.18, 0, 'spreadsheet_seed');
 
-  -- [122/229] Thrifty Bathrooms and Plumbing
+  -- [122/179] Thrifty Bathrooms and Plumbing
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6604,7 +6601,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1121.5, 0, 'spreadsheet_seed');
 
-  -- [123/229] Lexatonia Tiles Melbourne (Formally Bathroom Nation)
+  -- [123/179] Lexatonia Tiles Melbourne (Formally Bathroom Nation)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6658,7 +6655,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1037.35, 0, 'spreadsheet_seed');
 
-  -- [124/229] IBuild Group NSW (Home Renovation Studio)
+  -- [124/179] IBuild Group NSW (Home Renovation Studio)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6712,7 +6709,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1134.11, 0, 'spreadsheet_seed');
 
-  -- [125/229] Terry Brothers Bathrooms
+  -- [125/179] Terry Brothers Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6766,7 +6763,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 799.28, 0, 'spreadsheet_seed');
 
-  -- [126/229] Veejay's Renovations
+  -- [126/179] Veejay's Renovations
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6820,7 +6817,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 786.06, 0, 'spreadsheet_seed');
 
-  -- [127/229] Big River Trade Centre
+  -- [127/179] Big River Trade Centre
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6874,7 +6871,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 837.51, 0, 'spreadsheet_seed');
 
-  -- [128/229] Bathroom International
+  -- [128/179] Bathroom International
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6928,7 +6925,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 844.41, 0, 'spreadsheet_seed');
 
-  -- [129/229] Bathroom Kitchen Home
+  -- [129/179] Bathroom Kitchen Home
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -6982,7 +6979,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 795.21, 0, 'spreadsheet_seed');
 
-  -- [130/229] My Tile Co - Woy Woy
+  -- [130/179] My Tile Co - Woy Woy
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7036,7 +7033,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 911.49, 0, 'spreadsheet_seed');
 
-  -- [131/229] Harpers
+  -- [131/179] Harpers
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7090,7 +7087,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 999.34, 0, 'spreadsheet_seed');
 
-  -- [132/229] Blaxland Tiles and Bathrooms
+  -- [132/179] Blaxland Tiles and Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7144,7 +7141,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 948.76, 0, 'spreadsheet_seed');
 
-  -- [133/229] Oscar & Co
+  -- [133/179] Oscar & Co
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7198,7 +7195,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1145.93, 0, 'spreadsheet_seed');
 
-  -- [134/229] Tuggerah Tiles
+  -- [134/179] Tuggerah Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7252,7 +7249,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 710.5, 0, 'spreadsheet_seed');
 
-  -- [135/229] SAINT GEORGE MODERN CONSTRUCTIONS PTY LTD
+  -- [135/179] SAINT GEORGE MODERN CONSTRUCTIONS PTY LTD
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7306,7 +7303,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 729.17, 0, 'spreadsheet_seed');
 
-  -- [136/229] Seaside Bathware
+  -- [136/179] Seaside Bathware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7360,7 +7357,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 669.83, 0, 'spreadsheet_seed');
 
-  -- [137/229] Area Bathrooms
+  -- [137/179] Area Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7414,7 +7411,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 874.63, 0, 'spreadsheet_seed');
 
-  -- [138/229] Vogue Spas and Bathrooms
+  -- [138/179] Vogue Spas and Bathrooms
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7468,7 +7465,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 579.55, 0, 'spreadsheet_seed');
 
-  -- [139/229] one stop bath and tiles
+  -- [139/179] one stop bath and tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7522,7 +7519,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 568.23, 0, 'spreadsheet_seed');
 
-  -- [140/229] Adelaide Bathroom and Kitchen Supplies
+  -- [140/179] Adelaide Bathroom and Kitchen Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7576,7 +7573,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 884.91, 0, 'spreadsheet_seed');
 
-  -- [141/229] Bretts Plumbing Plus
+  -- [141/179] Bretts Plumbing Plus
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7630,7 +7627,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 655.03, 0, 'spreadsheet_seed');
 
-  -- [142/229] FBI interiors
+  -- [142/179] FBI interiors
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7684,7 +7681,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1111.82, 0, 'spreadsheet_seed');
 
-  -- [143/229] Corowa Plumbing Supplies Pty Ltd T/A Jones Plumbing Plus - Albury
+  -- [143/179] Corowa Plumbing Supplies Pty Ltd T/A Jones Plumbing Plus - Albury
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7738,7 +7735,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 526.25, 0, 'spreadsheet_seed');
 
-  -- [144/229] James St Bathrooms Pty Ltd
+  -- [144/179] James St Bathrooms Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7792,7 +7789,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 476.57, 0, 'spreadsheet_seed');
 
-  -- [145/229] Bendigo Floor & Home Centre (Elegance Tiles)
+  -- [145/179] Bendigo Floor & Home Centre (Elegance Tiles)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7846,7 +7843,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 895.29, 0, 'spreadsheet_seed');
 
-  -- [146/229] The Boardroom Pty Ltd T/A The Gallery Interiors
+  -- [146/179] The Boardroom Pty Ltd T/A The Gallery Interiors
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7900,7 +7897,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 544.83, 0, 'spreadsheet_seed');
 
-  -- [147/229] Concept Tiles & Surfaces
+  -- [147/179] Concept Tiles & Surfaces
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -7954,7 +7951,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 476.64, 0, 'spreadsheet_seed');
 
-  -- [148/229] Builders World
+  -- [148/179] Builders World
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8008,7 +8005,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 441.14, 0, 'spreadsheet_seed');
 
-  -- [149/229] Choice Bathroom & Kitchen Supplies
+  -- [149/179] Choice Bathroom & Kitchen Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8062,7 +8059,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 548.78, 0, 'spreadsheet_seed');
 
-  -- [150/229] My Tile Market - Brookvale
+  -- [150/179] My Tile Market - Brookvale
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8116,7 +8113,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 460.71, 0, 'spreadsheet_seed');
 
-  -- [151/229] Terrace Tiles
+  -- [151/179] Terrace Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8170,7 +8167,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 429.62, 0, 'spreadsheet_seed');
 
-  -- [152/229] Mr Sink
+  -- [152/179] Mr Sink
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8224,7 +8221,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 430.87, 0, 'spreadsheet_seed');
 
-  -- [153/229] Adorn Tiles
+  -- [153/179] Adorn Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8278,7 +8275,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 446.78, 0, 'spreadsheet_seed');
 
-  -- [154/229] Surf Coast Bath + Co
+  -- [154/179] Surf Coast Bath + Co
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8332,7 +8329,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 550.77, 0, 'spreadsheet_seed');
 
-  -- [155/229] Hera Bathware
+  -- [155/179] Hera Bathware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8386,7 +8383,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 434.83, 0, 'spreadsheet_seed');
 
-  -- [156/229] Builders Discount Warehouse Pty Ltd
+  -- [156/179] Builders Discount Warehouse Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8440,7 +8437,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 386.38, 0, 'spreadsheet_seed');
 
-  -- [157/229] Metcash M10
+  -- [157/179] Metcash M10
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8494,7 +8491,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 476.28, 0, 'spreadsheet_seed');
 
-  -- [158/229] Dahlsens
+  -- [158/179] Dahlsens
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8548,7 +8545,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 261.0, 0, 'spreadsheet_seed');
 
-  -- [159/229] Kelly's Plumbing Supplies
+  -- [159/179] Kelly's Plumbing Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8602,7 +8599,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 245.67, 0, 'spreadsheet_seed');
 
-  -- [160/229] Scott's Plumbing Supplies
+  -- [160/179] Scott's Plumbing Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8656,7 +8653,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 251.42, 0, 'spreadsheet_seed');
 
-  -- [161/229] Bayview Renovations Braeside
+  -- [161/179] Bayview Renovations Braeside
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8710,7 +8707,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 236.82, 0, 'spreadsheet_seed');
 
-  -- [162/229] Bondi Spaces Pty Ltd
+  -- [162/179] Bondi Spaces Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8764,7 +8761,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 331.11, 0, 'spreadsheet_seed');
 
-  -- [163/229] DEMOR EST 1980 PTY LTD (Previously known as Demor)
+  -- [163/179] DEMOR EST 1980 PTY LTD (Previously known as Demor)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8818,7 +8815,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 205.81, 0, 'spreadsheet_seed');
 
-  -- [164/229] All Trade Plumbing Centre Pty Ltd
+  -- [164/179] All Trade Plumbing Centre Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8872,7 +8869,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 197.5, 0, 'spreadsheet_seed');
 
-  -- [165/229] Astley’s Plumbing & Hardware
+  -- [165/179] Astley’s Plumbing & Hardware
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8926,7 +8923,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 645.67, 0, 'spreadsheet_seed');
 
-  -- [166/229] Abode Carpentry & Renovations Pty Ltd
+  -- [166/179] Abode Carpentry & Renovations Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -8980,7 +8977,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 339.54, 0, 'spreadsheet_seed');
 
-  -- [167/229] Stone Arc T/A Arc Trading Pty Ltd
+  -- [167/179] Stone Arc T/A Arc Trading Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -9034,7 +9031,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 165.41, 0, 'spreadsheet_seed');
 
-  -- [168/229] Tweed Heads Plumbing Supplies
+  -- [168/179] Tweed Heads Plumbing Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -9088,7 +9085,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 220.02, 0, 'spreadsheet_seed');
 
-  -- [169/229] COD Customers
+  -- [169/179] COD Customers
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -9142,7 +9139,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 372.28, 0, 'spreadsheet_seed');
 
-  -- [170/229] Bathroom Supplies
+  -- [170/179] Bathroom Supplies
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -9196,7 +9193,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 41.69, 0, 'spreadsheet_seed');
 
-  -- [171/229] Inhouse Trade Centre
+  -- [171/179] Inhouse Trade Centre
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -9250,61 +9247,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 34.45, 0, 'spreadsheet_seed');
 
-  -- [172/229] Bass Strait Interiors
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Bass Strait Interiors', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    8.32, 0, 0,
-    0.0, 2, 100,
-    8.32, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2008.32,
-    -2008.32, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [173/229] Express Plumbing
+  -- [172/179] Express Plumbing
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -9358,493 +9301,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 622.38, 0, 'spreadsheet_seed');
 
-  -- [174/229] Bathware Direct
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Bathware Direct', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    30.9, 0, 0,
-    0.0, 2, 100,
-    30.9, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2030.9,
-    -2030.9, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [175/229] Akira Interiors (BIGA+)
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Akira Interiors (BIGA+)', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    47.47, 0, 0,
-    0.0, 2, 100,
-    47.47, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2047.47,
-    -2047.47, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [176/229] Absolute Building Solutions
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Absolute Building Solutions', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    48.26, 0, 0,
-    0.0, 2, 100,
-    48.26, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2048.26,
-    -2048.26, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [177/229] Novale
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Novale', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    56.36, 0, 0,
-    0.0, 2, 100,
-    56.36, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2056.36,
-    -2056.36, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [178/229] S.S. Lootah Trading Building Material Division LLC
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'S.S. Lootah Trading Building Material Division LLC', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    92.32, 0, 0,
-    0.0, 2, 100,
-    92.32, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2092.32,
-    -2092.32, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [179/229] Hunter Bathrooms
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Hunter Bathrooms', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    140.02, 0, 0,
-    0.0, 2, 100,
-    140.02, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2140.02,
-    -2140.02, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [180/229] PT Austindo Perdana
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'PT Austindo Perdana', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    144.24, 0, 0,
-    0.0, 2, 100,
-    144.24, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2144.24,
-    -2144.24, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [181/229] Fisher's Plumber Plus
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Fisher''s Plumber Plus', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    157.85, 0, 0,
-    0.0, 2, 100,
-    157.85, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2157.85,
-    -2157.85, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [182/229] Timberline
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Timberline', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    160.41, 0, 0,
-    0.0, 2, 100,
-    160.41, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2160.41,
-    -2160.41, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [183/229] Nu Bathroom and kitchen centre
+  -- [173/179] Nu Bathroom and kitchen centre
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -9898,385 +9355,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 55.18, 0, 'spreadsheet_seed');
 
-  -- [184/229] Elite Design Studio
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Elite Design Studio', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    190.64, 0, 0,
-    0.0, 2, 100,
-    190.64, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2190.64,
-    -2190.64, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [185/229] Q Bathrooms
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Q Bathrooms', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    191.02, 0, 0,
-    0.0, 2, 100,
-    191.02, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2191.02,
-    -2191.02, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [186/229] Burnett's Plumbing Supplies
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Burnett''s Plumbing Supplies', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    237.82, 0, 0,
-    0.0, 2, 100,
-    237.82, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2237.82,
-    -2237.82, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [187/229] Synergy Building Design
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Synergy Building Design', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    268.34, 0, 0,
-    0.0, 2, 100,
-    268.34, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2268.34,
-    -2268.34, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [188/229] Meir - Charity / Donation
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Charity / Donation', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    275.29, 0, 0,
-    0.0, 2, 100,
-    275.29, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2275.29,
-    -2275.29, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [189/229] Tiento Pty Ltd
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Tiento Pty Ltd', '', '',
-    true, 0.0, 2, 0.0, 0,
-    0.0, 0.0,
-    0.0, 0,
-    180.7, 0, 0,
-    0.0, 2, 100,
-    180.7, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 2, 96,
-    1500.0, 500.0, 2276.7,
-    -2276.7, 0, 'review', 'manager',
-    -0.5313, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [190/229] Killen Tiling Pty Ltd
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Killen Tiling Pty Ltd', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    308.02, 0, 0,
-    0.0, 2, 100,
-    308.02, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2308.02,
-    -2308.02, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [191/229] Vanity Co (Divine Kitchens)
+  -- [174/179] Vanity Co (Divine Kitchens)
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -10330,439 +9409,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 47.47, 0, 'spreadsheet_seed');
 
-  -- [192/229] Renova House
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Renova House', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    320.02, 0, 0,
-    0.0, 2, 100,
-    320.02, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2320.02,
-    -2320.02, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [193/229] Atelier Bathrooms
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Atelier Bathrooms', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    368.46, 0, 0,
-    0.0, 2, 100,
-    368.46, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2368.46,
-    -2368.46, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [194/229] Just Bathrooms
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Just Bathrooms', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    404.39, 0, 0,
-    0.0, 2, 100,
-    404.39, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2404.39,
-    -2404.39, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [195/229] Desino
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Desino', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    480.22, 0, 0,
-    0.0, 2, 100,
-    480.22, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2480.22,
-    -2480.22, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [196/229] Haus of Hardy
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Haus of Hardy', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    483.11, 0, 0,
-    0.0, 2, 100,
-    483.11, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2483.11,
-    -2483.11, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [197/229] J & J SCERRI HOLDINGS PTY LTD T/A North Richmond Tile Centre
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'J & J SCERRI HOLDINGS PTY LTD T/A North Richmond Tile Centre', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    533.97, 0, 0,
-    0.0, 2, 100,
-    533.97, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2533.97,
-    -2533.97, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [198/229] Jeffs Joinery & Building Centre Pty Ltd
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Jeffs Joinery & Building Centre Pty Ltd', '', '',
-    true, -14.329999999999998, 3, -4.78, 0,
-    -16.48, 2.15,
-    0.0, 0,
-    533.75, 0, 0,
-    -14.329999999999998, 2, 100,
-    533.75, -14.33, -0.0, -14.33, -0.0,
-    -14.33, 0, 3, 144,
-    1500.0, 500.0, 2677.75,
-    -2692.08, 0, 'review', 'manager',
-    -0.2735, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', -1.19, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', -1.19, 0, 'spreadsheet_seed');
-
-  -- [199/229] Marbello
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Marbello', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    708.09, 0, 0,
-    0.0, 2, 100,
-    708.09, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2708.09,
-    -2708.09, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [200/229] Ayvan Pty Ltd
+  -- [175/179] Ayvan Pty Ltd
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -10787,7 +9434,7 @@ BEGIN
     1086.49, 275.02, 0.0, 275.02, 85.69,
     189.33, 0.6884, 1, 48,
     1500.0, 500.0, 3134.49,
-    -2945.16, -10.7089, 'review', 'manager',
+    -2945.16, -9.9999, 'review', 'manager',
     0.2089, 'not_worth_it'
   ) RETURNING id INTO req_id;
 
@@ -10816,7 +9463,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 33.29, 0, 'spreadsheet_seed');
 
-  -- [201/229] San Marco Ceramics
+  -- [176/179] San Marco Ceramics
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -10870,7 +9517,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 365.44, 0, 'spreadsheet_seed');
 
-  -- [202/229] Kewco
+  -- [177/179] Kewco
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -10924,385 +9571,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 159.43, 0, 'spreadsheet_seed');
 
-  -- [203/229] Ultimate Bathroom
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Ultimate Bathroom', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    935.44, 0, 0,
-    0.0, 2, 100,
-    935.44, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 2935.44,
-    -2935.44, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [204/229] Meir - Marketing Materials
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Marketing Materials', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    1110.88, 0, 0,
-    0.0, 2, 100,
-    1110.88, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 3110.88,
-    -3110.88, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [205/229] Nood Co Concrete
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Nood Co Concrete', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    1392.34, 0, 0,
-    0.0, 2, 100,
-    1392.34, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 3392.34,
-    -3392.34, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [206/229] Meir - Stock Awaiting Parts
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Stock Awaiting Parts', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    1440.67, 0, 0,
-    0.0, 2, 100,
-    1440.67, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 3440.67,
-    -3440.67, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [207/229] Meir - Influencer / Content
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Influencer / Content', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    1479.27, 0, 0,
-    0.0, 2, 100,
-    1479.27, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 3479.27,
-    -3479.27, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [208/229] Swan Plumbing
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Swan Plumbing', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    1682.07, 0, 0,
-    0.0, 2, 100,
-    1682.07, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 3682.07,
-    -3682.07, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [209/229] Modena Kitchens & Bathrooms
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Modena Kitchens & Bathrooms', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    2002.34, 0, 0,
-    0.0, 2, 100,
-    2002.34, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 4002.34,
-    -4002.34, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [210/229] Cowra Creative Tiles
+  -- [178/179] Cowra Creative Tiles
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -11327,7 +9596,7 @@ BEGIN
     2614.32, 18.25, 0.0, 18.25, 5.79,
     12.46, 0.6827, 1, 48,
     1500.0, 500.0, 4662.32,
-    -4649.86, -254.7868, 'review', 'manager',
+    -4649.86, -9.9999, 'review', 'manager',
     -0.0114, 'not_worth_it'
   ) RETURNING id INTO req_id;
 
@@ -11356,709 +9625,7 @@ BEGIN
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 2.23, 0, 'spreadsheet_seed');
 
-  -- [211/229] Tiento Tiles
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Tiento Tiles', '', '',
-    true, 0.1, 3, 0.03, 10181.8,
-    0.11, -0.01,
-    0.0, 10181.8,
-    1602.66, 0, 0,
-    0.1, 2, 100,
-    1602.66, -1018.08, -0.0, -1018.08, -10365886.94,
-    10364868.86, 0, 3, 144,
-    1500.0, 500.0, 3746.66,
-    10361122.2, 0, 'review', 'manager',
-    -0.7251, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.01, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.01, 0, 'spreadsheet_seed');
-
-  -- [212/229] Meir - Marketing / Photoshoot
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Marketing / Photoshoot', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    3607.92, 0, 0,
-    0.0, 2, 100,
-    3607.92, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 5607.92,
-    -5607.92, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [213/229] Navi by Centre (Centre Plumbing Plus)
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Navi by Centre (Centre Plumbing Plus)', '', '',
-    true, -510.0699999999997, 18, -28.34, 0,
-    -586.58, 76.51,
-    0.0, 0,
-    3595.02, 0, 0,
-    -510.0699999999997, 2, 100,
-    3595.02, -510.07, -0.0, -510.07, -0.0,
-    -510.07, 0, 18, 864,
-    1500.0, 500.0, 6459.02,
-    -6969.09, 0, 'review', 'manager',
-    -0.3727, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', -42.51, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', -42.51, 0, 'spreadsheet_seed');
-
-  -- [214/229] RetraVision
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'RetraVision', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    7583.42, 0, 0,
-    0.0, 2, 100,
-    7583.42, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 9583.42,
-    -9583.42, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [215/229] Retail International
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Retail International', '', '',
-    true, 951.5999999999999, 5, 190.32, 5.5633,
-    1094.34, -142.74,
-    0.0, 5.5633,
-    4258.0, 0, 0,
-    951.5999999999999, 2, 100,
-    4258.0, -4342.44, -0.0, -4342.44, -24158.31,
-    19815.87, 0, 5, 240,
-    1500.0, 500.0, 6498.0,
-    13317.87, 0, 'review', 'manager',
-    -1.0762, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 79.3, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 79.3, 0, 'spreadsheet_seed');
-
-  -- [216/229] Meir - Staff Home / Personal
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Staff Home / Personal', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    9116.89, 0, 0,
-    0.0, 2, 100,
-    9116.89, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 11116.89,
-    -11116.89, 0, 'review', 'manager',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [217/229] Meir - Choc Boxes
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Choc Boxes', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    11971.95, 0, 0,
-    0.0, 2, 100,
-    11971.95, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 13971.95,
-    -13971.95, 0, 'review', 'cfo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [218/229] Meir - Curvae Display Allocation
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Curvae Display Allocation', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    12055.01, 0, 0,
-    0.0, 2, 100,
-    12055.01, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 14055.01,
-    -14055.01, 0, 'review', 'cfo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [219/229] Meir - Backplates / Cover Plates
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Backplates / Cover Plates', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    12547.72, 0, 0,
-    0.0, 2, 100,
-    12547.72, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 14547.72,
-    -14547.72, 0, 'review', 'cfo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [220/229] Meir - Expo / Trade Show
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Expo / Trade Show', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    13265.38, 0, 0,
-    0.0, 2, 100,
-    13265.38, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 15265.38,
-    -15265.38, 0, 'review', 'cfo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [221/229] Meir - Product Launch
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Product Launch', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    14130.98, 0, 0,
-    0.0, 2, 100,
-    14130.98, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 16130.98,
-    -16130.98, 0, 'review', 'cfo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [222/229] Meir - Generic Display Stock
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Generic Display Stock', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    14706.13, 0, 0,
-    0.0, 2, 100,
-    14706.13, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 16706.13,
-    -16706.13, 0, 'review', 'cfo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [223/229] Meir - Samples / Discs
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Samples / Discs', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    16606.0, 0, 0,
-    0.0, 2, 100,
-    16606.0, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 18606.0,
-    -18606.0, 0, 'review', 'cfo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [224/229] Meir
+  -- [179/179] Meir
   INSERT INTO display_requests (
     submitted_by, submitted_at, status, approved_at,
     store_name, store_code, rep_name,
@@ -12111,275 +9678,5 @@ BEGIN
   VALUES (req_id, '2026-02', 1073.17, 0, 'spreadsheet_seed');
   INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
   VALUES (req_id, '2026-03', 1073.17, 0, 'spreadsheet_seed');
-
-  -- [225/229] Meir - Boot Stock / Car Stock
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Boot Stock / Car Stock', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    22438.14, 0, 0,
-    0.0, 2, 100,
-    22438.14, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 24438.14,
-    -24438.14, 0, 'review', 'cfo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [226/229] Meir - Unclassified
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Unclassified', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    53635.54, 0, 0,
-    0.0, 2, 100,
-    53635.54, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 55635.54,
-    -55635.54, 0, 'review', 'coo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [227/229] Meir - Harrington Allocation
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Meir - Harrington Allocation', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    54746.42, 0, 0,
-    0.0, 2, 100,
-    54746.42, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 56746.42,
-    -56746.42, 0, 'review', 'coo',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [228/229] Consumer < $100
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Consumer < $100', '', '',
-    true, 0.0, 2, 0.0, 0,
-    0.0, 0.0,
-    0.0, 0,
-    70058.78, 0, 0,
-    0.0, 2, 100,
-    70058.78, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 2, 96,
-    1500.0, 500.0, 72154.78,
-    -72154.78, 0, 'review', 'coo',
-    -0.0015, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
-
-  -- [229/229] Unknown
-  INSERT INTO display_requests (
-    submitted_by, submitted_at, status, approved_at,
-    store_name, store_code, rep_name,
-    is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct,
-    baseline_revenue, incremental_revenue,
-    rebate_pct, cogs_pct,
-    board_labour_cost, product_cogs, free_samples_cost,
-    forecast_revenue, rep_hours_monthly, catalogues_qty,
-    total_investment, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales,
-    gross_profit, gross_margin, est_orders, order_processing,
-    rep_visit_cost, catalogue_cost, total_costs,
-    net_contribution, net_margin, profitability_flag, approval_tier,
-    roi_multiplier, verdict
-  ) VALUES (
-    admin_id, '2025-04-01T00:00:00Z', 'approved', '2025-04-01T00:00:00Z',
-    'Unknown', '', '',
-    true, 0.0, 0, 650, 0,
-    0.0, 0.0,
-    0.0, 0,
-    133205.56, 0, 0,
-    0.0, 2, 100,
-    133205.56, 0.0, 0.0, 0.0, 0.0,
-    0.0, 0, 0, 0,
-    1500.0, 500.0, 135205.56,
-    -135205.56, 0, 'review', 'admin',
-    0.0, 'not_worth_it'
-  ) RETURNING id INTO req_id;
-
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-04', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-05', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-06', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-07', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-08', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-09', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-10', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-11', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2025-12', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-01', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-02', 0.0, 0, 'spreadsheet_seed');
-  INSERT INTO monthly_actuals (request_id, month_year, revenue, catalogues_used, source)
-  VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
 
 END $$;
