@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -60,7 +60,7 @@ interface MonthlyActual {
 type SortField = 'store_name' | 'total_investment' | 'net_contribution' | 'net_margin' | 'roi_multiplier' | 'forecast_revenue' | 'status';
 type SortDir = 'asc' | 'desc';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const supabase = createClient();
   const searchParams = useSearchParams();
   const message = searchParams.get('message');
@@ -107,10 +107,28 @@ export default function DashboardPage() {
           return;
         }
 
-        const res = await fetch('/api/requests?limit=500');
-        if (!res.ok) throw new Error('Failed to fetch requests');
-        const json = await res.json();
-        setRequests(json.data || []);
+        // Query Supabase directly — no SKU join, no API payload bloat
+        // Fetch in batches of 1000 to avoid PostgREST row limits
+        let allRequests: DisplayRequest[] = [];
+        let offset = 0;
+        const batchSize = 1000;
+        let hasMore = true;
+
+        while (hasMore) {
+          const { data, error: fetchErr } = await supabase
+            .from('display_requests')
+            .select('id, store_name, store_code, rep_name, brand_tier, display_type, status, total_investment, forecast_revenue, net_contribution, net_margin, gross_profit, gross_margin, roi_multiplier, verdict, profitability_flag, approval_tier, approved_at, submitted_at, created_at, is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct, baseline_revenue, incremental_revenue, rebate_pct, cogs_pct, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales, est_orders, order_processing, product_cogs, board_labour_cost, free_samples_cost, rep_visit_cost, catalogue_cost, total_costs')
+            .order('submitted_at', { ascending: false })
+            .range(offset, offset + batchSize - 1);
+
+          if (fetchErr) throw new Error(fetchErr.message);
+          const batch = (data || []) as unknown as DisplayRequest[];
+          allRequests = allRequests.concat(batch);
+          hasMore = batch.length === batchSize;
+          offset += batchSize;
+        }
+
+        setRequests(allRequests);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -687,5 +705,13 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><p className="text-gray-600">Loading dashboard...</p></div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
