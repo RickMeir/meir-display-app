@@ -1,7 +1,7 @@
 # Meir Display App — Process Map
 
 > **This is the single source of truth for what the app does.**
-> Updated: 9 April 2026
+> Updated: 10 April 2026
 >
 > RULES FOR CLAUDE:
 > 1. Read this file at the start of every session.
@@ -374,11 +374,54 @@ VERDICT:
 
 ---
 
+## PHASE 8: Display Investment Register (Dashboard)
+
+### 8.1 Access control
+- Leadership only: roles `manager`, `cfo`, `coo`, `admin`.
+- Reps are blocked and redirected to `/requests`.
+- Brooke (role=validator) can see the dashboard.
+- **File:** `src/app/dashboard/page.tsx`.
+
+### 8.2 Summary cards (top of page)
+- 6 cards computed from approved requests:
+  - Active Displays (count)
+  - Total Investment (sum of total_investment)
+  - Total Net Contribution (sum, green/red coloured)
+  - Average ROI (mean of roi_multiplier)
+  - Profitability split (green count / review count)
+  - Pipeline (count of submitted + pending_approval)
+
+### 8.3 Status filter tabs
+- Approved (default), Pending Approval, Awaiting Validation, Rejected, All (excludes drafts).
+- Each tab shows count.
+
+### 8.4 Register table
+- Sortable columns: Store, Rep, Investment, Forecast (12mo), Net Contribution, Net Margin, ROI, Verdict, Flag, Status.
+- Clicking a column header toggles asc/desc sort.
+- Verdict badge: colour coded (green/amber/red) using `VERDICT_LABELS` and `VERDICT_COLOURS`.
+- Profitability flag: GREEN or REVIEW text, colour coded.
+- Action column: context aware link (View / Validate / Approve) based on user role and request status.
+
+### 8.5 Drill down (click to expand)
+- Clicking a row expands an inline detail panel showing:
+  - Revenue After Discount, Gross Profit, Gross Margin, Approval Tier.
+  - Cost breakdown: Product COGS, Board and Labour, Samples and Gifts, Rep Visit Cost (annual), Catalogue Cost.
+  - Existing client info (if applicable): current revenue, incremental revenue.
+  - Monthly Actuals vs Forecast table (fetched from `/api/requests/{id}/lifecycle` endpoint, extracting `monthly_actuals`).
+  - Per month: Actual Revenue, Monthly Target (forecast/12), Variance %, Catalogues used.
+  - Totals row with cumulative actual, target to date, tracking % of target.
+  - Links to full request detail and lifecycle reviews.
+
+### 8.6 Data source
+- Register data: `GET /api/requests?limit=500` (returns all columns from display_requests).
+- Monthly actuals: `GET /api/requests/{id}/lifecycle` (returns `monthly_actuals` array from the lifecycle endpoint).
+- No separate actuals endpoint needed — lifecycle endpoint already aggregates this data.
+
+---
+
 ## KNOWN GAPS (not yet built or broken)
 
 1. **Monthly summary report** — exists in Google Sheet script, not yet in web app.
-2. **Dashboard KPIs** — no overview dashboard for managers/admins.
-3. **Display register view** — no list/table view of all active displays with tracking status.
-4. **Acumatica actuals automation** — PINNED, blocked on Paul. Currently manual entry.
-5. **Margin alerts** — table exists, not wired into the UI or email flow.
-6. **CS reference number entry** — UI exists but needs verification.
+2. **Acumatica actuals automation** — PINNED, blocked on Paul. Currently manual entry.
+3. **Margin alerts** — table exists, not wired into the UI or email flow.
+4. **CS reference number entry** — UI exists but needs verification.
