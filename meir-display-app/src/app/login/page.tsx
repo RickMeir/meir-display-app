@@ -46,8 +46,14 @@ export default function LoginPage() {
           {isSubmitted ? (
             <div className="space-y-4">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-800">
-                  Check your email for a login link. Please follow the link to sign in.
+                <p className="text-green-800 font-medium mb-2">
+                  Login link sent to {email}
+                </p>
+                <p className="text-green-700 text-sm">
+                  Check your inbox for an email from <strong>Supabase Auth</strong> (noreply@mail.app.supabase.io) with the subject <strong>&ldquo;Your Magic Link&rdquo;</strong>. This is legitimate — click the &ldquo;Log In&rdquo; link inside to sign in.
+                </p>
+                <p className="text-green-700 text-sm mt-2">
+                  Not there? Check your spam or junk folder.
                 </p>
               </div>
               <button
@@ -96,7 +102,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-gray-400 text-sm mt-8">
-          A secure magic link will be sent to your email
+          A secure login link will be sent to your email from <span className="text-gray-300">Supabase Auth</span>
         </p>
       </div>
     </div>
