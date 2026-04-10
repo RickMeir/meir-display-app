@@ -107,28 +107,15 @@ function DashboardContent() {
           return;
         }
 
-        // Query Supabase directly — no SKU join, no API payload bloat
-        // Fetch in batches of 1000 to avoid PostgREST row limits
-        let allRequests: DisplayRequest[] = [];
-        let offset = 0;
-        const batchSize = 1000;
-        let hasMore = true;
+        // Fetch all display requests directly from Supabase
+        const { data, error: fetchErr } = await supabase
+          .from('display_requests')
+          .select('*')
+          .order('store_name', { ascending: true })
+          .limit(1000);
 
-        while (hasMore) {
-          const { data, error: fetchErr } = await supabase
-            .from('display_requests')
-            .select('id, store_name, store_code, rep_name, brand_tier, display_type, status, total_investment, forecast_revenue, net_contribution, net_margin, gross_profit, gross_margin, roi_multiplier, verdict, profitability_flag, approval_tier, approved_at, submitted_at, created_at, is_existing_client, existing_annual_revenue, existing_orders, existing_aov, existing_cogs_pct, baseline_revenue, incremental_revenue, rebate_pct, cogs_pct, revenue_after_discount, rebate_cost, net_revenue, cogs_on_sales, est_orders, order_processing, product_cogs, board_labour_cost, free_samples_cost, rep_visit_cost, catalogue_cost, total_costs')
-            .order('submitted_at', { ascending: false })
-            .range(offset, offset + batchSize - 1);
-
-          if (fetchErr) throw new Error(fetchErr.message);
-          const batch = (data || []) as unknown as DisplayRequest[];
-          allRequests = allRequests.concat(batch);
-          hasMore = batch.length === batchSize;
-          offset += batchSize;
-        }
-
-        setRequests(allRequests);
+        if (fetchErr) throw new Error(fetchErr.message);
+        setRequests((data || []) as unknown as DisplayRequest[]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
