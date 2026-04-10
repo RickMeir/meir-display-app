@@ -1,11 +1,11 @@
--- Migration: Seed display_requests and monthly_actuals from Sales Data spreadsheet
+-- Migration: Widen roi_multiplier column, then seed display_requests and monthly_actuals
 -- Source: Sales & Margin Analysis 31.03.2026 v6.xlsx, 'Sales Data and ROI' tab
 -- 229 customers with active displays, 12 months of actual sales data (Apr 2025 - Mar 2026)
--- Monthly actuals are annual sales / 12 (evenly distributed)
 
-BEGIN;
+-- Step 1: Widen roi_multiplier from NUMERIC(8,4) to NUMERIC(12,4) to handle high ROI values
+ALTER TABLE display_requests ALTER COLUMN roi_multiplier TYPE NUMERIC(12,4);
 
--- Get the admin user ID for submitted_by (Rick)
+-- Step 2: Seed data
 DO $$
 DECLARE
   admin_id UUID;
@@ -12383,5 +12383,3 @@ BEGIN
   VALUES (req_id, '2026-03', 0.0, 0, 'spreadsheet_seed');
 
 END $$;
-
-COMMIT;
