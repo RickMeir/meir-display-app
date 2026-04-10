@@ -30,8 +30,19 @@ interface DisplayRequest {
   created_at: string;
   is_existing_client: boolean;
   existing_annual_revenue: number;
+  existing_orders: number;
+  existing_aov: number;
+  existing_cogs_pct: number;
+  baseline_revenue: number;
   incremental_revenue: number;
+  rebate_pct: number;
+  cogs_pct: number;
   revenue_after_discount: number;
+  rebate_cost: number;
+  net_revenue: number;
+  cogs_on_sales: number;
+  est_orders: number;
+  order_processing: number;
   product_cogs: number;
   board_labour_cost: number;
   free_samples_cost: number;
@@ -423,124 +434,233 @@ export default function DashboardPage() {
                           </td>
                         </tr>
 
-                        {/* Drill Down */}
+                        {/* Drill Down — mirrors Investment Forecast layout */}
                         {isExpanded && (
-                          <tr className="bg-blue-50 border-b border-gray-200">
-                            <td colSpan={12} className="px-8 py-6">
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Revenue After Discount</p>
-                                  <p className="text-lg font-semibold text-gray-900">{formatCurrency(req.revenue_after_discount)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Gross Profit</p>
-                                  <p className="text-lg font-semibold text-gray-900">{formatCurrency(req.gross_profit)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Gross Margin</p>
-                                  <p className="text-lg font-semibold text-gray-900">{formatPercent(req.gross_margin)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Approval Tier</p>
-                                  <p className="text-lg font-semibold text-gray-900">{TIER_LABELS[req.approval_tier || 'manager']}</p>
-                                </div>
-                              </div>
+                          <tr className="bg-gray-50 border-b border-gray-200">
+                            <td colSpan={12} className="px-6 py-6">
 
-                              <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-6">
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Product COGS</p>
-                                  <p className="text-sm font-medium text-gray-900">{formatCurrency(req.product_cogs)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Board and Labour</p>
-                                  <p className="text-sm font-medium text-gray-900">{formatCurrency(req.board_labour_cost)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Samples and Gifts</p>
-                                  <p className="text-sm font-medium text-gray-900">{formatCurrency(req.free_samples_cost)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Rep Visit Cost (annual)</p>
-                                  <p className="text-sm font-medium text-gray-900">{formatCurrency(req.rep_visit_cost)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs text-gray-500 uppercase tracking-wider">Catalogue Cost</p>
-                                  <p className="text-sm font-medium text-gray-900">{formatCurrency(req.catalogue_cost)}</p>
-                                </div>
-                              </div>
-
+                              {/* SECTION 1: Current Baseline (existing clients only) */}
                               {req.is_existing_client && req.existing_annual_revenue > 0 && (
-                                <div className="bg-blue-100 rounded p-3 mb-6">
-                                  <p className="text-xs text-blue-800 font-medium">
-                                    Existing Client — Current revenue: {formatCurrency(req.existing_annual_revenue)}.
-                                    Incremental revenue from display: {formatCurrency(req.incremental_revenue)}.
-                                  </p>
+                                <div className="mb-6">
+                                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b border-gray-200 pb-1">Current Baseline</h4>
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                      <thead>
+                                        <tr className="bg-gray-100">
+                                          <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Current Sales</th>
+                                          <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Orders</th>
+                                          <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Avg Order Value</th>
+                                          <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">COGS %</th>
+                                          <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Rebate %</th>
+                                          <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Baseline Revenue</th>
+                                          <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Incremental Revenue</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td className="py-2 px-3 font-medium text-gray-900">{formatCurrency(req.existing_annual_revenue)}</td>
+                                          <td className="py-2 px-3 text-gray-900">{req.existing_orders || '—'}</td>
+                                          <td className="py-2 px-3 text-gray-900">{req.existing_aov ? formatCurrency(req.existing_aov) : '—'}</td>
+                                          <td className="py-2 px-3 text-gray-900">{req.existing_cogs_pct ? formatPercent(req.existing_cogs_pct) : '—'}</td>
+                                          <td className="py-2 px-3 text-gray-900">{formatPercent(req.rebate_pct)}</td>
+                                          <td className="py-2 px-3 text-gray-700">{formatCurrency(req.baseline_revenue)}</td>
+                                          <td className={`py-2 px-3 font-semibold ${req.incremental_revenue >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                                            {formatCurrency(req.incremental_revenue)}
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
                                 </div>
                               )}
 
-                              {/* Monthly Actuals */}
-                              <div>
-                                <h4 className="text-sm font-semibold text-gray-900 mb-3">Monthly Actuals vs Forecast</h4>
+                              {/* SECTION 2: Display Investment */}
+                              <div className="mb-6">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b border-gray-200 pb-1">Display Investment</h4>
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-sm">
+                                    <thead>
+                                      <tr className="bg-gray-100">
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Display Product COGS</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Board and Labour</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Samples and Gifts</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600 font-bold">Total Investment</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Approval Tier</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="py-2 px-3 text-gray-900">{formatCurrency(req.product_cogs)}</td>
+                                        <td className="py-2 px-3 text-gray-900">{formatCurrency(req.board_labour_cost)}</td>
+                                        <td className="py-2 px-3 text-gray-900">{formatCurrency(req.free_samples_cost)}</td>
+                                        <td className="py-2 px-3 font-bold text-gray-900">{formatCurrency(req.total_investment)}</td>
+                                        <td className="py-2 px-3 text-gray-700">{TIER_LABELS[req.approval_tier || 'manager']}</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+
+                              {/* SECTION 3: Projected Revenue (12 months) */}
+                              <div className="mb-6">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b border-gray-200 pb-1">Projected Revenue (12 months)</h4>
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-sm">
+                                    <thead>
+                                      <tr className="bg-gray-100">
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Forecast Sales</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Revenue After Discount</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Rebate Cost</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Net Revenue</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">COGS (on sales)</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600 font-bold">Gross Profit</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Gross Margin %</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="py-2 px-3 font-medium text-gray-900">{formatCurrency(req.forecast_revenue)}</td>
+                                        <td className="py-2 px-3 text-gray-900">{formatCurrency(req.revenue_after_discount)}</td>
+                                        <td className="py-2 px-3 text-red-600">{formatCurrency(req.rebate_cost)}</td>
+                                        <td className="py-2 px-3 text-gray-900">{formatCurrency(req.net_revenue)}</td>
+                                        <td className="py-2 px-3 text-red-600">{formatCurrency(req.cogs_on_sales)}</td>
+                                        <td className="py-2 px-3 font-bold text-gray-900">{formatCurrency(req.gross_profit)}</td>
+                                        <td className="py-2 px-3 text-gray-900">{formatPercent(req.gross_margin)}</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+
+                              {/* SECTION 4: Operating Costs */}
+                              <div className="mb-6">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b border-gray-200 pb-1">Operating Costs</h4>
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-sm">
+                                    <thead>
+                                      <tr className="bg-gray-100">
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Est. Orders</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Order Processing</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Rep Visit Cost (annual)</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Catalogue Cost</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600 font-bold">Total Costs</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="py-2 px-3 text-gray-900">{req.est_orders}</td>
+                                        <td className="py-2 px-3 text-gray-900">{formatCurrency(req.order_processing)}</td>
+                                        <td className="py-2 px-3 text-gray-900">{formatCurrency(req.rep_visit_cost)}</td>
+                                        <td className="py-2 px-3 text-gray-900">{formatCurrency(req.catalogue_cost)}</td>
+                                        <td className="py-2 px-3 font-bold text-gray-900">{formatCurrency(req.total_costs)}</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+
+                              {/* SECTION 5: Net Result — the verdict */}
+                              <div className="mb-6">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b border-gray-200 pb-1">Net Result</h4>
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-sm">
+                                    <thead>
+                                      <tr className="bg-gray-100">
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Net Contribution</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Net Margin %</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">ROI Multiplier</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Verdict</th>
+                                        <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Profitability Flag</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className={`py-2 px-3 font-bold text-lg ${req.net_contribution >= 2000 ? 'text-green-700' : 'text-red-600'}`}>
+                                          {formatCurrency(req.net_contribution)}
+                                        </td>
+                                        <td className={`py-2 px-3 font-semibold ${req.net_margin >= 0.15 ? 'text-green-700' : 'text-red-600'}`}>
+                                          {formatPercent(req.net_margin)}
+                                        </td>
+                                        <td className="py-2 px-3 font-bold text-lg text-gray-900">
+                                          {req.roi_multiplier != null ? `${req.roi_multiplier.toFixed(1)}x` : '—'}
+                                        </td>
+                                        <td className="py-2 px-3">
+                                          {req.verdict && (
+                                            <span className={`inline-block px-3 py-1 rounded text-sm font-bold ${verdictColour(req.verdict)}`}>
+                                              {(VERDICT_LABELS as Record<string, string>)[req.verdict] || req.verdict}
+                                            </span>
+                                          )}
+                                        </td>
+                                        <td className={`py-2 px-3 font-bold ${flagColour(req.profitability_flag)}`}>
+                                          {req.profitability_flag === 'green' ? 'GREEN' : req.profitability_flag === 'review' ? 'REVIEW' : '—'}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+
+                              {/* SECTION 6: Monthly Actuals vs Forecast (when data exists) */}
+                              <div className="mb-4">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b border-gray-200 pb-1">Monthly Actuals vs Forecast</h4>
                                 {loadingActuals === req.id ? (
                                   <p className="text-sm text-gray-500">Loading actuals...</p>
                                 ) : monthlyData.length === 0 ? (
-                                  <p className="text-sm text-gray-500">No monthly actuals uploaded yet.</p>
+                                  <p className="text-sm text-gray-400 italic">No monthly actuals uploaded yet. Data will appear here as Acumatica actuals are entered.</p>
                                 ) : (
-                                  <>
-                                    <div className="overflow-x-auto">
-                                      <table className="w-full text-sm">
-                                        <thead>
-                                          <tr className="border-b border-gray-200">
-                                            <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Month</th>
-                                            <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Actual Revenue</th>
-                                            <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Monthly Target</th>
-                                            <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Variance</th>
-                                            <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Catalogues</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {monthlyData
-                                            .sort((a, b) => a.month_year.localeCompare(b.month_year))
-                                            .map((m) => {
-                                              const monthlyTarget = req.forecast_revenue / 12;
-                                              const variance = monthlyTarget > 0
-                                                ? ((m.revenue - monthlyTarget) / monthlyTarget) * 100
-                                                : 0;
-                                              return (
-                                                <tr key={m.month_year} className="border-b border-gray-100">
-                                                  <td className="py-2 px-3 text-gray-900">{m.month_year}</td>
-                                                  <td className="py-2 px-3 text-right font-medium text-gray-900">{formatCurrency(m.revenue)}</td>
-                                                  <td className="py-2 px-3 text-right text-gray-500">{formatCurrency(monthlyTarget)}</td>
-                                                  <td className={`py-2 px-3 text-right font-medium ${variance >= 0 ? 'text-green-700' : 'text-red-600'}`}>
-                                                    {variance >= 0 ? '+' : ''}{variance.toFixed(1)}%
-                                                  </td>
-                                                  <td className="py-2 px-3 text-right text-gray-700">{m.catalogues_used}</td>
-                                                </tr>
-                                              );
-                                            })}
-                                        </tbody>
-                                        <tfoot>
-                                          <tr className="border-t-2 border-gray-300 bg-gray-50">
-                                            <td className="py-2 px-3 font-semibold text-gray-900">Total</td>
-                                            <td className="py-2 px-3 text-right font-bold text-gray-900">{formatCurrency(totalActualRevenue)}</td>
-                                            <td className="py-2 px-3 text-right font-medium text-gray-500">
-                                              {formatCurrency((req.forecast_revenue / 12) * monthlyData.length)}
-                                            </td>
-                                            <td className={`py-2 px-3 text-right font-bold ${(trackingPct || 0) >= 100 ? 'text-green-700' : 'text-red-600'}`}>
-                                              {trackingPct != null ? `${trackingPct.toFixed(1)}% of target` : '—'}
-                                            </td>
-                                            <td className="py-2 px-3 text-right font-medium text-gray-700">
-                                              {monthlyData.reduce((sum, m) => sum + m.catalogues_used, 0)}
-                                            </td>
-                                          </tr>
-                                        </tfoot>
-                                      </table>
-                                    </div>
-                                  </>
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                      <thead>
+                                        <tr className="bg-gray-100">
+                                          <th className="text-left py-2 px-3 text-xs font-semibold text-gray-600">Month</th>
+                                          <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Actual Revenue</th>
+                                          <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Monthly Target</th>
+                                          <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Variance</th>
+                                          <th className="text-right py-2 px-3 text-xs font-semibold text-gray-600">Catalogues</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {monthlyData
+                                          .sort((a, b) => a.month_year.localeCompare(b.month_year))
+                                          .map((m) => {
+                                            const monthlyTarget = req.forecast_revenue / 12;
+                                            const variance = monthlyTarget > 0
+                                              ? ((m.revenue - monthlyTarget) / monthlyTarget) * 100
+                                              : 0;
+                                            return (
+                                              <tr key={m.month_year} className="border-b border-gray-100">
+                                                <td className="py-2 px-3 text-gray-900">{m.month_year}</td>
+                                                <td className="py-2 px-3 text-right font-medium text-gray-900">{formatCurrency(m.revenue)}</td>
+                                                <td className="py-2 px-3 text-right text-gray-500">{formatCurrency(monthlyTarget)}</td>
+                                                <td className={`py-2 px-3 text-right font-medium ${variance >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                                                  {variance >= 0 ? '+' : ''}{variance.toFixed(1)}%
+                                                </td>
+                                                <td className="py-2 px-3 text-right text-gray-700">{m.catalogues_used}</td>
+                                              </tr>
+                                            );
+                                          })}
+                                      </tbody>
+                                      <tfoot>
+                                        <tr className="border-t-2 border-gray-300 bg-gray-100">
+                                          <td className="py-2 px-3 font-bold text-gray-900">Total</td>
+                                          <td className="py-2 px-3 text-right font-bold text-gray-900">{formatCurrency(totalActualRevenue)}</td>
+                                          <td className="py-2 px-3 text-right font-medium text-gray-500">
+                                            {formatCurrency((req.forecast_revenue / 12) * monthlyData.length)}
+                                          </td>
+                                          <td className={`py-2 px-3 text-right font-bold ${(trackingPct || 0) >= 100 ? 'text-green-700' : 'text-red-600'}`}>
+                                            {trackingPct != null ? `${trackingPct.toFixed(1)}% of target` : '—'}
+                                          </td>
+                                          <td className="py-2 px-3 text-right font-medium text-gray-700">
+                                            {monthlyData.reduce((sum, m) => sum + m.catalogues_used, 0)}
+                                          </td>
+                                        </tr>
+                                      </tfoot>
+                                    </table>
+                                  </div>
                                 )}
                               </div>
 
-                              <div className="mt-4 flex gap-3">
+                              <div className="flex gap-3">
                                 <Link
                                   href={`/requests/${req.id}`}
                                   className="text-sm text-blue-600 hover:underline font-medium"
