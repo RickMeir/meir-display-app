@@ -74,8 +74,13 @@ function DashboardContent() {
   const [sortField, setSortField] = useState<SortField>('store_name');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
-  // Filter
+  // Filters
   const [statusFilter, setStatusFilter] = useState<string>('approved');
+  const [storeSearch, setStoreSearch] = useState('');
+  const [repFilter, setRepFilter] = useState<string>('all');
+  const [verdictFilter, setVerdictFilter] = useState<string>('all');
+  const [flagFilter, setFlagFilter] = useState<string>('all');
+  const [tierFilter, setTierFilter] = useState<string>('all');
 
   // Drill down
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -188,10 +193,22 @@ function DashboardContent() {
     );
   }
 
-  // Filter and sort
+  // Derive unique values for dropdown filters
+  const uniqueReps = Array.from(new Set(requests.map((r) => r.rep_name).filter(Boolean))).sort();
+  const uniqueVerdicts = Array.from(new Set(requests.map((r) => r.verdict).filter(Boolean))) as string[];
+  const uniqueFlags = Array.from(new Set(requests.map((r) => r.profitability_flag).filter(Boolean))) as string[];
+  const uniqueTiers = Array.from(new Set(requests.map((r) => r.approval_tier).filter(Boolean))) as string[];
+
+  // Filter and sort — all filters chained
   const filtered = requests.filter((r) => {
-    if (statusFilter === 'all') return r.status !== 'draft';
-    return r.status === statusFilter;
+    if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+    if (statusFilter === 'all' && r.status === 'draft') return false;
+    if (storeSearch && !r.store_name.toLowerCase().includes(storeSearch.toLowerCase())) return false;
+    if (repFilter !== 'all' && r.rep_name !== repFilter) return false;
+    if (verdictFilter !== 'all' && r.verdict !== verdictFilter) return false;
+    if (flagFilter !== 'all' && r.profitability_flag !== flagFilter) return false;
+    if (tierFilter !== 'all' && r.approval_tier !== tierFilter) return false;
+    return true;
   });
 
   const sorted = [...filtered].sort((a, b) => {
@@ -335,6 +352,83 @@ function DashboardContent() {
               </span>
             </button>
           ))}
+        </div>
+
+        {/* Column Filters */}
+        <div className="flex flex-wrap gap-3 mb-4 items-end">
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-500 mb-1">Store</label>
+            <input
+              type="text"
+              placeholder="Search store..."
+              value={storeSearch}
+              onChange={(e) => setStoreSearch(e.target.value)}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-500 mb-1">Rep</label>
+            <select
+              value={repFilter}
+              onChange={(e) => setRepFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="all">All Reps</option>
+              {uniqueReps.map((rep) => (
+                <option key={rep} value={rep}>{rep}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-500 mb-1">Verdict</label>
+            <select
+              value={verdictFilter}
+              onChange={(e) => setVerdictFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="all">All Verdicts</option>
+              {uniqueVerdicts.map((v) => (
+                <option key={v} value={v}>{(VERDICT_LABELS as Record<string, string>)[v] || v}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-500 mb-1">Profitability</label>
+            <select
+              value={flagFilter}
+              onChange={(e) => setFlagFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="all">All</option>
+              {uniqueFlags.map((f) => (
+                <option key={f} value={f}>{f === 'green' ? 'GREEN' : f === 'review' ? 'REVIEW' : f}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label className="text-xs text-gray-500 mb-1">Approval Tier</label>
+            <select
+              value={tierFilter}
+              onChange={(e) => setTierFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="all">All Tiers</option>
+              {uniqueTiers.map((t) => (
+                <option key={t} value={t}>{TIER_LABELS[t] || t}</option>
+              ))}
+            </select>
+          </div>
+          {(storeSearch || repFilter !== 'all' || verdictFilter !== 'all' || flagFilter !== 'all' || tierFilter !== 'all') && (
+            <button
+              onClick={() => { setStoreSearch(''); setRepFilter('all'); setVerdictFilter('all'); setFlagFilter('all'); setTierFilter('all'); }}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 border border-red-200 transition-colors"
+            >
+              Clear filters
+            </button>
+          )}
+          <div className="ml-auto text-xs text-gray-400">
+            {filtered.length} of {requests.filter((r) => r.status !== 'draft').length} records
+          </div>
         </div>
 
         {/* Register Table */}
