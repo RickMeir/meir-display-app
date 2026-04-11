@@ -50,7 +50,7 @@ export default function LoginPage() {
                   Login link sent to {email}
                 </p>
                 <p className="text-green-700 text-sm">
-                  Check your inbox for an email from <strong>Supabase Auth</strong> (noreply@mail.app.supabase.io) with the subject <strong>&ldquo;Your Magic Link&rdquo;</strong>. This is legitimate — click the &ldquo;Log In&rdquo; link inside to sign in.
+                  Check your inbox for an email from <strong>Meir Display</strong> (noreply@meir.com.au) with your login link. Click the link inside to sign in.
                 </p>
                 <p className="text-green-700 text-sm mt-2">
                   Not there? Check your spam or junk folder.
@@ -102,7 +102,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-gray-400 text-sm mt-8">
-          A secure login link will be sent to your email from <span className="text-gray-300">Supabase Auth</span>
+          A secure login link will be sent to your email from <span className="text-gray-300">noreply@meir.com.au</span>
         </p>
       </div>
     </div>
